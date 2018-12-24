@@ -1,2 +1,2 @@
-# particularGL
-A partially implemented OpenGL version of the plugin Trapcode Particular for Adobe After Effects 
+# particleGL
+An OpenGL particle generation tool, inspired mainly by the plugin Trapcode Particular for Adobe After Effects.
