@@ -45,3 +45,4 @@ build/
 
 # Config files
 .vscode/
+src/imgui/examples/

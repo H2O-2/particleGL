@@ -2,6 +2,8 @@
 #include <GLFW/glfw3.h>
 
 #include "consoleMsg/consoleMsg.hpp"
+#include "controlGUI/controlGUI.hpp"
+#include "engine/particleGL.hpp"
 
 const unsigned int WINDOW_WIDTH = 1280;
 const unsigned int WINDOW_HEIGHT = 720;
@@ -26,7 +28,7 @@ int main() {
     }
 
     glfwMakeContextCurrent(window);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(window, keyCallback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -39,9 +41,14 @@ int main() {
     glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
     glViewport(0, 0, framebuffer_width, framebuffer_height);
 
+    ParticleGL engine{};
+    ControlGUI gui(window, engine);
+
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        gui.render();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

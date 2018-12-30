@@ -20,9 +20,10 @@ include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include)
 
 # Code to be compiled
 # file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/src/*.c ${PROJECT_SOURCE_DIR}/src/*.cpp)
-set(SOURCES src/glad.c src/stb_image.h src/consoleMsg/consoleMsg.cpp src/main.cpp)
+set(IMGUI src/imgui/imgui_impl_glfw.cpp src/imgui/imgui_impl_opengl3.cpp src/imgui/imgui.cpp src/imgui/imgui_draw.cpp src/imgui/imgui_demo.cpp src/imgui/imgui_widgets.cpp src/imgui/imgui_internal.h src/imgui/imstb_rectpack.h src/imgui/imstb_textedit.h src/imgui/imstb_truetype.h src/imgui/imconfig.h)
+set(SOURCES src/glad.c src/stb_image.h src/consoleMsg/consoleMsg.cpp src/controlGUI/controlGUI.cpp src/engine/particleGL.cpp src/main.cpp)
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${IMGUI} ${SOURCES})
 
 find_package(glfw3 3.2 REQUIRED)
 
