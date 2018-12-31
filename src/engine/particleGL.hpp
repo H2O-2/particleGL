@@ -9,5 +9,5 @@ public:
     ParticleGL();
     ~ParticleGL();
 
-    std::vector<Emitter> emitters;
+    std::vector<std::unique_ptr<Emitter>> emitters;
 };
