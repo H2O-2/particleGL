@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
-project                (particleGL)
+project                (ParticleGL)
 
 set(CXX_FLAGS -std=c++11 -g -Wall)
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
@@ -17,17 +17,25 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build/bin)
 
 # include directories
 include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include)
+if (WIN32)
+	include_directories(${PROJECT_SOURCE_DIR}/include/sdl/windows)
+else()
+	include_directories(${PROJECT_SOURCE_DIR}/include/sdl/unix)
+endif(WIN32)
 
 # Code to be compiled
-# file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/src/*.c ${PROJECT_SOURCE_DIR}/src/*.cpp)
-set(IMGUI src/imgui/imgui_impl_glfw.cpp src/imgui/imgui_impl_opengl3.cpp src/imgui/imgui.cpp src/imgui/imgui_draw.cpp src/imgui/imgui_demo.cpp src/imgui/imgui_widgets.cpp src/imgui/imgui_internal.h src/imgui/imstb_rectpack.h src/imgui/imstb_textedit.h src/imgui/imstb_truetype.h src/imgui/imconfig.h)
-set(SOURCES src/glad.c src/stb_image.h src/consoleMsg/consoleMsg.cpp src/controlGUI/controlGUI.cpp src/engine/particleGL.cpp src/main.cpp)
+set(IMGUI src/imgui/imgui_impl_sdl.cpp src/imgui/imgui_impl_opengl3.cpp src/imgui/imgui.cpp src/imgui/imgui_draw.cpp src/imgui/imgui_demo.cpp src/imgui/imgui_widgets.cpp src/imgui/imgui_internal.h src/imgui/imstb_rectpack.h src/imgui/imstb_textedit.h src/imgui/imstb_truetype.h src/imgui/imconfig.h)
+set(SOURCES src/glad.c src/stb_image.h src/consoleMsg/consoleMsg.cpp src/controlGUI/controlGUI.cpp src/engine/camera/camera.cpp src/engine/emitter/emitter.cpp src/engine/particleGL.cpp src/main.cpp)
 
 add_executable(${PROJECT_NAME} ${IMGUI} ${SOURCES})
 
-find_package(glfw3 3.2 REQUIRED)
-
-target_link_libraries(${PROJECT_NAME} glfw)
+if (WIN32)
+	set(SDL_LIB ${PROJECT_SOURCE_DIR}/lib/sdl/windows/SDL2.lib ${PROJECT_SOURCE_DIR}/lib/sdl/windows/SDL2main.lib)
+	target_link_libraries(${PROJECT_NAME} ${SDL_LIB})
+else()
+	set(SDL2_LIBRARY ${PROJECT_SOURCE_DIR}/lib/sdl/unix/libSDL2.dylib)
+	target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY})
+endif(WIN32)
 
 # find_package(assimp REQUIRED)
 # include_directories(${ASSIMP_INCLUDE_DIRS})
@@ -38,13 +46,6 @@ find_package(OpenGL REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} ${OPENGL_gl_LIBRARY})
-
-# GLEW
-find_package(GLEW REQUIRED)
-if (GLEW_FOUND)
-    include_directories(${GLEW_INCLUDE_DIRS})
-    link_libraries(${GLEW_LIBRARIES})
-endif(GLEW_FOUND)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

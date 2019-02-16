@@ -2,15 +2,15 @@
 
 #include "../engine/particleGL.hpp"
 
-#include <GLFW/glfw3.h>
+#include <SDL.h>
 
 class ControlGUI {
 public:
     const char* glslVersion;
 
-    ControlGUI(GLFWwindow* window, ParticleGL& engine);
+    ControlGUI(SDL_Window* window, SDL_GLContext glContext, ParticleGL& engine);
     ~ControlGUI();
-    void render();
+    void render(SDL_Window* window);
     void destroy();
 private:
     bool showDemoWindow;
