@@ -1,5 +1,19 @@
 #include "particleGL.hpp"
 
-ParticleGL::ParticleGL() {}
+ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor) {
+    renderer = std::unique_ptr<Renderer>(new Renderer(windowWidth, windowHeight, framerate, bgColor));
+    this->window = renderer->initWindow();
+}
 
-ParticleGL::~ParticleGL() {}
+ParticleGL::~ParticleGL() {
+    renderer->clean();
+}
+
+void ParticleGL::render() {
+    EventManager::pollEvent(window);
+    renderer->renderEngine();
+}
+
+bool ParticleGL::shouldEnd() {
+    return EventManager::shouldQuit;
+}

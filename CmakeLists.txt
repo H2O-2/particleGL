@@ -25,7 +25,15 @@ endif(WIN32)
 
 # Code to be compiled
 set(IMGUI src/imgui/imgui_impl_sdl.cpp src/imgui/imgui_impl_opengl3.cpp src/imgui/imgui.cpp src/imgui/imgui_draw.cpp src/imgui/imgui_demo.cpp src/imgui/imgui_widgets.cpp src/imgui/imgui_internal.h src/imgui/imstb_rectpack.h src/imgui/imstb_textedit.h src/imgui/imstb_truetype.h src/imgui/imconfig.h)
-set(SOURCES src/glad.c src/stb_image.h src/consoleMsg/consoleMsg.cpp src/controlGUI/controlGUI.cpp src/engine/camera/camera.cpp src/engine/emitter/emitter.cpp src/engine/particleGL.cpp src/main.cpp)
+set(SOURCES src/glad.c src/stb_image.h
+	src/consoleMsg/consoleMsg.cpp
+	src/engine/camera/camera.cpp
+	src/engine/emitter/emitter.cpp
+	src/engine/eventManager/eventManager.cpp
+	src/engine/particle/particle.cpp
+	src/engine/renderer/renderer.cpp
+	src/engine/particleGL.cpp
+	src/main.cpp)
 
 add_executable(${PROJECT_NAME} ${IMGUI} ${SOURCES})
 

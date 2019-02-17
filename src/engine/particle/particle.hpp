@@ -6,20 +6,6 @@ class Particle {
 public:
     Particle();
 private:
-    enum class ParticleType {
-        SPHERE,
-        // GLOW_SPHERE
-        SQUARE,
-        TEXTURE
-    };
-
-    enum class ParticleBlend {
-        NORMAL,
-        ADD,
-        SCREEN,
-        LIGHTEN
-    };
-
     float life; // Particle life span in seconds
     float lifeRandom; // Randomness of particle life span in percentage(%), 0% means the particles genearted at the same time will all die at once and 100% means a possible range of [0.9*l0, 1.1*l0] where l0 is the life span specified
     float feather; // Level of feathering, only available for sphere type (currently)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../engine/particleGL.hpp"
+#include "engine/particleGL.hpp"
 
 #include <SDL.h>
 
