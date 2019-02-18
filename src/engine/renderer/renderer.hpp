@@ -2,6 +2,9 @@
 
 #include <SDL.h>
 #include <glm/glm.hpp>
+#include <memory>
+
+#include "../geometries/sphere.hpp"
 
 class Renderer {
 public:
@@ -17,4 +20,6 @@ private:
     glm::vec3 bgColor;
     SDL_Window* window;
     SDL_GLContext glContext;
+
+    std::unique_ptr<Sphere> test;
 };

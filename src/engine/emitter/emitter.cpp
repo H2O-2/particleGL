@@ -1,6 +1,6 @@
 #include "emitter.hpp"
 
-Emitter::Emitter() {
+Emitter::Emitter(ParticleType particleType, uint32_t particlesPerSec) {
 
 }
 
