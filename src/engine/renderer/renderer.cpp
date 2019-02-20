@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include "consoleMsg/consoleMsg.hpp"
+#include "engine/resource/shaderParser.hpp"
 #include "renderer.hpp"
 
 Renderer::Renderer(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor)
@@ -43,7 +44,12 @@ SDL_Window* Renderer::initWindow() {
     int framebuffer_width, framebuffer_height;
     SDL_GetWindowSize(window, &framebuffer_width, &framebuffer_height);
     glViewport(0, 0, framebuffer_width, framebuffer_height);
+
+    /***** DEBUG *****/
     test->init();
+    ShaderParser();
+    /***** DEBUG *****/
+
     return window;
 }
 
