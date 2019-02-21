@@ -13,7 +13,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build/bin)
 # set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 # Config
-# configure_file(config/root_directory.h.in config/root_directory.h)
+configure_file(config/root.h.conf config/root.h)
 
 # include directories
 include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include)
@@ -32,9 +32,11 @@ set(SOURCES src/glad.c src/stb_image.h
 	src/engine/eventManager/eventManager.cpp
 	src/engine/geometries/geometry.cpp
 	src/engine/geometries/sphere.cpp
+	src/engine/geometries/triangle.cpp
 	src/engine/particle/particle.cpp
 	src/engine/renderer/renderer.cpp
 	src/engine/resource/fileReader.cpp
+	src/engine/resource/pathParser.cpp
 	src/engine/resource/shaderParser.cpp
 	src/engine/particleGL.cpp
 	src/main.cpp)

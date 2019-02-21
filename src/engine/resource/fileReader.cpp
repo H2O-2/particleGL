@@ -11,7 +11,7 @@ string FileReader::read(const string &path) {
     fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     try {
-        fileStream.open(path.c_str());
+        fileStream.open(PathParser::parse(path));
         ss << fileStream.rdbuf();
         fileStream.close();
     }

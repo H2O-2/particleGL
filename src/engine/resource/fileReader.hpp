@@ -1,6 +1,4 @@
-#include <string>
-
-typedef std::string string;
+#include "pathParser.hpp"
 
 class FileReader {
 public:
