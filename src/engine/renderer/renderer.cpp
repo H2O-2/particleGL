@@ -1,11 +1,13 @@
 #include <glad/glad.h>
 #include "consoleMsg/consoleMsg.hpp"
-#include "engine/resource/shaderParser.hpp"
 #include "renderer.hpp"
+
+#include <glm/gtc/matrix_transform.hpp>
 
 Renderer::Renderer(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor)
                      : windowWidth(windowWidth), windowHeight(windowHeight), framerate(framerate), bgColor(bgColor) {
     test = std::unique_ptr<Sphere>(new Sphere());
+    test2 = std::unique_ptr<Triangle>(new Triangle());
 }
 
 SDL_Window* Renderer::initWindow() {
@@ -41,22 +43,35 @@ SDL_Window* Renderer::initWindow() {
         exit(-1);
     }
 
-    int framebuffer_width, framebuffer_height;
-    SDL_GetWindowSize(window, &framebuffer_width, &framebuffer_height);
-    glViewport(0, 0, framebuffer_width, framebuffer_height);
+    int framebufferWidth, framebufferHeight;
+    SDL_GL_GetDrawableSize(window, &framebufferWidth, &framebufferHeight);
+    glViewport(0, 0, framebufferWidth, framebufferHeight);
 
     /***** DEBUG *****/
+    glEnable(GL_DEPTH_TEST);
     test->init();
-    ShaderParser();
+    test2->init();
+    shader = std::unique_ptr<ShaderParser>(new ShaderParser("shaders/test.vert", "shaders/test.frag"));
+    shader->use();
+    shader->setVec3("color", glm::vec3(1.0f));
+    glm::mat4 model;
+    model = glm::translate(model, glm::vec3(windowWidth / 2.0f, windowHeight / 2.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(300.0f, 300.0f, 1.0f));
+    shader->setMat4("model", model);
+    shader->setMat4("projection", glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight, -1.0f, 1.0f));
     /***** DEBUG *****/
 
     return window;
 }
 
 void Renderer::renderEngine() {
-    glDrawArrays(GL_TRIANGLE_FAN, 0, test->getSegmentNum() + 1);
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBindVertexArray(test->getVAO());
+    glDrawArrays(GL_TRIANGLE_FAN, 0, test->getSegmentNum() + 2);
+    // glBindVertexArray(test2->getVAO());
+    // glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
     SDL_GL_SwapWindow(window);
 }
 

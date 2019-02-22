@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
@@ -14,6 +16,7 @@ public:
     virtual ~Geometry();
 
     virtual void init() = 0;
+    uint32_t getVAO();
 protected:
     uint32_t VAO, VBO, EBO;
     PosnCoord posns;

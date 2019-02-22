@@ -20,7 +20,7 @@ void Sphere::init() {
     }
 
     // Close the circle
-    // posns.emplace_back(glm::vec3(radius * cosf(unitRadian), radius * sinf(unitRadian), 0.0f));
+    posns.emplace_back(glm::vec3(radius * cosf(unitRadian), radius * sinf(unitRadian), 0.0f));
 
     // Write to GPU
     bufferGeometry();

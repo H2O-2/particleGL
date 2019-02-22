@@ -1,5 +1,8 @@
 #include "geometry.hpp"
 
+#include <string>
+#include "consoleMsg/consoleMsg.hpp"
+
 Geometry::Geometry(const TexCoord& texCoords) : VAO(0), VBO(0), EBO(0), texCoords(texCoords), indices(IndexCoord()) {}
 
 Geometry::~Geometry() {
@@ -8,6 +11,10 @@ Geometry::~Geometry() {
         glDeleteBuffers(1, &EBO);
     }
     glDeleteVertexArrays(1, &VAO);
+}
+
+uint32_t Geometry::getVAO() {
+    return VAO;
 }
 
 void Geometry::bufferGeometry() {
@@ -24,6 +31,10 @@ void Geometry::bufferGeometry() {
             vertexData.push_back(texCoords[i].x);
             vertexData.push_back(texCoords[i].y);
         }
+    }
+
+    for (int i = 0; i < posns.size(); ++i) {
+        // ConsoleMsg::msg(std::to_string(posns[i].x) + " " + std::to_string(posns[i].y) + " " + std::to_string(posns[i].z));
     }
 
     // Configure VAO and VBO
@@ -43,7 +54,7 @@ void Geometry::bufferGeometry() {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(),GL_STATIC_DRAW);
     }
 
-    int stride = 3 * sizeof(float) + texCoords.size() > 0 ? texCoords.size() * sizeof(float) : 0;
+    int stride = 3 * sizeof(float) + (texCoords.size() > 0 ? texCoords.size() * sizeof(float) : 0);
 
     int offset = 0;
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);

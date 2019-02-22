@@ -4,7 +4,9 @@
 #include <glm/glm.hpp>
 #include <memory>
 
-#include "../geometries/sphere.hpp"
+#include "engine/geometries/sphere.hpp"
+#include "engine/geometries/triangle.hpp"
+#include "engine/resource/shaderParser.hpp"
 
 class Renderer {
 public:
@@ -21,5 +23,9 @@ private:
     SDL_Window* window;
     SDL_GLContext glContext;
 
+    /***** DEBUG *****/
     std::unique_ptr<Sphere> test;
+    std::unique_ptr<Triangle> test2;
+    std::unique_ptr<ShaderParser> shader;
+    /***** DEBUG *****/
 };
