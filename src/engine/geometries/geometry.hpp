@@ -16,9 +16,11 @@ public:
     virtual ~Geometry();
 
     virtual void init() = 0;
+    virtual int getIndexNum() = 0;
     uint32_t getVAO();
 protected:
-    uint32_t VAO, VBO, EBO;
+    std::unique_ptr<uint32_t> VAO;
+    uint32_t VBO, EBO;
     PosnCoord posns;
     IndexCoord indices;
     TexCoord texCoords;

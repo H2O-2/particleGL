@@ -26,6 +26,6 @@ void Sphere::init() {
     bufferGeometry();
 }
 
-int Sphere::getSegmentNum() {
+int Sphere::getIndexNum() {
     return segmentNum;
 }

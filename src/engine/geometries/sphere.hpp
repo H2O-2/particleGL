@@ -8,7 +8,7 @@ class Sphere : public Geometry {
 public:
     Sphere();
     void init();
-    int getSegmentNum();
+    int getIndexNum();
 private:
     int segmentNum; // number of triangles to form the circle
     float radius;

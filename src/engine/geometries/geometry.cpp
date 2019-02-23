@@ -13,10 +13,6 @@ Geometry::~Geometry() {
     glDeleteVertexArrays(1, &VAO);
 }
 
-uint32_t Geometry::getVAO() {
-    return VAO;
-}
-
 void Geometry::bufferGeometry() {
     // Initialize vertex data array
     std::vector<float> vertexData;
@@ -38,7 +34,7 @@ void Geometry::bufferGeometry() {
     }
 
     // Configure VAO and VBO
-    if (!VAO) {
+    if (!(&VAO)) {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
     }

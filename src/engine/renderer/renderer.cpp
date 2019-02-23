@@ -47,16 +47,17 @@ SDL_Window* Renderer::initWindow() {
     SDL_GL_GetDrawableSize(window, &framebufferWidth, &framebufferHeight);
     glViewport(0, 0, framebufferWidth, framebufferHeight);
 
+    // glEnable(GL_DEPTH_TEST);
+
     /***** DEBUG *****/
-    glEnable(GL_DEPTH_TEST);
     test->init();
     test2->init();
-    shader = std::unique_ptr<ShaderParser>(new ShaderParser("shaders/test.vert", "shaders/test.frag"));
+    shader = std::unique_ptr<ShaderParser>(new ShaderParser("shaders/geometry.vert", "shaders/geometry.frag"));
     shader->use();
     shader->setVec3("color", glm::vec3(1.0f));
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(windowWidth / 2.0f, windowHeight / 2.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(300.0f, 300.0f, 1.0f));
+    model = glm::scale(model, glm::vec3(5.0f, 5.0f, 1.0f));
     shader->setMat4("model", model);
     shader->setMat4("projection", glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight, -1.0f, 1.0f));
     /***** DEBUG *****/
@@ -64,14 +65,22 @@ SDL_Window* Renderer::initWindow() {
     return window;
 }
 
+void Renderer::bufferParticles(glm::vec3 offsets[], glm::vec3 colors[] = NULL) {
+
+}
+
+void Renderer::bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[]) {}
+
 void Renderer::renderEngine() {
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glBindVertexArray(test->getVAO());
     glDrawArrays(GL_TRIANGLE_FAN, 0, test->getSegmentNum() + 2);
     // glBindVertexArray(test2->getVAO());
     // glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
+
     SDL_GL_SwapWindow(window);
 }
 

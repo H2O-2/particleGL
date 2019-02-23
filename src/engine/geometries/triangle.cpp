@@ -19,3 +19,7 @@ void Triangle::init() {
 
     bufferGeometry();
 }
+
+int Triangle::getIndexNum() {
+    return 3;
+}
