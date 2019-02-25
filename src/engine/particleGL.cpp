@@ -1,13 +1,16 @@
 #include "particleGL.hpp"
 
 ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor, uint16_t emitterNum) {
-    // Initialize emitters
-    for (uint16_t i = 0; i < emitterNum; ++i) {
-        emitters.emplace_back(Emitter());
-    }
-
+    // Initialize OpenGL context
     renderer = std::unique_ptr<Renderer>(new Renderer(windowWidth, windowHeight, framerate, bgColor));
     this->window = renderer->initWindow();
+
+    // Initialize emitters
+    for (uint16_t i = 0; i < emitterNum; ++i) {
+        emitters.emplace_back(std::unique_ptr<Emitter>(new Emitter()));
+        // Buffer data
+        renderer->bufferParticles(emitters[i]->getVAO(), emitters[i]->getOffsets());
+    }
 }
 
 ParticleGL::~ParticleGL() {
@@ -16,7 +19,11 @@ ParticleGL::~ParticleGL() {
 
 void ParticleGL::render() {
     EventManager::pollEvent(window);
-    renderer->renderEngine();
+
+    for (int i = 0; i < emitters.size(); ++i) {
+        // Render
+        renderer->renderEngine(emitters[i]->getVAO(), emitters[i]->getIndexNum());
+    }
 }
 
 bool ParticleGL::shouldEnd() {

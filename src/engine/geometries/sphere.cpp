@@ -8,7 +8,8 @@ Sphere::Sphere() : Geometry(), segmentNum(360), radius(1) {
 }
 
 void Sphere::init() {
-    float unitRadian = (float)(2 * M_PI / segmentNum);
+    // float unitRadian = (float)(2 * M_PI / segmentNum);
+    float unitRadian = (float)(2 * 3.14 / segmentNum);
 
     // Push the center of the circle
     posns.emplace_back(glm::vec3(0.0f));
@@ -27,5 +28,5 @@ void Sphere::init() {
 }
 
 int Sphere::getIndexNum() {
-    return segmentNum;
+    return segmentNum + 2;
 }

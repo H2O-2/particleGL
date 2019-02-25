@@ -32,8 +32,8 @@ set(SOURCES src/glad.c src/stb_image.h
 	src/engine/eventManager/eventManager.cpp
 	src/engine/geometries/geometry.cpp
 	src/engine/geometries/sphere.cpp
+	src/engine/geometries/square.cpp
 	src/engine/geometries/triangle.cpp
-	src/engine/particle/particle.cpp
 	src/engine/renderer/renderer.cpp
 	src/engine/resource/fileReader.cpp
 	src/engine/resource/pathParser.cpp

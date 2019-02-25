@@ -5,10 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 Renderer::Renderer(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor)
-                     : windowWidth(windowWidth), windowHeight(windowHeight), framerate(framerate), bgColor(bgColor) {
-    test = std::unique_ptr<Sphere>(new Sphere());
-    test2 = std::unique_ptr<Triangle>(new Triangle());
-}
+                     : windowWidth(windowWidth), windowHeight(windowHeight), framerate(framerate), bgColor(bgColor) {}
 
 SDL_Window* Renderer::initWindow() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -50,8 +47,6 @@ SDL_Window* Renderer::initWindow() {
     // glEnable(GL_DEPTH_TEST);
 
     /***** DEBUG *****/
-    test->init();
-    test2->init();
     shader = std::unique_ptr<ShaderParser>(new ShaderParser("shaders/geometry.vert", "shaders/geometry.frag"));
     shader->use();
     shader->setVec3("color", glm::vec3(1.0f));
@@ -65,21 +60,32 @@ SDL_Window* Renderer::initWindow() {
     return window;
 }
 
-void Renderer::bufferParticles(glm::vec3 offsets[], glm::vec3 colors[] = NULL) {
-
+void Renderer::bufferParticles(uint32_t VAO, glm::vec3 offsets[]) {
+    /***** REFACTOR *****/
+    // Initialize instanced array
+    uint32_t instancedVBO;
+    glGenBuffers(1, &instancedVBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, instancedVBO);
+    glBufferData(GL_ARRAY_BUFFER, 100 * sizeof(glm::vec3), offsets, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glVertexAttribDivisor(1, 1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    /***** REFACTOR *****/
 }
 
 void Renderer::bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[]) {}
 
-void Renderer::renderEngine() {
+void Renderer::renderEngine(uint32_t VAO, int indexNum) {
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glBindVertexArray(test->getVAO());
-    glDrawArrays(GL_TRIANGLE_FAN, 0, test->getSegmentNum() + 2);
-    // glBindVertexArray(test2->getVAO());
-    // glDrawArrays(GL_TRIANGLES, 0, 3);
+    /***** DEBUG *****/
+    glBindVertexArray(VAO);
+    glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, indexNum, 100);
     glBindVertexArray(0);
+    /***** DEBUG *****/
 
     SDL_GL_SwapWindow(window);
 }

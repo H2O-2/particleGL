@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
@@ -19,8 +20,7 @@ public:
     virtual int getIndexNum() = 0;
     uint32_t getVAO();
 protected:
-    std::unique_ptr<uint32_t> VAO;
-    uint32_t VBO, EBO;
+    uint32_t VAO, VBO, EBO;
     PosnCoord posns;
     IndexCoord indices;
     TexCoord texCoords;

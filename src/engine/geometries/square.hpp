@@ -9,4 +9,4 @@ public:
     int getIndexNum();
 private:
     float aspectRatio;
-}
+};

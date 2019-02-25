@@ -9,8 +9,6 @@ ShaderParser::ShaderParser(const string &vertexShaderPath, const string &fragSha
     string fragShaderCode = FileReader::read(fragShaderPath);
     const char* vertexShaderSrc = vertexShaderCode.c_str();
     const char* fragShaderSrc = fragShaderCode.c_str();
-    ConsoleMsg::msg(vertexShaderSrc);
-    ConsoleMsg::msg(fragShaderSrc);
 
     uint32_t vertexShader, fragShader, geometryShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);

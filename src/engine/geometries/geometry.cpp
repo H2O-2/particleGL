@@ -1,7 +1,8 @@
 #include "geometry.hpp"
+#include "consoleMsg/consoleMsg.hpp"
 
 #include <string>
-#include "consoleMsg/consoleMsg.hpp"
+#include <memory>
 
 Geometry::Geometry(const TexCoord& texCoords) : VAO(0), VBO(0), EBO(0), texCoords(texCoords), indices(IndexCoord()) {}
 
@@ -11,6 +12,10 @@ Geometry::~Geometry() {
         glDeleteBuffers(1, &EBO);
     }
     glDeleteVertexArrays(1, &VAO);
+}
+
+uint32_t Geometry::getVAO() {
+    return VAO;
 }
 
 void Geometry::bufferGeometry() {
@@ -34,7 +39,7 @@ void Geometry::bufferGeometry() {
     }
 
     // Configure VAO and VBO
-    if (!(&VAO)) {
+    if (!VAO) {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
     }
@@ -62,5 +67,6 @@ void Geometry::bufferGeometry() {
         glEnableVertexAttribArray(1);
     }
 
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
