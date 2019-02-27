@@ -1,21 +1,26 @@
 #include "particleGL.hpp"
 
-ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor, uint16_t emitterNum) {
+ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor) {
     // Initialize OpenGL context
     renderer = make_unique<Renderer>(windowWidth, windowHeight, framerate, bgColor);
     this->window = renderer->initWindow();
 
-    // Initialize emitters
-    for (uint16_t i = 0; i < emitterNum; ++i) {
-        emitters.emplace_back(make_unique<Emitter>());
-        emitters[i]->setParticleType(ParticleType::SQUARE);
-        // Buffer data
-        renderer->bufferParticles(emitters[i]->getVAO(), emitters[i]->getOffsets());
-    }
+    // Add first emitter
+    addEmitter();
 }
 
 ParticleGL::~ParticleGL() {
     renderer->clean();
+}
+
+void ParticleGL::addEmitter() {
+    emitters.emplace_back(make_unique<Emitter>());
+
+    int curEmitterIndex = emitters.size() - 1;
+    // Buffer instanced array
+    renderer->bufferParticles(emitters[curEmitterIndex]->getVAO(), emitters[curEmitterIndex]->getOffsets());
+    // Update render data
+    renderData[emitters[curEmitterIndex]->getVAO()] = emitters[curEmitterIndex]->getIndexNum();
 }
 
 void ParticleGL::render() {
@@ -25,10 +30,10 @@ void ParticleGL::render() {
     for (int i = 0; i < emitters.size(); ++i) {
         // Update emitter & particle data
         emitters[i]->update();
-
-        // Render
-        renderer->renderEngine(emitters[i]->getVAO(), emitters[i]->getIndexNum());
     }
+
+    // Render
+    renderer->renderEngine(renderData);
 }
 
 bool ParticleGL::shouldEnd() {

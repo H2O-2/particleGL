@@ -7,13 +7,17 @@
 
 class ParticleGL {
 public:
-    std::vector<std::unique_ptr<Emitter>> emitters;
-    ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor = glm::vec3(0.0f), uint16_t emitterNum = 1);
+    typedef std::unique_ptr<Emitter> EmitterPtr;
+    ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor = glm::vec3(0.0f));
     ~ParticleGL();
+
     void addEmitter();
+
     void render();
     bool shouldEnd();
 private:
     SDL_Window* window;
     std::unique_ptr<Renderer> renderer;
+    std::vector<EmitterPtr> emitters;
+    RenderData renderData; // A map with VAO as key and geometry index number as value
 };

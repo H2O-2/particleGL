@@ -89,15 +89,15 @@ void Renderer::setMSAASample(const int& sample) {
     }
 }
 
-void Renderer::renderEngine(uint32_t VAO, int indexNum) {
+void Renderer::renderEngine(const RenderData& renderData) {
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /***** DEBUG *****/
-    glBindVertexArray(VAO);
-    glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, indexNum, 100);
-    glBindVertexArray(0);
-    /***** DEBUG *****/
+    for (auto const& data : renderData) {
+        glBindVertexArray(data.first);
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, data.second, 200);
+        glBindVertexArray(0);
+    }
 
     SDL_GL_SwapWindow(window);
 }
