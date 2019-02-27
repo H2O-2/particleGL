@@ -3,29 +3,36 @@
 Emitter::Emitter(ParticleType particleType, uint32_t particlesPerSec) : particleType(particleType), particlesPerSec(particlesPerSec) {
     switch (particleType) {
         case ParticleType::SPHERE:
-            curGeomtry = std::unique_ptr<Sphere>(new Sphere());
+            curGeomtry = make_unique<Sphere>();
             break;
         case ParticleType::SQUARE:
-            // curGeomtry = std::unique_ptr<Square>(new Square());
+            // curGeomtry = make_unique<Square>();
             break;
         case ParticleType::TRIANGLE:
-            // curGeomtry = std::unique_ptr<Triangle>(new Triangle());
+            // curGeomtry = make_unique<Triangle>();
             break;
         default:
             break;
     };
 
     curGeomtry->init();
+
+    /***** DEBUG *****/
+    particleAmount = 100;
+    for (int i = 0; i < particleAmount; ++i) {
+        particles.emplace_back();
+}
+    /***** DEBUG *****/
 }
 
 Emitter::~Emitter() {}
 
 glm::vec3* Emitter::getOffsets() {
-    offsets.reserve(100);
+    offsets.reserve(particleAmount);
 
     /***** Use Random if necessary afterwards *****/
-    for (uint32_t i = 0; i < 100; ++i) {
-        offsets.emplace_back(glm::vec3(0 * 1.0f, i * 1.0f, 0.0));
+    for (uint32_t i = 0; i < particleAmount; ++i) {
+        offsets.emplace_back(0 * 1.0f, i * 1.0f, 0.0);
     }
 
     return offsets.data();

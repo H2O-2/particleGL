@@ -47,7 +47,7 @@ SDL_Window* Renderer::initWindow() {
     // glEnable(GL_DEPTH_TEST);
 
     /***** DEBUG *****/
-    shader = std::unique_ptr<ShaderParser>(new ShaderParser("shaders/geometry.vert", "shaders/geometry.frag"));
+    shader = make_unique<ShaderParser>("shaders/geometry.vert", "shaders/geometry.frag");
     shader->use();
     shader->setVec3("color", glm::vec3(1.0f));
     glm::mat4 model;

@@ -2,12 +2,12 @@
 
 ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor, uint16_t emitterNum) {
     // Initialize OpenGL context
-    renderer = std::unique_ptr<Renderer>(new Renderer(windowWidth, windowHeight, framerate, bgColor));
+    renderer = make_unique<Renderer>(windowWidth, windowHeight, framerate, bgColor);
     this->window = renderer->initWindow();
 
     // Initialize emitters
     for (uint16_t i = 0; i < emitterNum; ++i) {
-        emitters.emplace_back(std::unique_ptr<Emitter>(new Emitter()));
+        emitters.emplace_back(make_unique<Emitter>());
         // Buffer data
         renderer->bufferParticles(emitters[i]->getVAO(), emitters[i]->getOffsets());
     }

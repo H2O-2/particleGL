@@ -9,13 +9,9 @@ Triangle::Triangle(float angleOne, float angleTwo) : Geometry(), angleOne(angleO
 }
 
 void Triangle::init() {
-    // posns.emplace_back(glm::vec3(-0.5f, -0.5f, 0.0f));
-    // posns.emplace_back(glm::vec3(0.5f, -0.5f, 0.0f));
-    // posns.emplace_back(glm::vec3(0.0f,  0.5f, 0.0f));
-
-    posns.emplace_back(glm::vec3(-0.5f, -0.5f, 0.0f));
-    posns.emplace_back(glm::vec3(0.5f, -0.5f, 0.0f));
-    posns.emplace_back(glm::vec3(0.0f,  0.5f, 0.0f));
+    posns.emplace_back(-0.5f, -0.5f, 0.0f);
+    posns.emplace_back(0.5f, -0.5f, 0.0f);
+    posns.emplace_back(0.0f,  0.5f, 0.0f);
 
     bufferGeometry();
 }
