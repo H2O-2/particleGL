@@ -4,7 +4,8 @@
 #include <string>
 #include <memory>
 
-Geometry::Geometry(const TexCoord& texCoords) : VAO(0), VBO(0), EBO(0), texCoords(texCoords), indices(IndexCoord()) {}
+Geometry::Geometry(const uint32_t& indexNum, const float& baseScale, const TexCoord& texCoords, const IndexCoord& indexCoords) :
+    VAO(0), VBO(0), EBO(0), indexNum(indexNum), baseScale(baseScale), texCoords(texCoords), indices(indexCoords) {}
 
 Geometry::~Geometry() {
     glDeleteBuffers(1, &VBO);
@@ -12,6 +13,10 @@ Geometry::~Geometry() {
         glDeleteBuffers(1, &EBO);
     }
     glDeleteVertexArrays(1, &VAO);
+}
+
+float Geometry::getBaseScale() {
+    return baseScale;
 }
 
 uint32_t Geometry::getVAO() {
@@ -34,10 +39,6 @@ void Geometry::bufferGeometry() {
         }
     }
 
-    for (int i = 0; i < posns.size(); ++i) {
-        // ConsoleMsg::msg(std::to_string(posns[i].x) + " " + std::to_string(posns[i].y) + " " + std::to_string(posns[i].z));
-    }
-
     // Configure VAO and VBO
     if (!VAO) {
         glGenVertexArrays(1, &VAO);
@@ -52,7 +53,7 @@ void Geometry::bufferGeometry() {
     if (indices.size()) {
         glGenBuffers(1, &EBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(),GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(float), indices.data(),GL_STATIC_DRAW);
     }
 
     int stride = 3 * sizeof(float) + (texCoords.size() > 0 ? texCoords.size() * sizeof(float) : 0);

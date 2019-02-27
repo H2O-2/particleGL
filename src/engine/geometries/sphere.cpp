@@ -3,8 +3,10 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-Sphere::Sphere() : Geometry(), segmentNum(360), radius(1) {
-    posns.reserve(segmentNum + 2);
+const int DEFAULT_SEGMENT_NUM = 360;
+
+Sphere::Sphere() : Geometry(DEFAULT_SEGMENT_NUM + 2), segmentNum(DEFAULT_SEGMENT_NUM), radius(1) {
+    posns.reserve(indexNum);
 }
 
 void Sphere::init() {
@@ -28,5 +30,5 @@ void Sphere::init() {
 }
 
 int Sphere::getIndexNum() {
-    return segmentNum + 2;
+    return indexNum;
 }

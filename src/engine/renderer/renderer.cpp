@@ -4,8 +4,10 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Renderer::Renderer(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor)
-                     : windowWidth(windowWidth), windowHeight(windowHeight), framerate(framerate), bgColor(bgColor) {}
+const int DEFAULT_MSAA = 8;
+
+Renderer::Renderer(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor) :
+    windowWidth(windowWidth), windowHeight(windowHeight), framerate(framerate), bgColor(bgColor), msaaSample(DEFAULT_MSAA) {}
 
 SDL_Window* Renderer::initWindow() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -18,6 +20,8 @@ SDL_Window* Renderer::initWindow() {
 #ifdef __APPLE__
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 #endif
+
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaaSample);
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -45,6 +49,7 @@ SDL_Window* Renderer::initWindow() {
     glViewport(0, 0, framebufferWidth, framebufferHeight);
 
     // glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
 
     /***** DEBUG *****/
     shader = make_unique<ShaderParser>("shaders/geometry.vert", "shaders/geometry.frag");
@@ -52,7 +57,7 @@ SDL_Window* Renderer::initWindow() {
     shader->setVec3("color", glm::vec3(1.0f));
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(windowWidth / 2.0f, windowHeight / 2.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(5.0f, 5.0f, 1.0f));
+    model = glm::scale(model, glm::vec3(10.0f, 10.0f, 1.0f));
     shader->setMat4("model", model);
     shader->setMat4("projection", glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight, -1.0f, 1.0f));
     /***** DEBUG *****/
@@ -60,7 +65,7 @@ SDL_Window* Renderer::initWindow() {
     return window;
 }
 
-void Renderer::bufferParticles(uint32_t VAO, glm::vec3 offsets[]) {
+void Renderer::bufferParticles(const uint32_t& VAO, glm::vec3 offsets[]) {
     /***** REFACTOR *****/
     // Initialize instanced array
     uint32_t instancedVBO;
@@ -76,6 +81,13 @@ void Renderer::bufferParticles(uint32_t VAO, glm::vec3 offsets[]) {
 }
 
 void Renderer::bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[]) {}
+
+void Renderer::setMSAASample(const int& sample) {
+    if (msaaSample != sample) {
+        msaaSample = sample;
+        updateMSAA();
+    }
+}
 
 void Renderer::renderEngine(uint32_t VAO, int indexNum) {
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
@@ -95,3 +107,6 @@ void Renderer::clean() {
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
+
+/***** Private *****/
+void Renderer::updateMSAA() {}

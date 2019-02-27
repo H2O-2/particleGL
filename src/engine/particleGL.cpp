@@ -8,6 +8,7 @@ ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, floa
     // Initialize emitters
     for (uint16_t i = 0; i < emitterNum; ++i) {
         emitters.emplace_back(make_unique<Emitter>());
+        emitters[i]->setParticleType(ParticleType::SQUARE);
         // Buffer data
         renderer->bufferParticles(emitters[i]->getVAO(), emitters[i]->getOffsets());
     }
@@ -18,9 +19,13 @@ ParticleGL::~ParticleGL() {
 }
 
 void ParticleGL::render() {
+    // Process events
     EventManager::pollEvent(window);
 
     for (int i = 0; i < emitters.size(); ++i) {
+        // Update emitter & particle data
+        emitters[i]->update();
+
         // Render
         renderer->renderEngine(emitters[i]->getVAO(), emitters[i]->getIndexNum());
     }

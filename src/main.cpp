@@ -1,6 +1,3 @@
-#include <glad/glad.h>
-#include <SDL.h>
-
 #include "engine/particleGL.hpp"
 
 const unsigned int WINDOW_WIDTH = 1280;
