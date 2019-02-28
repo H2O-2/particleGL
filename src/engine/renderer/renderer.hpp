@@ -1,9 +1,9 @@
 #pragma once
 
 #include <SDL.h>
+#include <memory>
 
 #include "../resource/shaderParser.hpp"
-#include "../emitter/emitter.hpp"
 
 extern const int DEFAULT_MSAA;
 
@@ -12,21 +12,54 @@ typedef std::map<uint32_t, int> RenderData;
 class Renderer {
 public:
 
-    Renderer(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor);
+    Renderer(const uint32_t& windowWidth, const uint32_t& windowHeight, const float& framerate, const glm::vec3& bgColor, const int& msaaSample = DEFAULT_MSAA);
 
     // Buffer particles attributes using instanced array
     void bufferParticles(const uint32_t& VAO, glm::vec3 offsets[]);
     void bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[] = NULL);
 
-    void setMSAASample(const int& sample);
+    void setMSAASample(const int& sample); // Set sample level for MSAA
 
     SDL_Window* initWindow(); // Initialize window and return the pointer of it
+    void initTimer(); // Initialize curTime
+
     void renderGui(); // Render GUI;
-    void renderEngine(const RenderData& renderData); // Render particles
+
     void clean();
+
+    // Render particles
+    template<typename Function>
+    void renderEngine(const RenderData& renderData, Function update) {
+        // Referenced from https://gafferongames.com/post/fix_your_timestep/
+        float newTime = SDL_GetTicks() * 0.001f;
+        float deltaTime = newTime - curTime;
+        curTime = newTime;
+
+        accumulator += deltaTime;
+
+        while (accumulator >= secondPerFrame) {
+            update(0.0f);
+            accumulator -= secondPerFrame;
+        }
+
+        const float interpolation = accumulator / secondPerFrame;
+        update(interpolation);
+
+        // Render particles
+        glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        for (auto const& data : renderData) {
+            glBindVertexArray(data.first);
+            glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, data.second, 200);
+            glBindVertexArray(0);
+        }
+
+        SDL_GL_SwapWindow(window);
+    }
 private:
     glm::vec3 bgColor;
-    float framerate;
+    float secondPerFrame; // Time of one frame in second
     int msaaSample;
 
     unsigned int windowWidth;
@@ -34,6 +67,9 @@ private:
 
     SDL_Window* window;
     SDL_GLContext glContext;
+
+    float curTime;
+    float accumulator;
 
     /***** TODO *****/
     void updateMSAA();

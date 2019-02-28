@@ -1,13 +1,15 @@
 #include <glad/glad.h>
-#include "consoleMsg/consoleMsg.hpp"
 #include "renderer.hpp"
+#include "consoleMsg/consoleMsg.hpp"
+#include "../../util/makeUnique.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 
 const int DEFAULT_MSAA = 8;
 
-Renderer::Renderer(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor) :
-    windowWidth(windowWidth), windowHeight(windowHeight), framerate(framerate), bgColor(bgColor), msaaSample(DEFAULT_MSAA) {}
+Renderer::Renderer(const uint32_t& windowWidth, const uint32_t& windowHeight, const float& secondPerFrame, const glm::vec3& bgColor, const int& msaaSample) :
+    windowWidth(windowWidth), windowHeight(windowHeight), secondPerFrame(secondPerFrame), bgColor(bgColor),
+    accumulator(0.0f), msaaSample(msaaSample) {}
 
 SDL_Window* Renderer::initWindow() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -65,6 +67,10 @@ SDL_Window* Renderer::initWindow() {
     return window;
 }
 
+void Renderer::initTimer() {
+    curTime = SDL_GetTicks() * 0.001f;
+}
+
 void Renderer::bufferParticles(const uint32_t& VAO, glm::vec3 offsets[]) {
     /***** REFACTOR *****/
     // Initialize instanced array
@@ -89,19 +95,6 @@ void Renderer::setMSAASample(const int& sample) {
     }
 }
 
-void Renderer::renderEngine(const RenderData& renderData) {
-    glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    for (auto const& data : renderData) {
-        glBindVertexArray(data.first);
-        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, data.second, 200);
-        glBindVertexArray(0);
-    }
-
-    SDL_GL_SwapWindow(window);
-}
-
 void Renderer::clean() {
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
@@ -109,4 +102,5 @@ void Renderer::clean() {
 }
 
 /***** Private *****/
+
 void Renderer::updateMSAA() {}

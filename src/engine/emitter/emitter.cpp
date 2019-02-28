@@ -1,4 +1,5 @@
 #include "emitter.hpp"
+#include <glm/gtc/quaternion.hpp>
 
 const int INIT_PARTICLE_PER_SEC = 100;
 const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NONE;
@@ -11,14 +12,20 @@ const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_SIZE = glm::vec3(5.0f, 5.0f, 1.0f);
 const float INIT_FEATHER = 50.0;
 const float INIT_VELOCITY = 100.0f;
+const float INIT_LIFE = 3.0f;
 
-Emitter::Emitter() : particlesPerSec(INIT_PARTICLE_PER_SEC), particleType(INIT_PARTICLE_TYPE),
+Emitter::Emitter(const float& secondPerFrame) : particlesPerSec(INIT_PARTICLE_PER_SEC), particleType(INIT_PARTICLE_TYPE),
         blendType(INIT_BLEND_TYPE), emitterType(INIT_EMITTER_TYPE), direction(INIT_EMIT_DIR),
         directionSpread(-1.0), position(INIT_PARTICLE_POSN), rotation(glm::vec3(-1.0f)), size(INIT_PARTICLE_SIZE),
-        feather(0.0f), initVelocity(0), lifeRandom(0), sizeRandom(0), rotationRandom(0), opacityRandom(0), particleAmount(0) {
+        feather(0.0f), initVelocity(0), particleLife(INIT_LIFE), lifeRandom(0), sizeRandom(0), rotationRandom(0),
+        opacityRandom(0), particleAmount(0), secondPerFrame(secondPerFrame) {
 
     // Initialize geometry
     setGeometry(particleType);
+    glm::quat test;
+
+    // Reserve memory for particles
+    particles.reserve((size_t)particlesPerSec * particleLife);
 
     /***** DEBUG *****/
     particleAmount = 100;
@@ -67,7 +74,11 @@ uint32_t Emitter::getVAO() {
     return curGeomtry->getVAO();
 }
 
-void Emitter::update() {}
+void Emitter::update(const float& interpolation) {
+    for (auto& particle : particles) {
+        particle.age += secondPerFrame;
+    }
+}
 
 /***** Private *****/
 

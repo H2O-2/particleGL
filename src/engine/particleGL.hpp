@@ -20,4 +20,5 @@ private:
     std::unique_ptr<Renderer> renderer;
     std::vector<EmitterPtr> emitters;
     RenderData renderData; // A map with VAO as key and geometry index number as value
+    float secondPerFrame; // Time of one frame in second
 };

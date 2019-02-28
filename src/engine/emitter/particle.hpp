@@ -12,12 +12,10 @@ enum class ParticleType {
 
 struct Particle {
 
-    Particle() : life(3.0f), rotation(glm::vec3(0.0f)), size(5.0f),
-                 opacity(100.0f), color(glm::vec3(1.0f)) {
-        
-    };
+    Particle() : age(0.0f), rotation(glm::vec3(0.0f)), size(5.0f),
+                 opacity(100.0f), color(glm::vec3(1.0f)) {};
 
-    float life; // Particle life span in seconds
+    float age; // Age of the particle in seconds
 
     // Rotation group, disabled for sphere types
     glm::vec3 rotation; // Rotation axis of particles
