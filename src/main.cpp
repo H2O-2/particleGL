@@ -7,6 +7,7 @@ const float FRAME_RATE = 30.0;
 int main(int, char**) {
 
     ParticleGL engine(WINDOW_WIDTH, WINDOW_HEIGHT, FRAME_RATE);
+    engine.bufferData();
     while (!engine.shouldEnd()) {
         engine.render();
     }

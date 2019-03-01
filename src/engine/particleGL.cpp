@@ -8,6 +8,7 @@ ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, floa
 
     // Add first emitter
     addEmitter();
+    emitters[0]->setParticleType(ParticleType::SQUARE);
 
     // Initialize timer
     renderer->initTimer();
@@ -21,10 +22,15 @@ void ParticleGL::addEmitter() {
     emitters.emplace_back(make_unique<Emitter>(secondPerFrame));
 
     int curEmitterIndex = emitters.size() - 1;
-    // Buffer instanced array
-    renderer->bufferParticles(emitters[curEmitterIndex]->getVAO(), emitters[curEmitterIndex]->getOffsets());
     // Update render data
     renderData[emitters[curEmitterIndex]->getVAO()] = emitters[curEmitterIndex]->getIndexNum();
+}
+
+void ParticleGL::bufferData() {
+    for (auto& emitter : emitters) {
+        // Buffer instanced array
+        renderer->bufferParticles(emitter->getVAO(), emitter->getOffsets());
+    }
 }
 
 void ParticleGL::render() {

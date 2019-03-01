@@ -13,6 +13,7 @@ public:
 
     void addEmitter();
 
+    void bufferData();
     void render();
     bool shouldEnd();
 private:
