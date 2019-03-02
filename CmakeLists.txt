@@ -1,7 +1,11 @@
 cmake_minimum_required (VERSION 3.0)
 project                (ParticleGL)
 
-set(CXX_FLAGS -std=c++11 -g -Wall)
+if (WIN32)
+	set(CXX_FLAGS -std=c++11 -g -Wall)
+else()
+	set(CXX_FLAGS -std=c++11 -g -Wall -fcolor-diagnostics)
+endif()
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 # set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG " )

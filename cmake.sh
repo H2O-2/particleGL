@@ -12,6 +12,7 @@ if [[ "$OSTYPE" = "msys" ]]; then
     cmake --build . --config debug
     cp ../lib/sdl/windows/SDL2.dll bin/Debug/
 else
-    cmake ..
+    cmake .. -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=1
     cmake --build .
+    cp compile_commands.json ../compile_commands.json
 fi

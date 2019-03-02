@@ -4,8 +4,8 @@
 #include <string>
 #include <memory>
 
-Geometry::Geometry(const uint32_t& indexNum, const float& baseScale, const TexCoord& texCoords, const IndexCoord& indexCoords) :
-    VAO(0), VBO(0), EBO(0), indexNum(indexNum), baseScale(baseScale), texCoords(texCoords), indices(indexCoords) {}
+Geometry::Geometry(const uint32_t& indexNum, const float& baseScale, const TexCoord& texCoords) :
+    VAO(0), VBO(0), EBO(0), indexNum(indexNum), baseScale(baseScale), texCoords(texCoords) {}
 
 Geometry::~Geometry() {
     glDeleteBuffers(1, &VBO);

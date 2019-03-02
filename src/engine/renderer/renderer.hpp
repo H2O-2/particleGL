@@ -58,18 +58,19 @@ public:
         SDL_GL_SwapWindow(window);
     }
 private:
-    glm::vec3 bgColor;
-    float secondPerFrame; // Time of one frame in second
-    int msaaSample;
-
     unsigned int windowWidth;
     unsigned int windowHeight;
+
+    glm::vec3 bgColor;
+    float secondPerFrame; // Time of one frame in second
 
     SDL_Window* window;
     SDL_GLContext glContext;
 
     float curTime;
     float accumulator;
+
+    int msaaSample;
 
     /***** TODO *****/
     void updateMSAA();

@@ -13,7 +13,7 @@ public:
     typedef std::vector<glm::vec3> PosnCoord;
     typedef std::vector<uint32_t> IndexCoord;
 
-    Geometry(const uint32_t& indexNum, const float& baseScale = 1.0f, const TexCoord& texCoords = TexCoord(), const IndexCoord& indexCoords = IndexCoord());
+    Geometry(const uint32_t& indexNum, const float& baseScale = 1.0f, const TexCoord& texCoords = TexCoord());
     virtual ~Geometry();
 
     virtual void init() = 0;
@@ -24,8 +24,8 @@ protected:
     uint32_t VAO, VBO, EBO;
     uint32_t indexNum; // Number of index of the geometry
     float baseScale; // Offset for geometry's scale to match visual appearance in Particular
-    PosnCoord posns; // Vertex positions
     IndexCoord indices; // Vertex indices for EBO
+    PosnCoord posns; // Vertex positions
     TexCoord texCoords; // Texture Coordinates
 
     void bufferGeometry();
