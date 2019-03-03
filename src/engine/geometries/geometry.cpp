@@ -53,7 +53,7 @@ void Geometry::bufferGeometry() {
     if (indices.size()) {
         glGenBuffers(1, &EBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(float), indices.data(),GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(),GL_STATIC_DRAW);
     }
 
     int stride = 3 * sizeof(float) + (texCoords.size() > 0 ? texCoords.size() * sizeof(float) : 0);

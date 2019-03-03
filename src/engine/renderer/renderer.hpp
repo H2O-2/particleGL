@@ -51,7 +51,7 @@ public:
 
         for (auto const& data : renderData) {
             glBindVertexArray(data.first);
-            glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, data.second, 200);
+            glDrawElementsInstanced(GL_TRIANGLES, data.second, GL_UNSIGNED_INT, 0, 200);
             glBindVertexArray(0);
         }
 
