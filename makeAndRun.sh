@@ -12,5 +12,5 @@ else
     cmake --build .
 
     cd bin
-    ./particleGL
+    ./ParticleGL
 fi

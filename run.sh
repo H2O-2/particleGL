@@ -5,5 +5,5 @@ if [[ "$OSTYPE" = "msys" ]]; then
     ./particleGL.exe
 else
     cd build/bin
-    ./particleGL
+    ./ParticleGL
 fi
