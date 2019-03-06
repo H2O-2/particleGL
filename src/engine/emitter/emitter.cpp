@@ -19,8 +19,9 @@ Emitter::Emitter(const float& secondPerFrame) : particleAmount(0), blendType(INI
         feather(0.0f), initVelocity(0), particleLife(INIT_LIFE), lifeRandom(0), opacityRandom(0), rotationRandom(0),
         sizeRandom(0), secondPerFrame(secondPerFrame) {
 
-    // Initialize geometry
+    // Initialize geometry data
     setGeometry(particleType);
+    curGeomtry->init();
 
     // Reserve memory for particles
     particles.reserve((size_t)particlesPerSec * particleLife);
@@ -40,6 +41,7 @@ void Emitter::setParticleType(ParticleType particleType) {
     if (particleType != this->particleType) {
         this->particleType = particleType;
         setGeometry(particleType);
+        curGeomtry->init();
     }
 }
 
@@ -95,6 +97,4 @@ void Emitter::setGeometry(ParticleType particleType) {
             break;
     };
 
-    // Initialize geometry data
-    curGeomtry->init();
 }

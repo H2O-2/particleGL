@@ -1,9 +1,15 @@
 #pragma once
 
-#include <SDL.h>
+#if __linux__
+    #include <SDL2/SDL.h>
+#else
+    #include <SDL.h>
+#endif
 #include <memory>
 
 #include "../resource/shaderParser.hpp"
+
+#include <iostream>
 
 extern const int DEFAULT_MSAA;
 
@@ -50,6 +56,7 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         for (auto const& data : renderData) {
+            // std::cout << glGetError() << '\n';
             glBindVertexArray(data.first);
             glDrawElementsInstanced(GL_TRIANGLES, data.second, GL_UNSIGNED_INT, 0, 200);
             glBindVertexArray(0);

@@ -12,6 +12,7 @@ public:
     ~ParticleGL();
 
     void addEmitter();
+    void setParticleType(const int& emitterIndex, ParticleType particleType);
 
     void bufferData();
     void render();
@@ -22,4 +23,5 @@ private:
     std::vector<EmitterPtr> emitters;
     RenderData renderData; // A map with VAO as key and geometry index number as value
     float secondPerFrame; // Time of one frame in second
+    void updateRenderData();
 };
