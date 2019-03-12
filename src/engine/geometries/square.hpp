@@ -10,7 +10,7 @@ class Square : public Geometry {
 public:
     Square(float aspectRatio = DEFAULT_ASPECT);
     void init();
-    int getIndexNum();
+    int getIndexNum() const;
 private:
     float aspectRatio;
 };

@@ -6,8 +6,10 @@
     #include <SDL.h>
 #endif
 #include <memory>
+#include <vector>
 
 #include "../resource/shaderParser.hpp"
+#include "../emitter/emitter.hpp"
 
 #include <iostream>
 
@@ -17,7 +19,7 @@ typedef std::map<uint32_t, int> RenderData;
 
 class Renderer {
 public:
-
+    Renderer();
     Renderer(const uint32_t& windowWidth, const uint32_t& windowHeight, const float& framerate, const glm::vec3& bgColor, const int& msaaSample = DEFAULT_MSAA);
 
     // Buffer particles attributes using instanced array
@@ -35,7 +37,8 @@ public:
 
     // Render particles
     template<typename Function>
-    void renderEngine(const RenderData& renderData, Function update) {
+    // void renderEngine(const RenderData& renderData, Function update) {
+    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, Function update) {
         // Referenced from https://gafferongames.com/post/fix_your_timestep/
         float newTime = SDL_GetTicks() * 0.001f;
         float deltaTime = newTime - curTime;
@@ -55,10 +58,13 @@ public:
         glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (auto const& data : renderData) {
-            // std::cout << glGetError() << '\n';
-            glBindVertexArray(data.first);
-            glDrawElementsInstanced(GL_TRIANGLES, data.second, GL_UNSIGNED_INT, 0, 200);
+        for (auto const& emitter : emitters) {
+            glBindVertexArray(emitter->getVAO());
+            if (emitter->useEBO()) {
+                glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, 200);
+            } else {
+                glDrawArraysInstanced(emitter->getDrawMode(), 0, emitter->getIndexNum(), 200);
+            }
             glBindVertexArray(0);
         }
 

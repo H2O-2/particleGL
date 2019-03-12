@@ -18,6 +18,6 @@ void Triangle::init() {
     bufferGeometry();
 }
 
-int Triangle::getIndexNum() {
+int Triangle::getIndexNum() const {
     return indexNum;
 }

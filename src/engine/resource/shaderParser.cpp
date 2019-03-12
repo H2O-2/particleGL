@@ -66,7 +66,7 @@ ShaderParser::~ShaderParser() {
     glDeleteProgram(id);
 }
 
-uint32_t ShaderParser::getID() {
+uint32_t ShaderParser::getID() const {
     return id;
 }
 
@@ -108,7 +108,7 @@ int ShaderParser::getUniformLocation(string name) {
     return location;
 }
 
-void ShaderParser::checkCompileError(uint32_t shader, GLenum type) {
+void ShaderParser::checkCompileError(uint32_t shader, GLenum type) const {
     int success;
     char infoLog[1024];
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
@@ -120,7 +120,7 @@ void ShaderParser::checkCompileError(uint32_t shader, GLenum type) {
     }
 }
 
-void ShaderParser::checkLinkError(uint32_t id) {
+void ShaderParser::checkLinkError(uint32_t id) const {
     int success;
     char infoLog[1024];
     glGetProgramiv(id, GL_LINK_STATUS, &success);

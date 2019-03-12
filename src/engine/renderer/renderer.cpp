@@ -7,6 +7,8 @@
 
 const int DEFAULT_MSAA = 8;
 
+Renderer::Renderer() {}
+
 Renderer::Renderer(const uint32_t& windowWidth, const uint32_t& windowHeight, const float& secondPerFrame,
                    const glm::vec3& bgColor, const int& msaaSample) :
     windowWidth(windowWidth), windowHeight(windowHeight), bgColor(bgColor), secondPerFrame(secondPerFrame),

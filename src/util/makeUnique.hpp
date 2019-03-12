@@ -1,3 +1,5 @@
+#pragma once
+
 #include <memory>
 
 // Implementation of std::make_unique from https://herbsutter.com/gotw/_102/

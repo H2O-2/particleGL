@@ -4,8 +4,8 @@
 #include <string>
 #include <memory>
 
-Geometry::Geometry(const uint32_t& indexNum, const float& baseScale, const TexCoord& texCoords) :
-    VAO(0), VBO(0), EBO(0), indexNum(indexNum), baseScale(baseScale), texCoords(texCoords) {}
+Geometry::Geometry(const uint32_t& indexNum, const float& baseScale, GLenum drawMode, const TexCoord& texCoords) :
+    VAO(0), VBO(0), EBO(0), indexNum(indexNum), drawMode(drawMode), baseScale(baseScale), texCoords(texCoords) {}
 
 Geometry::~Geometry() {
     glDeleteBuffers(1, &VBO);
@@ -15,18 +15,26 @@ Geometry::~Geometry() {
     glDeleteVertexArrays(1, &VAO);
 }
 
-float Geometry::getBaseScale() {
+float Geometry::getBaseScale() const {
     return baseScale;
 }
 
-uint32_t Geometry::getVAO() {
+uint32_t Geometry::getVAO() const {
     return VAO;
+}
+
+GLenum Geometry::getDrawMode() const {
+    return drawMode;
+}
+
+bool Geometry::useEBO() const {
+    return indices.size() > 0;
 }
 
 void Geometry::bufferGeometry() {
     // Initialize vertex data array
     std::vector<float> vertexData;
-    vertexData.reserve(posns.size() + texCoords.size());
+    vertexData.reserve(posns.size() * 3 + texCoords.size() * 2);
 
     for (int i = 0; i < posns.size(); ++i) {
         vertexData.push_back(posns[i].x);

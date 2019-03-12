@@ -12,7 +12,7 @@ public:
     ShaderParser();
     ShaderParser(const string &vertexShaderPath, const string &fragShaderPath, const string &geometryShaderPath = string());
     ~ShaderParser();
-    uint32_t getID();
+    uint32_t getID() const;
     void use();
     void setInt(const string &name, const int v);
     void setFloat(const string &name, const float v);
@@ -30,6 +30,6 @@ private:
     std::map<string, UniformVariable> uniformBuffer;
 
     int getUniformLocation(string name);
-    void checkCompileError(uint32_t shader, GLenum type);
-    void checkLinkError(uint32_t id);
+    void checkCompileError(uint32_t shader, GLenum type) const;
+    void checkLinkError(uint32_t id) const;
 };

@@ -45,6 +45,14 @@ void Emitter::setParticleType(ParticleType particleType) {
     }
 }
 
+GLenum Emitter::getDrawMode() const {
+    return curGeomtry->getDrawMode();
+}
+
+int Emitter::getIndexNum() const{
+    return curGeomtry->getIndexNum();
+}
+
 glm::vec3* Emitter::getOffsets() {
     offsets.reserve(particleAmount);
 
@@ -56,7 +64,7 @@ glm::vec3* Emitter::getOffsets() {
     return offsets.data();
 }
 
-glm::mat4* Emitter::getModelMatrices() {
+glm::mat4* Emitter::getModelMatrices() const{
     std::vector<glm::mat4> modelMatrices;
 
     /***** Use Random if necessary afterwards *****/
@@ -66,12 +74,12 @@ glm::mat4* Emitter::getModelMatrices() {
     return modelMatrices.data();
 }
 
-int Emitter::getIndexNum() {
-    return curGeomtry->getIndexNum();
+uint32_t Emitter::getVAO() const {
+    return curGeomtry->getVAO();
 }
 
-uint32_t Emitter::getVAO() {
-    return curGeomtry->getVAO();
+bool Emitter::useEBO() const {
+    return curGeomtry->useEBO();
 }
 
 void Emitter::update(const float& interpolation) {

@@ -4,14 +4,14 @@
 #include <math.h>
 
 const int DEFAULT_SEGMENT_NUM = 360;
+const float SPHERE_BASE_SCALE = 1.0f;
 
-Sphere::Sphere() : Geometry(DEFAULT_SEGMENT_NUM + 2), segmentNum(DEFAULT_SEGMENT_NUM), radius(1) {
+Sphere::Sphere() : Geometry(DEFAULT_SEGMENT_NUM + 2, SPHERE_BASE_SCALE, GL_TRIANGLE_FAN), segmentNum(DEFAULT_SEGMENT_NUM), radius(1) {
     posns.reserve(indexNum);
 }
 
 void Sphere::init() {
-    // float unitRadian = (float)(2 * M_PI / segmentNum);
-    float unitRadian = (float)(2 * 3.14 / segmentNum);
+    float unitRadian = (float)(2 * M_PI / segmentNum);
 
     // Push the center of the circle
     posns.emplace_back(0.0f);
@@ -29,6 +29,6 @@ void Sphere::init() {
     bufferGeometry();
 }
 
-int Sphere::getIndexNum() {
+int Sphere::getIndexNum() const {
     return indexNum;
 }

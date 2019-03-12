@@ -48,19 +48,19 @@ public:
     Emitter(const float& secondPerFrame);
     ~Emitter();
 
-    uint32_t getParticlesPerSec();
+    uint32_t getParticlesPerSec() const;
     void setParticlesPerSec(const uint32_t& particlesPerSec);
     void setParticleType(ParticleType particleType);
-    ParticleBlend getBlendType();
+    ParticleBlend getBlendType() const;
     void setBlendType(ParticleBlend blendType);
     void setType(EmitterType emitterType);
     void setEmitDirection(EmitterDirection direction);
     void setDirectionSpread(const float& directionSpread);
-    glm::vec3 getPosn();
+    glm::vec3 getPosn() const;
     void setPosn(const glm::vec3& posn);
-    glm::vec3 getRotation();
+    glm::vec3 getRotation() const;
     void setRotation(const glm::vec3& rotation);
-    glm::vec3 getSize();
+    glm::vec3 getSize() const;
     void setSize(const glm::vec3& size);
     void setInitialVelocity(const float& initVelocity);
     void setInitialVelocityRandomness(const float& initVelocityRandom);
@@ -69,10 +69,13 @@ public:
     void setRotationRandomness(const int& rotationRandom);
     void setOpacityRandomness(const int& opacityRandom);
 
+    GLenum getDrawMode() const;
+    int getIndexNum() const;
     glm::vec3* getOffsets();
-    glm::mat4* getModelMatrices();
-    int getIndexNum();
-    uint32_t getVAO();
+    glm::mat4* getModelMatrices() const;
+    uint32_t getVAO() const;
+
+    bool useEBO() const;
     void update(const float& deltaTime);
 private:
     /***** DEBUG *****/

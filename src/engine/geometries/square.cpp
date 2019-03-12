@@ -1,12 +1,12 @@
 #include "square.hpp"
 
 float DEFAULT_ASPECT = 1.0f;
-float SQUARE_INDEX = 4;
+float SQUARE_INDEX = 6;
 float SQUARE_BASE_SCALE = 2.0f;
 
-Square::Square(float aspectRatio) : Geometry(SQUARE_INDEX, SQUARE_BASE_SCALE), aspectRatio(aspectRatio) {
+Square::Square(float aspectRatio) : Geometry(SQUARE_INDEX, SQUARE_BASE_SCALE, GL_TRIANGLES), aspectRatio(aspectRatio) {
     posns.reserve(indexNum);
-    indices.reserve(2);
+    indices.reserve(6);
 }
 
 void Square::init() {
@@ -24,6 +24,6 @@ void Square::init() {
     bufferGeometry();
 }
 
-int Square::getIndexNum() {
+int Square::getIndexNum() const {
     return indexNum;
 }
