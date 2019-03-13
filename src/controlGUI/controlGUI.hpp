@@ -1,17 +1,18 @@
 #pragma once
 
-#include "engine/particleGL.hpp"
+#if __linux__
+    #include <SDL2/SDL.h>
+#else
+    #include <SDL.h>
+#endif
 
-#include <SDL.h>
+extern const char* GLSL_VERSION;
 
 class ControlGUI {
 public:
-    const char* glslVersion;
-
-    ControlGUI(SDL_Window* window, SDL_GLContext glContext, ParticleGL& engine);
-    ~ControlGUI();
-    void render(SDL_Window* window);
-    void destroy();
+    static void init(SDL_Window* window, SDL_GLContext glContext, bool isHiDpi = false);
+    static void render(SDL_Window* window);
+    static void destroy();
 private:
     bool showDemoWindow;
 };

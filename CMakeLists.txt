@@ -31,6 +31,7 @@ endif()
 set(IMGUI src/imgui/imgui_impl_sdl.cpp src/imgui/imgui_impl_opengl3.cpp src/imgui/imgui.cpp src/imgui/imgui_draw.cpp src/imgui/imgui_demo.cpp src/imgui/imgui_widgets.cpp src/imgui/imgui_internal.h src/imgui/imstb_rectpack.h src/imgui/imstb_textedit.h src/imgui/imstb_truetype.h src/imgui/imconfig.h)
 set(SOURCES src/glad.c src/stb_image.h
 	src/consoleMsg/consoleMsg.cpp
+	src/controlGUI/controlGUI.cpp
 	src/engine/camera/camera.cpp
 	src/engine/emitter/emitter.cpp
 	src/engine/eventManager/eventManager.cpp

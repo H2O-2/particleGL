@@ -8,7 +8,6 @@ ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, floa
 
     // Add first emitter
     addEmitter();
-    setParticleType(0, ParticleType::SPHERE);
 
     // Initialize timer
     renderer.initTimer();

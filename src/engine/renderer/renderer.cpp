@@ -31,6 +31,12 @@ SDL_Window* Renderer::initWindow() {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+    // Get current display info
+    if (SDL_GetCurrentDisplayMode(0, &display)) {
+        ConsoleMsg::warningMsg("Could not get display info");
+    }
+
     this->window = SDL_CreateWindow("ParticleGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight,
                                             SDL_WINDOW_OPENGL|SDL_WINDOW_ALLOW_HIGHDPI|SDL_WINDOW_RESIZABLE);
     if (window == NULL) {
@@ -52,6 +58,8 @@ SDL_Window* Renderer::initWindow() {
     int framebufferWidth, framebufferHeight;
     SDL_GL_GetDrawableSize(window, &framebufferWidth, &framebufferHeight);
     glViewport(0, 0, framebufferWidth, framebufferHeight);
+
+    ControlGUI::init(window, glContext, isHidpi());
 
     // glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -98,7 +106,12 @@ void Renderer::setMSAASample(const int& sample) {
     }
 }
 
+bool Renderer::isHidpi() {
+    return display.w > 2048;
+}
+
 void Renderer::clean() {
+    ControlGUI::destroy();
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
     SDL_Quit();

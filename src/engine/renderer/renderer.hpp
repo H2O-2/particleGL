@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 
+#include "controlGUI/controlGUI.hpp"
 #include "../resource/shaderParser.hpp"
 #include "../emitter/emitter.hpp"
 
@@ -22,22 +23,19 @@ public:
     Renderer();
     Renderer(const uint32_t& windowWidth, const uint32_t& windowHeight, const float& framerate, const glm::vec3& bgColor, const int& msaaSample = DEFAULT_MSAA);
 
+    SDL_Window* initWindow(); // Initialize window and return the pointer of it
+    void initTimer(); // Initialize curTime
+
     // Buffer particles attributes using instanced array
     void bufferParticles(const uint32_t& VAO, glm::vec3 offsets[]);
     void bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[] = NULL);
 
     void setMSAASample(const int& sample); // Set sample level for MSAA
 
-    SDL_Window* initWindow(); // Initialize window and return the pointer of it
-    void initTimer(); // Initialize curTime
-
-    void renderGui(); // Render GUI;
-
     void clean();
 
     // Render particles
     template<typename Function>
-    // void renderEngine(const RenderData& renderData, Function update) {
     void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, Function update) {
         // Referenced from https://gafferongames.com/post/fix_your_timestep/
         float newTime = SDL_GetTicks() * 0.001f;
@@ -68,6 +66,8 @@ public:
             glBindVertexArray(0);
         }
 
+        ControlGUI::render(window);
+
         SDL_GL_SwapWindow(window);
     }
 private:
@@ -84,6 +84,10 @@ private:
     float accumulator;
 
     int msaaSample;
+
+    SDL_DisplayMode display;
+
+    bool isHidpi(); // Returns true if the current display is HiDPI
 
     /***** TODO *****/
     void updateMSAA();
