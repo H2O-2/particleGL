@@ -13,7 +13,7 @@ const float INIT_FEATHER = 50.0;
 const float INIT_VELOCITY = 100.0f;
 const float INIT_LIFE = 3.0f;
 
-Emitter::Emitter(const float& secondPerFrame) : particleAmount(0), blendType(INIT_BLEND_TYPE), // DEBUG
+Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TYPE), particleAmount(0), blendType(INIT_BLEND_TYPE), // DEBUG
         particlesPerSec(INIT_PARTICLE_PER_SEC), particleType(INIT_PARTICLE_TYPE), direction(INIT_EMIT_DIR), directionSpread(-1.0),
         emitterType(INIT_EMITTER_TYPE), position(INIT_PARTICLE_POSN), rotation(glm::vec3(-1.0f)), size(INIT_PARTICLE_SIZE),
         feather(0.0f), initVelocity(0), particleLife(INIT_LIFE), lifeRandom(0), opacityRandom(0), rotationRandom(0),
@@ -35,6 +35,10 @@ Emitter::Emitter(const float& secondPerFrame) : particleAmount(0), blendType(INI
 }
 
 Emitter::~Emitter() {}
+
+ParticleType Emitter::getParticleType() const {
+    return particleType;
+}
 
 void Emitter::setParticleType(ParticleType particleType) {
     // Run only if particle type has changed

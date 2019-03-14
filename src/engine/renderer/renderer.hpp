@@ -8,7 +8,6 @@
 #include <memory>
 #include <vector>
 
-#include "controlGUI/controlGUI.hpp"
 #include "../resource/shaderParser.hpp"
 #include "../emitter/emitter.hpp"
 
@@ -30,9 +29,15 @@ public:
     void bufferParticles(const uint32_t& VAO, glm::vec3 offsets[]);
     void bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[] = NULL);
 
+    bool isHidpi(); // Returns true if the current display is HiDPI
+
+    SDL_GLContext getGLContext() const;
+
     void setMSAASample(const int& sample); // Set sample level for MSAA
 
     void clean();
+
+    void clearScreen();
 
     // Render particles
     template<typename Function>
@@ -50,12 +55,11 @@ public:
         }
 
         const float interpolation = accumulator / secondPerFrame;
+
+        // Update particle info
         update(interpolation);
 
         // Render particles
-        glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         for (auto const& emitter : emitters) {
             glBindVertexArray(emitter->getVAO());
             if (emitter->useEBO()) {
@@ -65,8 +69,6 @@ public:
             }
             glBindVertexArray(0);
         }
-
-        ControlGUI::render(window);
 
         SDL_GL_SwapWindow(window);
     }
@@ -86,8 +88,6 @@ private:
     int msaaSample;
 
     SDL_DisplayMode display;
-
-    bool isHidpi(); // Returns true if the current display is HiDPI
 
     /***** TODO *****/
     void updateMSAA();

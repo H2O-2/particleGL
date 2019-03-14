@@ -45,11 +45,14 @@ class Emitter {
 public:
     typedef std::vector<Particle> Particles;
 
+    ParticleType newParticleType;
+
     Emitter(const float& secondPerFrame);
     ~Emitter();
 
     uint32_t getParticlesPerSec() const;
     void setParticlesPerSec(const uint32_t& particlesPerSec);
+    ParticleType getParticleType() const;
     void setParticleType(ParticleType particleType);
     ParticleBlend getBlendType() const;
     void setBlendType(ParticleBlend blendType);

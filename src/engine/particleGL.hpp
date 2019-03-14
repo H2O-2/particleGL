@@ -14,6 +14,7 @@ public:
     void setParticleType(const int& emitterIndex, ParticleType particleType);
 
     void bufferData();
+    void bufferData(const int& emitterIndex);
     void render();
     bool shouldEnd() const;
 private:

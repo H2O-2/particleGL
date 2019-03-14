@@ -31,15 +31,32 @@ void ControlGUI::destroy() {
     ImGui::DestroyContext();
 }
 
-void ControlGUI::render(SDL_Window* window) {
+void ControlGUI::preRender(SDL_Window* window) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(window);
     ImGui::NewFrame();
 
-    ImGui::Begin("Hello, world!");
-    ImGui::Text("test");
+    ImGui::Begin("Control Panel");
+}
+
+void ControlGUI::finalizeRender() {
     ImGui::End();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void ControlGUI::renderRadioBtnSelection(const char* name, int* btnNum, const std::vector<const char *>& labels) {
+    ImGui::Text(name);
+
+    for (int i = 0; i < labels.size() - 1; ++i) {
+        ImGui::RadioButton(labels[i], btnNum, i);
+        ImGui::SameLine();
+    }
+
+    ImGui::RadioButton(labels[labels.size() - 1], btnNum, labels.size() - 1);
+}
+
+void renderIntInput(const char* name, const int& value) {
+
 }

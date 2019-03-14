@@ -59,8 +59,6 @@ SDL_Window* Renderer::initWindow() {
     SDL_GL_GetDrawableSize(window, &framebufferWidth, &framebufferHeight);
     glViewport(0, 0, framebufferWidth, framebufferHeight);
 
-    ControlGUI::init(window, glContext, isHidpi());
-
     // glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
@@ -99,6 +97,10 @@ void Renderer::bufferParticles(const uint32_t& VAO, glm::vec3 offsets[]) {
 
 void Renderer::bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[]) {}
 
+SDL_GLContext Renderer::getGLContext() const {
+    return glContext;
+}
+
 void Renderer::setMSAASample(const int& sample) {
     if (msaaSample != sample) {
         msaaSample = sample;
@@ -111,10 +113,14 @@ bool Renderer::isHidpi() {
 }
 
 void Renderer::clean() {
-    ControlGUI::destroy();
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+void Renderer::clearScreen() {
+    glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 /***** Private *****/
