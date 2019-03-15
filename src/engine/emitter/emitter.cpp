@@ -29,7 +29,9 @@ Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TY
     /***** DEBUG *****/
     particleAmount = 100;
     for (int i = 0; i < particleAmount; ++i) {
-        particles.emplace_back();
+        bool randomMinus = randGen.randBool();
+        float velocityX = randGen.randRealClosed(-initVelocity, initVelocity);
+        particles.emplace_back(glm::vec3(velocityX, randomMinus ? -1 : 1 * glm::sqrt(initVelocity * initVelocity - velocityX * velocityX), 0.0f));
     }
     /***** DEBUG *****/
 }
