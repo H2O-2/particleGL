@@ -10,7 +10,7 @@ const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_SIZE = glm::vec3(5.0f, 5.0f, 1.0f);
 const float INIT_FEATHER = 50.0;
-const float INIT_VELOCITY = 0.5f;
+const float INIT_VELOCITY = 0.1f;
 const float INIT_LIFE = 3.0f;
 
 Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TYPE), particleAmount(0), blendType(INIT_BLEND_TYPE), // DEBUG
@@ -49,6 +49,10 @@ void Emitter::setParticleType(ParticleType particleType) {
         setGeometry(particleType);
         curGeomtry->init();
     }
+}
+
+float Emitter::getBaseScale() const {
+    return curGeomtry->getBaseScale();
 }
 
 GLenum Emitter::getDrawMode() const {

@@ -2,9 +2,19 @@
 
 #include "consoleMsg/consoleMsg.hpp"
 
-ShaderParser::ShaderParser() : id() {}
+ShaderParser::ShaderParser() : vertexShaderPath("") {}
 
-ShaderParser::ShaderParser(const string &vertexShaderPath, const string &fragShaderPath, const string &geometryShaderPath) {
+ShaderParser::ShaderParser(const string &vertexShaderPath, const string &fragShaderPath, const string &geometryShaderPath)
+    : vertexShaderPath(vertexShaderPath), fragShaderPath(fragShaderPath), geometryShaderPath(geometryShaderPath) {
+}
+
+ShaderParser::~ShaderParser() {
+    if (!vertexShaderPath.empty()) {
+        glDeleteProgram(id);
+    }
+}
+
+void ShaderParser::init() {
     string vertexShaderCode = FileReader::read(vertexShaderPath);
     string fragShaderCode = FileReader::read(fragShaderPath);
     const char* vertexShaderSrc = vertexShaderCode.c_str();
@@ -60,10 +70,6 @@ ShaderParser::ShaderParser(const string &vertexShaderPath, const string &fragSha
         uniformBuffer[uniformName].size = size;
         uniformBuffer[uniformName].type = type;
     }
-}
-
-ShaderParser::~ShaderParser() {
-    glDeleteProgram(id);
 }
 
 uint32_t ShaderParser::getID() const {

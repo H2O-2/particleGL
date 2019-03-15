@@ -2,8 +2,6 @@
 #include "renderer.hpp"
 #include "../../util/makeUnique.hpp"
 
-#include <glm/gtc/matrix_transform.hpp>
-
 const int DEFAULT_MSAA = 8;
 
 Renderer::Renderer() {}
@@ -62,14 +60,15 @@ SDL_Window* Renderer::initWindow() {
     glEnable(GL_MULTISAMPLE);
 
     /***** DEBUG *****/
-    shader = make_unique<ShaderParser>("shaders/geometry.vert", "shaders/geometry.frag");
-    shader->use();
-    shader->setVec3("color", glm::vec3(1.0f));
+    shader = ShaderParser("shaders/geometry.vert", "shaders/geometry.frag");
+    shader.init();
+    shader.use();
+    shader.setVec3("color", glm::vec3(1.0f));
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(windowWidth / 2.0f, windowHeight / 2.0f, 0.0f));
     model = glm::scale(model, glm::vec3(10.0f, 10.0f, 1.0f));
-    shader->setMat4("model", model);
-    shader->setMat4("projection", glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight, -1.0f, 1.0f));
+    shader.setMat4("model", model);
+    shader.setMat4("projection", glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight, -1.0f, 1.0f));
     /***** DEBUG *****/
 
     return window;

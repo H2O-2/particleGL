@@ -72,6 +72,7 @@ public:
     void setRotationRandomness(const int& rotationRandom);
     void setOpacityRandomness(const int& opacityRandom);
 
+    float getBaseScale() const;
     GLenum getDrawMode() const;
     int getIndexNum() const;
     std::vector<float> getOffsets();

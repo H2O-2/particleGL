@@ -8,11 +8,11 @@
 #include <memory>
 #include <vector>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "consoleMsg/consoleMsg.hpp"
 #include "../emitter/emitter.hpp"
 #include "../resource/shaderParser.hpp"
-
-#include <iostream>
 
 extern const int DEFAULT_MSAA;
 
@@ -62,8 +62,12 @@ public:
         // Update particle info
         update(interpolation);
 
+        shader.use();
         // Render particles
         for (auto const& emitter : emitters) {
+            glm::mat4 baseScale;
+            baseScale = glm::scale(baseScale, glm::vec3(emitter->getBaseScale()));
+            shader.setMat4("baseScale", baseScale);
             glBindVertexArray(emitter->getVAO());
             if (emitter->useEBO()) {
                 glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, 50);
@@ -99,6 +103,6 @@ private:
     /***** TODO *****/
 
     /***** DEBUG *****/
-    std::unique_ptr<ShaderParser> shader;
+    ShaderParser shader;
     /***** DEBUG *****/
 };
