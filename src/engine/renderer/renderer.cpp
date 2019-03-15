@@ -1,6 +1,5 @@
 #include <glad/glad.h>
 #include "renderer.hpp"
-#include "consoleMsg/consoleMsg.hpp"
 #include "../../util/makeUnique.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -80,22 +79,27 @@ void Renderer::initTimer() {
     curTime = SDL_GetTicks() * 0.001f;
 }
 
-void Renderer::bufferParticles(const uint32_t& VAO, glm::vec3 offsets[]) {
-    /***** REFACTOR *****/
-    // Initialize instanced array
-    uint32_t instancedVBO;
+void Renderer::initParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets) {
     glGenBuffers(1, &instancedVBO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, instancedVBO);
-    glBufferData(GL_ARRAY_BUFFER, 100 * sizeof(glm::vec3), offsets, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, offsets.size() * sizeof(float), NULL, GL_STREAM_DRAW);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glVertexAttribDivisor(1, 1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    /***** REFACTOR *****/
 }
 
-void Renderer::bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[]) {}
+// void Renderer::bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[]) {}
+
+void Renderer::updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets) {
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, instancedVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, offsets.size() * sizeof(float), offsets.data());
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glVertexAttribDivisor(1, 1);
+}
 
 SDL_GLContext Renderer::getGLContext() const {
     return glContext;
@@ -108,7 +112,7 @@ void Renderer::setMSAASample(const int& sample) {
     }
 }
 
-bool Renderer::isHidpi() {
+bool Renderer::isHidpi() const {
     return display.w > 2048;
 }
 

@@ -11,10 +11,7 @@ public:
     ~ParticleGL();
 
     void addEmitter();
-    void setParticleType(const int& emitterIndex, ParticleType particleType);
-
-    void bufferData();
-    void bufferData(const int& emitterIndex);
+    void initBuffer(); // Allocate buffer for particles in all emitters
     void render();
     bool shouldEnd() const;
 private:
@@ -22,4 +19,6 @@ private:
     Renderer renderer;
     std::vector<std::shared_ptr<Emitter>> emitters;
     float secondPerFrame; // Time of one frame in second
+
+    void setParticleType(const int& emitterIndex, ParticleType particleType);
 };

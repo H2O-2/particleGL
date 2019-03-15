@@ -6,17 +6,17 @@ const ParticleType INIT_PARTICLE_TYPE = ParticleType::SPHERE;
 const EmitterDirection INIT_EMIT_DIR = EmitterDirection::UNIFORM;
 const float INIT_DIR_SPREAD = 20.0f;
 const EmitterType INIT_EMITTER_TYPE = EmitterType::POINT;
-const glm::vec3 INIT_PARTICLE_POSN = glm::vec3(0.0f);
+const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_SIZE = glm::vec3(5.0f, 5.0f, 1.0f);
 const float INIT_FEATHER = 50.0;
-const float INIT_VELOCITY = 100.0f;
+const float INIT_VELOCITY = 0.5f;
 const float INIT_LIFE = 3.0f;
 
 Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TYPE), particleAmount(0), blendType(INIT_BLEND_TYPE), // DEBUG
         particlesPerSec(INIT_PARTICLE_PER_SEC), particleType(INIT_PARTICLE_TYPE), direction(INIT_EMIT_DIR), directionSpread(-1.0),
-        emitterType(INIT_EMITTER_TYPE), position(INIT_PARTICLE_POSN), rotation(glm::vec3(-1.0f)), size(INIT_PARTICLE_SIZE),
-        feather(0.0f), initVelocity(0), particleLife(INIT_LIFE), lifeRandom(0), opacityRandom(0), rotationRandom(0),
+        emitterType(INIT_EMITTER_TYPE), position(INIT_EMITTER_POSN), rotation(glm::vec3(-1.0f)), size(INIT_PARTICLE_SIZE),
+        feather(0.0f), initVelocity(INIT_VELOCITY), particleLife(INIT_LIFE), lifeRandom(0), opacityRandom(0), rotationRandom(0),
         sizeRandom(0), secondPerFrame(secondPerFrame) {
 
     // Initialize geometry data
@@ -27,7 +27,7 @@ Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TY
     particles.reserve((size_t)particlesPerSec * particleLife);
 
     /***** DEBUG *****/
-    particleAmount = 100;
+    particleAmount = 50;
     for (int i = 0; i < particleAmount; ++i) {
         bool randomMinus = randGen.randBool();
         float velocityX = randGen.randRealClosed(-initVelocity, initVelocity);
@@ -59,15 +59,17 @@ int Emitter::getIndexNum() const{
     return curGeomtry->getIndexNum();
 }
 
-glm::vec3* Emitter::getOffsets() {
-    offsets.reserve(particleAmount);
+std::vector<float> Emitter::getOffsets() {
+    std::vector<float> offsets;
+    offsets.reserve(particles.size() * 3);
 
-    /***** Use Random if necessary afterwards *****/
-    for (uint32_t i = 0; i < particleAmount; ++i) {
-        offsets.emplace_back(0 * 1.0f, i * 1.0f, 0.0);
+    for (uint32_t i = 0; i < particles.size(); ++i) {
+        offsets.emplace_back(particles[i].offset.x);
+        offsets.emplace_back(particles[i].offset.y);
+        offsets.emplace_back(particles[i].offset.z);
     }
 
-    return offsets.data();
+    return offsets;
 }
 
 glm::mat4* Emitter::getModelMatrices() const{
@@ -90,7 +92,8 @@ bool Emitter::useEBO() const {
 
 void Emitter::update(const float& interpolation) {
     for (auto& particle : particles) {
-        particle.age += secondPerFrame;
+        particle.age += secondPerFrame * interpolation;
+        particle.offset += particle.velocity * interpolation;
     }
 }
 
@@ -110,5 +113,4 @@ void Emitter::setGeometry(ParticleType particleType) {
         default:
             break;
     };
-
 }

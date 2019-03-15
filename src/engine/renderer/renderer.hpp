@@ -8,8 +8,9 @@
 #include <memory>
 #include <vector>
 
-#include "../resource/shaderParser.hpp"
+#include "consoleMsg/consoleMsg.hpp"
 #include "../emitter/emitter.hpp"
+#include "../resource/shaderParser.hpp"
 
 #include <iostream>
 
@@ -26,10 +27,12 @@ public:
     void initTimer(); // Initialize curTime
 
     // Buffer particles attributes using instanced array
-    void bufferParticles(const uint32_t& VAO, glm::vec3 offsets[]);
-    void bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[] = NULL);
+    void initParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets); // Allocate buffer for particles
+    // void bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[] = NULL);
 
-    bool isHidpi(); // Returns true if the current display is HiDPI
+    void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets); // Update particle info in the buffer
+
+    bool isHidpi() const; // Returns true if the current display is HiDPI
 
     SDL_GLContext getGLContext() const;
 
@@ -50,7 +53,7 @@ public:
         accumulator += deltaTime;
 
         while (accumulator >= secondPerFrame) {
-            update(0.0f);
+            update(1.0f); // update with one full frame
             accumulator -= secondPerFrame;
         }
 
@@ -63,9 +66,9 @@ public:
         for (auto const& emitter : emitters) {
             glBindVertexArray(emitter->getVAO());
             if (emitter->useEBO()) {
-                glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, 200);
+                glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, 50);
             } else {
-                glDrawArraysInstanced(emitter->getDrawMode(), 0, emitter->getIndexNum(), 200);
+                glDrawArraysInstanced(emitter->getDrawMode(), 0, emitter->getIndexNum(), 50);
             }
             glBindVertexArray(0);
         }
@@ -88,6 +91,8 @@ private:
     int msaaSample;
 
     SDL_DisplayMode display;
+
+    uint32_t instancedVBO;
 
     /***** TODO *****/
     void updateMSAA();
