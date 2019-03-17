@@ -84,7 +84,7 @@ void Renderer::initParticleBuffer(const uint32_t& VAO, const std::vector<float>&
     glBindBuffer(GL_ARRAY_BUFFER, instancedVBO);
     glBufferData(GL_ARRAY_BUFFER, offsets.size() * sizeof(float), NULL, GL_STREAM_DRAW);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glVertexAttribDivisor(1, 1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -96,7 +96,7 @@ void Renderer::updateParticleBuffer(const uint32_t& VAO, const std::vector<float
     glBindBuffer(GL_ARRAY_BUFFER, instancedVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, offsets.size() * sizeof(float), offsets.data());
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glVertexAttribDivisor(1, 1);
 }
 

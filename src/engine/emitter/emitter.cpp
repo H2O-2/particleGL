@@ -10,10 +10,10 @@ const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_SIZE = glm::vec3(5.0f, 5.0f, 1.0f);
 const float INIT_FEATHER = 50.0;
-const float INIT_VELOCITY = 0.1f;
+const float INIT_VELOCITY = 1.0f;
 const float INIT_LIFE = 3.0f;
 
-Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TYPE), particleAmount(0), blendType(INIT_BLEND_TYPE), // DEBUG
+Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TYPE), particleAmount(50), blendType(INIT_BLEND_TYPE), // DEBUG
         particlesPerSec(INIT_PARTICLE_PER_SEC), particleType(INIT_PARTICLE_TYPE), direction(INIT_EMIT_DIR), directionSpread(-1.0),
         emitterType(INIT_EMITTER_TYPE), position(INIT_EMITTER_POSN), rotation(glm::vec3(-1.0f)), size(INIT_PARTICLE_SIZE),
         feather(0.0f), initVelocity(INIT_VELOCITY), particleLife(INIT_LIFE), lifeRandom(0), opacityRandom(0), rotationRandom(0),
@@ -27,11 +27,10 @@ Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TY
     particles.reserve((size_t)particlesPerSec * particleLife);
 
     /***** DEBUG *****/
-    particleAmount = 50;
     for (int i = 0; i < particleAmount; ++i) {
         bool randomMinus = randGen.randBool();
         float velocityX = randGen.randRealClosed(-initVelocity, initVelocity);
-        particles.emplace_back(glm::vec3(velocityX, randomMinus ? -1 : 1 * glm::sqrt(initVelocity * initVelocity - velocityX * velocityX), 0.0f));
+        particles.emplace_back(glm::vec3(velocityX, (randomMinus ? -1.0f : 1.0f) * glm::sqrt(initVelocity * initVelocity - velocityX * velocityX), 0.0f));
     }
     /***** DEBUG *****/
 }
