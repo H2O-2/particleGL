@@ -11,7 +11,7 @@ const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_SIZE = glm::vec3(2.0f, 2.0f, 1.0f);
 const float INIT_FEATHER = 50.0;
-const float INIT_VELOCITY = 0.3f;
+const float INIT_VELOCITY = 1.0f;
 const float INIT_LIFE = 3.0f;
 
 Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TYPE), secondPerFrame(secondPerFrame),
@@ -64,21 +64,6 @@ int Emitter::getIndexNum() const{
 }
 
 std::vector<float> Emitter::getOffsets() {
-    for (size_t i = 0; i < particles.size(); i++) {
-        Particle particle = particles[i];
-        if (particle.life > 0) {
-            if (offsets.size() > i * 3) {
-                offsets[i * 3] = particle.offset.x;
-                offsets[i * 3 + 1] = particle.offset.y;
-                offsets[i * 3 + 2] = particle.offset.z;
-            } else {
-                offsets.emplace_back(particle.offset.x);
-                offsets.emplace_back(particle.offset.y);
-                offsets.emplace_back(particle.offset.z);
-            }
-        }
-    }
-
     return offsets;
 }
 
@@ -105,13 +90,17 @@ void Emitter::update(const float& interpolation) {
 
     /***** TODO: Fix the case where particlesPerFrame is smaller than 1 *****/
 
-    uint32_t newParticleNum = particlesPerFrame * interpolation;
     int newParticleIndex = 0;
-    for (uint32_t i = 0; i < newParticleNum; ++i) {
+    float newParticleNum;
+    newParticleNumBuffer += particlesPerFrame * interpolation;
+    newParticleNumBuffer = std::modf(newParticleNumBuffer, &newParticleNum);
+    // printf("%f\n", newParticleNumBuffer);
+    for (int i = 0; i < newParticleNum; ++i) {
         bool randomMinus = randGen.randBool();
         float velocityX = randGen.randRealClosed(-initVelocity, initVelocity);
         newParticleIndex = getFirstUnusedParticle();
         glm::vec3 newParticleVelocity = glm::vec3(velocityX, (randomMinus ? -1.0f : 1.0f) * glm::sqrt(initVelocity * initVelocity - velocityX * velocityX), 0.0f);
+        // glm::vec3 newParticleVelocity = glm::vec3(0.1f, 0.1f, 0.0f);
         if (newParticleIndex < 0) {
             particles.emplace_back(newParticleVelocity);
         } else {
@@ -119,11 +108,24 @@ void Emitter::update(const float& interpolation) {
         }
     }
 
-    // Update particle info
-    for (auto& particle : particles) {
+    for (size_t j = 0; j < particles.size(); ++j) {
+        Particle& particle = particles[j];
+
         if (particle.life > 0) {
+            // Update particle info
             particle.life -= secondPerFrame * interpolation;
             particle.offset += particle.velocity * interpolation;
+
+            // Update particle offset
+            if (offsets.size() > j * 3) {
+                offsets[j * 3] = particle.offset.x;
+                offsets[j * 3 + 1] = particle.offset.y;
+                offsets[j * 3 + 2] = particle.offset.z;
+            } else {
+                offsets.emplace_back(particle.offset.x);
+                offsets.emplace_back(particle.offset.y);
+                offsets.emplace_back(particle.offset.z);
+            }
         }
     }
 }

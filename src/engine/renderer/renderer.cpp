@@ -9,7 +9,7 @@ Renderer::Renderer() {}
 Renderer::Renderer(const uint32_t& windowWidth, const uint32_t& windowHeight, const float& secondPerFrame,
                    const glm::vec3& bgColor, const int& msaaSample) :
     windowWidth(windowWidth), windowHeight(windowHeight), bgColor(bgColor), secondPerFrame(secondPerFrame),
-    accumulator(0.0f), msaaSample(msaaSample) {}
+    msaaSample(msaaSample) {}
 
 SDL_Window* Renderer::initWindow() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -66,7 +66,7 @@ SDL_Window* Renderer::initWindow() {
     shader.setVec3("color", glm::vec3(1.0f));
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(windowWidth / 2.0f, windowHeight / 2.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(3.0f, 3.0f, 1.0f));
+    model = glm::scale(model, glm::vec3(3.5f, 3.5f, 1.0f));
     shader.setMat4("model", model);
     shader.setMat4("projection", glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight, -1.0f, 1.0f));
     /***** DEBUG *****/

@@ -94,7 +94,7 @@ private:
 
     ParticleBlend blendType; // Type of blend applied to particles
     uint32_t particlesPerSec; // Number of particles generated per second
-    uint32_t particlesPerFrame; // Number of particles generated per frame, i.e. in `secondPerFrame` second
+    float particlesPerFrame; // Number of particles generated per frame, i.e. in `secondPerFrame` second, this could be smaller than one
     ParticleType particleType; // Shape of particles
 
     EmitterDirection direction; // Emitter direction
@@ -128,7 +128,8 @@ private:
 
 
     uint16_t lastUsedParticle; // Last used particle
-    std::vector<float> offsets;
+    std::vector<float> offsets; // Offsets of particles
+    float newParticleNumBuffer; // Buffers the current `number` of particles to be emitted. This value is always smaller than one after each update
 
     int getFirstUnusedParticle(); // Get the index of first unused particle in particles vector
     void setGeometry(ParticleType particleType); // Buffer the geometry and GPU data for geometry of given type

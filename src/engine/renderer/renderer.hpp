@@ -46,6 +46,7 @@ public:
     template<typename Function>
     void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, Function update) {
         // Referenced from https://gafferongames.com/post/fix_your_timestep/
+        float accumulator = 0.0f;
         float newTime = SDL_GetTicks() * 0.001f;
         float deltaTime = newTime - curTime;
         curTime = newTime;
@@ -57,9 +58,8 @@ public:
             accumulator -= secondPerFrame;
         }
 
+        // Calculate the portion of the partial frame left in the accumulator and update
         const float interpolation = accumulator / secondPerFrame;
-
-        // Update particle info
         update(interpolation);
 
         shader.use();
@@ -90,7 +90,6 @@ private:
     SDL_GLContext glContext;
 
     float curTime;
-    float accumulator;
 
     int msaaSample;
 
