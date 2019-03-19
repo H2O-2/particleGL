@@ -52,7 +52,7 @@ public:
     ~Emitter();
 
     size_t getParticleNum() const;
-    uint32_t getParticlesPerSec() const;
+    uint32_t* getParticlesPerSecPtr();
     void setParticlesPerSec(const uint32_t& particlesPerSec);
     ParticleType getParticleType() const;
     void setParticleType(ParticleType particleType);

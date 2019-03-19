@@ -38,6 +38,10 @@ size_t Emitter::getParticleNum() const {
     return particles.size();
 }
 
+uint32_t* Emitter::getParticlesPerSecPtr() {
+    return &particlesPerSec;
+}
+
 ParticleType Emitter::getParticleType() const {
     return particleType;
 }
@@ -86,15 +90,17 @@ bool Emitter::useEBO() const {
 }
 
 void Emitter::update(const float& interpolation) {
-    // First, add particles generated in one frame
 
-    /***** TODO: Fix the case where particlesPerFrame is smaller than 1 *****/
+    // Update particlesPerFrame with (possibly) new particle emit rate and framerate
+    particlesPerFrame = particlesPerSec * secondPerFrame;
 
-    int newParticleIndex = 0;
+    // Get the number of new particles to render during this time period
     float newParticleNum;
     newParticleNumBuffer += particlesPerFrame * interpolation;
     newParticleNumBuffer = std::modf(newParticleNumBuffer, &newParticleNum);
-    // printf("%f\n", newParticleNumBuffer);
+
+    // First, add particles generated in one frame
+    int newParticleIndex = 0;
     for (int i = 0; i < newParticleNum; ++i) {
         bool randomMinus = randGen.randBool();
         float velocityX = randGen.randRealClosed(-initVelocity, initVelocity);
@@ -107,6 +113,8 @@ void Emitter::update(const float& interpolation) {
             particles[newParticleIndex] = Particle(newParticleVelocity);
         }
     }
+
+    offsets.clear();
 
     for (size_t j = 0; j < particles.size(); ++j) {
         Particle& particle = particles[j];

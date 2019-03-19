@@ -18,7 +18,7 @@ public:
     static void destroy();
 
     static void renderRadioBtnSelection(const char* name, int* btnNum, const std::vector<const char *>& labels); // Render a group of radio buttons from which at most one item can be selected
-    static void renderIntInput();
+    static void renderIntSlider(const char* name, int* v, const int min, const int max);
 private:
     bool showDemoWindow;
 };

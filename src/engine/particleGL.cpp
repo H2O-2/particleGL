@@ -43,6 +43,7 @@ void ParticleGL::render() {
     ControlGUI::preRender(window);
     for (auto& emitter : emitters) {
         ControlGUI::renderRadioBtnSelection("Particle Type", (int *)&(emitter->newParticleType), {"Sphere", "Square", "Triangle"});
+        ControlGUI::renderIntSlider("Particles/sec", (int *)emitter->getParticlesPerSecPtr(), 0, 1000);
     }
     ControlGUI::finalizeRender();
 

@@ -57,6 +57,7 @@ void ControlGUI::renderRadioBtnSelection(const char* name, int* btnNum, const st
     ImGui::RadioButton(labels[labels.size() - 1], btnNum, labels.size() - 1);
 }
 
-void renderIntInput(const char* name, const int& value) {
-
+void ControlGUI::renderIntSlider(const char* name, int* v, const int min, const int max) {
+    ImGui::Text(name);
+    ImGui::SliderInt("", v, min, max);
 }
