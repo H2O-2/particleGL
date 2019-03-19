@@ -66,7 +66,7 @@ SDL_Window* Renderer::initWindow() {
     shader.setVec3("color", glm::vec3(1.0f));
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(windowWidth / 2.0f, windowHeight / 2.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(10.0f, 10.0f, 1.0f));
+    model = glm::scale(model, glm::vec3(3.0f, 3.0f, 1.0f));
     shader.setMat4("model", model);
     shader.setMat4("projection", glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight, -1.0f, 1.0f));
     /***** DEBUG *****/
@@ -78,11 +78,11 @@ void Renderer::initTimer() {
     curTime = SDL_GetTicks() * 0.001f;
 }
 
-void Renderer::initParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets) {
+void Renderer::initParticleBuffer(const uint32_t& VAO) {
     glGenBuffers(1, &instancedVBO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, instancedVBO);
-    glBufferData(GL_ARRAY_BUFFER, offsets.size() * sizeof(float), NULL, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLE_NUM * sizeof(float), NULL, GL_STREAM_DRAW);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glVertexAttribDivisor(1, 1);

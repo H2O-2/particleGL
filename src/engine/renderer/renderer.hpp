@@ -27,7 +27,7 @@ public:
     void initTimer(); // Initialize curTime
 
     // Buffer particles attributes using instanced array
-    void initParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets); // Allocate buffer for particles
+    void initParticleBuffer(const uint32_t& VAO); // Allocate buffer for particles
     // void bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[] = NULL);
 
     void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets); // Update particle info in the buffer
@@ -70,9 +70,9 @@ public:
             shader.setMat4("baseScale", baseScale);
             glBindVertexArray(emitter->getVAO());
             if (emitter->useEBO()) {
-                glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, 50);
+                glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, emitter->getOffsets().size() / 3);
             } else {
-                glDrawArraysInstanced(emitter->getDrawMode(), 0, emitter->getIndexNum(), 50);
+                glDrawArraysInstanced(emitter->getDrawMode(), 0, emitter->getIndexNum(), emitter->getOffsets().size() / 3);
             }
             glBindVertexArray(0);
         }

@@ -43,3 +43,4 @@ build/
 .vscode/
 compile_commands.json
 imgui.ini
+*.cap

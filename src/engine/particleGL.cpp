@@ -28,7 +28,7 @@ void ParticleGL::addEmitter() {
 void ParticleGL::initBuffer() {
     for (auto& emitter : emitters) {
         // Buffer instanced array
-        renderer.initParticleBuffer(emitter->getVAO(), emitter->getOffsets());
+        renderer.initParticleBuffer(emitter->getVAO());
     }
 }
 
@@ -50,9 +50,9 @@ void ParticleGL::render() {
     renderer.renderEngine(emitters, [&](const float& interpolation) {
         for (int i = 0; i < emitters.size(); ++i) {
             // Update emitter & particle data
-            renderer.updateParticleBuffer(emitters[i]->getVAO(), emitters[i]->getOffsets());
             emitters[i]->setParticleType(emitters[i]->newParticleType);
             emitters[i]->update(interpolation);
+            renderer.updateParticleBuffer(emitters[i]->getVAO(), emitters[i]->getOffsets());
         }
     });
 }
