@@ -20,12 +20,14 @@ IntDist::result_type RandGen::randIntClosed(const int& rangeMin, const int& rang
     }
 
     // else re-initialize a new range and generate
-    intDist = IntDist(rangeMin, rangeMax);
+    intDist = IntDist(rangeMin, rangeMax + 1);
     return intDist(engine);
 }
 
 RealDist::result_type RandGen::randRealClosed(const float& rangeMin, const float& rangeMax) {
+    // Generate the upper bound to close the range of [rangeMin, rangeMax]
     float upperBound = closedBound(rangeMax);
+
     // If requested range is available, generate directly
     if (rangeMin == realDist.min() && upperBound == realDist.max()) {
         return realDist(engine);
@@ -33,6 +35,16 @@ RealDist::result_type RandGen::randRealClosed(const float& rangeMin, const float
 
     // else re-initialize a new range and generate
     realDist = RealDist(rangeMin, upperBound);
+    return realDist(engine);
+}
+
+RealDist::result_type RandGen::randRealOpen(const float& rangeMin, const float& rangeMax) {
+    // If requested range is available, generate directly
+    if (rangeMin == realDist.min() && rangeMax == realDist.max()) {
+        return realDist(engine);
+    }
+
+    realDist = RealDist(rangeMin, rangeMax);
     return realDist(engine);
 }
 

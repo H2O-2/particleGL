@@ -17,6 +17,7 @@ public:
     void setSeed(uint32_t seed);
     IntDist::result_type randIntClosed(const int& rangeMin, const int& rangeMax);
     RealDist::result_type randRealClosed(const float& rangeMin, const float& rangeMax);
+    RealDist::result_type randRealOpen(const float& rangeMin, const float& rangeMax);
     bool randBool();
 private:
     uint32_t seed;
