@@ -3,13 +3,15 @@
 #include "../../util/makeUnique.hpp"
 
 const int DEFAULT_MSAA = 8;
+const float DEFAULT_NEAR_PLANE = 1.0f;
+const float DEFAULT_FAR_PLANE = 20000.0f;
 
 Renderer::Renderer() {}
 
 Renderer::Renderer(const uint32_t& windowWidth, const uint32_t& windowHeight, const float& secondPerFrame,
                    const glm::vec3& bgColor, const int& msaaSample) :
     windowWidth(windowWidth), windowHeight(windowHeight), bgColor(bgColor), secondPerFrame(secondPerFrame),
-    msaaSample(msaaSample) {}
+    msaaSample(msaaSample), nearVanish(DEFAULT_NEAR_PLANE / 10.0f), farVanish(DEFAULT_FAR_PLANE / 10.0f) {}
 
 SDL_Window* Renderer::initWindow() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -56,26 +58,21 @@ SDL_Window* Renderer::initWindow() {
     SDL_GL_GetDrawableSize(window, &framebufferWidth, &framebufferHeight);
     glViewport(0, 0, framebufferWidth, framebufferHeight);
 
-    // glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
-
-    /***** DEBUG *****/
-    shader = ShaderParser("shaders/geometry.vert", "shaders/geometry.frag");
-    shader.init();
-    shader.use();
-    shader.setVec3("color", glm::vec3(1.0f));
-    glm::mat4 model;
-    model = glm::translate(model, glm::vec3(windowWidth / 2.0f, windowHeight / 2.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(3.5f, 3.5f, 1.0f));
-    shader.setMat4("model", model);
-    shader.setMat4("projection", glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight, -1.0f, 1.0f));
-    /***** DEBUG *****/
 
     return window;
 }
 
 void Renderer::initTimer() {
     curTime = SDL_GetTicks() * 0.001f;
+}
+
+void Renderer::initShader(const Camera& camera) {
+    shader = ShaderParser("shaders/geometry.vert", "shaders/geometry.frag");
+    shader.init();
+    shader.use();
+    shader.setVec3("color", glm::vec3(1.0f));
 }
 
 void Renderer::initParticleBuffer(const uint32_t& VAO) {

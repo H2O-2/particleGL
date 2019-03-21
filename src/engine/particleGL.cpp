@@ -2,18 +2,18 @@
 #include "../controlGUI/controlGUI.hpp"
 
 ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor) {
-    // Initialize OpenGL context
+    // Initialize renderer & OpenGL context
     secondPerFrame = 1.0f / framerate;
     renderer = Renderer(windowWidth, windowHeight, secondPerFrame, bgColor);
     this->window = renderer.initWindow();
-
-    ControlGUI::init(window, renderer.getGLContext(), renderer.isHidpi());
+    renderer.initTimer();
+    renderer.initShader(camera);
 
     // Add first emitter
     addEmitter();
 
-    // Initialize timer
-    renderer.initTimer();
+    // Initialize GUI
+    ControlGUI::init(window, renderer.getGLContext(), renderer.isHidpi());
 }
 
 ParticleGL::~ParticleGL() {
@@ -34,7 +34,7 @@ void ParticleGL::initBuffer() {
 
 void ParticleGL::render() {
     // Process events
-    EventManager::pollEvent(window);
+    EventManager::pollEvent(window, camera);
 
     // Clear screen
     renderer.clearScreen();
@@ -44,11 +44,12 @@ void ParticleGL::render() {
     for (auto& emitter : emitters) {
         ControlGUI::renderRadioBtnSelection("Particle Type", (int *)&(emitter->newParticleType), {"Sphere", "Square", "Triangle"});
         ControlGUI::renderIntSlider("Particles/sec", (int *)emitter->getParticlesPerSecPtr(), 0, 1000);
+        ControlGUI::renderFloatSlider("Velocity", emitter->getInitialVelocityPtr(), 0.0f, 1000.0f);
     }
     ControlGUI::finalizeRender();
 
     // Render
-    renderer.renderEngine(emitters, [&](const float& interpolation) {
+    renderer.renderEngine(emitters, camera, [&](const float& interpolation) {
         for (int i = 0; i < emitters.size(); ++i) {
             // Update emitter & particle data
             emitters[i]->setParticleType(emitters[i]->newParticleType);

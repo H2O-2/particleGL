@@ -61,3 +61,8 @@ void ControlGUI::renderIntSlider(const char* name, int* v, const int min, const 
     ImGui::Text(name);
     ImGui::SliderInt("", v, min, max);
 }
+
+void ControlGUI::renderFloatSlider(const char* name, float* v, const float min, const float max) {
+    ImGui::Text(name);
+    ImGui::SliderFloat(name, v, min, max, "%.1f");
+}

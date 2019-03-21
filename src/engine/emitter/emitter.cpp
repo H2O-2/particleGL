@@ -1,5 +1,8 @@
 #include "emitter.hpp"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 const int MAX_PARTICLE_NUM = 10000;
 const int INIT_PARTICLE_PER_SEC = 100;
 const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NONE;
@@ -11,7 +14,7 @@ const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_SIZE = glm::vec3(2.0f, 2.0f, 1.0f);
 const float INIT_FEATHER = 50.0;
-const float INIT_VELOCITY = 1.0f;
+const float INIT_VELOCITY = 0.8f;
 const float INIT_LIFE = 3.0f;
 
 Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TYPE), secondPerFrame(secondPerFrame),
@@ -53,6 +56,10 @@ void Emitter::setParticleType(ParticleType particleType) {
         setGeometry(particleType);
         curGeomtry->init();
     }
+}
+
+float* Emitter::getInitialVelocityPtr() {
+    return &initVelocity;
 }
 
 float Emitter::getBaseScale() const {
@@ -102,11 +109,12 @@ void Emitter::update(const float& interpolation) {
     // First, add particles generated in one frame
     int newParticleIndex = 0;
     for (int i = 0; i < newParticleNum; ++i) {
-        bool randomMinus = randGen.randBool();
-        float velocityX = randGen.randRealClosed(-initVelocity, initVelocity);
         newParticleIndex = getFirstUnusedParticle();
-        glm::vec3 newParticleVelocity = glm::vec3(velocityX, (randomMinus ? -1.0f : 1.0f) * glm::sqrt(initVelocity * initVelocity - velocityX * velocityX), 0.0f);
-        // glm::vec3 newParticleVelocity = glm::vec3(0.1f, 0.1f, 0.0f);
+
+        float inclination = randGen.randRealClosed(0.0f, M_PI);
+        float azimuth = randGen.randRealOpenRight(0.0, 2 * M_PI);
+        float horizontalVelocity = initVelocity * sinf(inclination);
+        glm::vec3 newParticleVelocity(horizontalVelocity * sinf(azimuth), initVelocity * cosf(inclination), horizontalVelocity * cosf(azimuth));
         if (newParticleIndex < 0) {
             particles.emplace_back(newParticleVelocity);
         } else {

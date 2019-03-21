@@ -10,11 +10,14 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "engine/camera/camera.hpp"
 #include "consoleMsg/consoleMsg.hpp"
 #include "../emitter/emitter.hpp"
 #include "../resource/shaderParser.hpp"
 
 extern const int DEFAULT_MSAA;
+extern const float DEFAULT_NEAR_PLANE;
+extern const float DEFAULT_FAR_PLANE;
 
 typedef std::map<uint32_t, int> RenderData;
 
@@ -25,6 +28,7 @@ public:
 
     SDL_Window* initWindow(); // Initialize window and return the pointer of it
     void initTimer(); // Initialize curTime
+    void initShader(const Camera& camera); // Initialize shaders
 
     // Buffer particles attributes using instanced array
     void initParticleBuffer(const uint32_t& VAO); // Allocate buffer for particles
@@ -44,7 +48,7 @@ public:
 
     // Render particles
     template<typename Function>
-    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, Function update) {
+    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera, Function update) {
         // Referenced from https://gafferongames.com/post/fix_your_timestep/
         float accumulator = 0.0f;
         float newTime = SDL_GetTicks() * 0.001f;
@@ -63,6 +67,11 @@ public:
         update(interpolation);
 
         shader.use();
+        glm::mat4 model;
+        shader.setMat4("model", model);
+        shader.setMat4("view", camera.getViewMatrix());
+        shader.setMat4("projection", glm::perspective(glm::radians(camera.getZoom()), (float)windowWidth / (float)windowHeight, nearVanish, farVanish));
+
         // Render particles
         for (auto const& emitter : emitters) {
             glm::mat4 baseScale;
@@ -91,7 +100,9 @@ private:
 
     float curTime;
 
-    int msaaSample;
+    int msaaSample; // Level of MSAA
+    float nearVanish; // Far distance from the camera when particle vanishes. The actual value is a tenth of this value
+    float farVanish; // Near distance from the camera when particle vanishes. The actual value is a tenth of this value
 
     SDL_DisplayMode display;
 

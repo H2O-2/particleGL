@@ -38,7 +38,7 @@ RealDist::result_type RandGen::randRealClosed(const float& rangeMin, const float
     return realDist(engine);
 }
 
-RealDist::result_type RandGen::randRealOpen(const float& rangeMin, const float& rangeMax) {
+RealDist::result_type RandGen::randRealOpenRight(const float& rangeMin, const float& rangeMax) {
     // If requested range is available, generate directly
     if (rangeMin == realDist.min() && rangeMax == realDist.max()) {
         return realDist(engine);

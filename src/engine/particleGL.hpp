@@ -1,6 +1,5 @@
 #pragma once
 
-#include "camera/camera.hpp"
 #include "emitter/emitter.hpp"
 #include "eventManager/eventManager.hpp"
 #include "renderer/renderer.hpp"
@@ -15,6 +14,7 @@ public:
     void render();
     bool shouldEnd() const;
 private:
+    Camera camera;
     SDL_Window* window;
     Renderer renderer;
     std::vector<std::shared_ptr<Emitter>> emitters;
