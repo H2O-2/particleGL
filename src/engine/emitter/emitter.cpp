@@ -12,17 +12,20 @@ const float INIT_DIR_SPREAD = 20.0f;
 const EmitterType INIT_EMITTER_TYPE = EmitterType::POINT;
 const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
-const glm::vec3 INIT_PARTICLE_SIZE = glm::vec3(2.0f, 2.0f, 1.0f);
+const float INIT_PARTICLE_SIZE = 1.0f;
+const float PARTICLE_SIZE_SCALE = 0.2f;
 const float INIT_FEATHER = 50.0;
-const float INIT_VELOCITY = 0.8f;
+const float PARTICLE_VELOCITY_SCALE = 7.0f / 1000.0f;
+const float INIT_VELOCITY = 100.0f;
 const float INIT_LIFE = 3.0f;
 
 Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TYPE), secondPerFrame(secondPerFrame),
         blendType(INIT_BLEND_TYPE), particlesPerSec(INIT_PARTICLE_PER_SEC),
         particlesPerFrame(INIT_PARTICLE_PER_SEC * secondPerFrame), particleType(INIT_PARTICLE_TYPE),
         direction(INIT_EMIT_DIR), directionSpread(-1.0), emitterType(INIT_EMITTER_TYPE), position(INIT_EMITTER_POSN),
-        rotation(glm::vec3(-1.0f)), feather(0.0f), initVelocity(INIT_VELOCITY), particleLife(INIT_LIFE), lifeRandom(0),
-        opacityRandom(0), rotationRandom(0), sizeRandom(0), lastUsedParticle(0) {
+        rotation(glm::vec3(-1.0f)), feather(0.0f), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE),
+        particleLife(INIT_LIFE), lifeRandom(0), opacityRandom(0), rotationRandom(0), particleSize(INIT_PARTICLE_SIZE),
+        sizeRandom(0), lastUsedParticle(0) {
 
     // Initialize geometry data
     setGeometry(particleType);
@@ -43,6 +46,18 @@ size_t Emitter::getParticleNum() const {
 
 uint32_t* Emitter::getParticlesPerSecPtr() {
     return &particlesPerSec;
+}
+
+float* Emitter::getParticleLifePtr() {
+    return &particleLife;
+}
+
+float Emitter::getParticleSize() const {
+    return particleSize;
+}
+
+float* Emitter::getParticleSizePtr() {
+    return &particleSize;
 }
 
 ParticleType Emitter::getParticleType() const {
@@ -116,9 +131,9 @@ void Emitter::update(const float& interpolation) {
         float horizontalVelocity = initVelocity * sinf(inclination);
         glm::vec3 newParticleVelocity(horizontalVelocity * sinf(azimuth), initVelocity * cosf(inclination), horizontalVelocity * cosf(azimuth));
         if (newParticleIndex < 0) {
-            particles.emplace_back(newParticleVelocity);
+            particles.emplace_back(newParticleVelocity, particleLife, particleSize);
         } else {
-            particles[newParticleIndex] = Particle(newParticleVelocity);
+            particles[newParticleIndex] = Particle(newParticleVelocity, particleLife, particleSize);
         }
     }
 

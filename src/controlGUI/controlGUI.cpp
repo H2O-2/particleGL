@@ -57,12 +57,14 @@ void ControlGUI::renderRadioBtnSelection(const char* name, int* btnNum, const st
     ImGui::RadioButton(labels[labels.size() - 1], btnNum, labels.size() - 1);
 }
 
-void ControlGUI::renderIntSlider(const char* name, int* v, const int min, const int max) {
-    ImGui::Text(name);
-    ImGui::SliderInt("", v, min, max);
+void ControlGUI::renderIntSlider(std::string name, int* v, const int min, const int max) {
+    ImGui::Text(name.c_str());
+    ImGui::SliderInt(("##" + name).c_str(), v, min, max);
 }
 
-void ControlGUI::renderFloatSlider(const char* name, float* v, const float min, const float max) {
-    ImGui::Text(name);
-    ImGui::SliderFloat(name, v, min, max, "%.1f");
+void ControlGUI::renderFloatSlider(std::string name, float* v, const float min, const float max, const float scaleFactor) {
+    float temp = *v / scaleFactor;
+    ImGui::Text(name.c_str());
+    ImGui::SliderFloat(("##" + name).c_str(), &temp, min, max, "%.1f");
+    *v = temp * scaleFactor;
 }

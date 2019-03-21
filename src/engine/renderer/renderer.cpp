@@ -3,6 +3,7 @@
 #include "../../util/makeUnique.hpp"
 
 const int DEFAULT_MSAA = 8;
+const float PLANE_SCALE = 0.1f;
 const float DEFAULT_NEAR_PLANE = 1.0f;
 const float DEFAULT_FAR_PLANE = 20000.0f;
 
@@ -11,7 +12,7 @@ Renderer::Renderer() {}
 Renderer::Renderer(const uint32_t& windowWidth, const uint32_t& windowHeight, const float& secondPerFrame,
                    const glm::vec3& bgColor, const int& msaaSample) :
     windowWidth(windowWidth), windowHeight(windowHeight), bgColor(bgColor), secondPerFrame(secondPerFrame),
-    msaaSample(msaaSample), nearVanish(DEFAULT_NEAR_PLANE / 10.0f), farVanish(DEFAULT_FAR_PLANE / 10.0f) {}
+    msaaSample(msaaSample), nearVanish(DEFAULT_NEAR_PLANE * PLANE_SCALE), farVanish(DEFAULT_FAR_PLANE * PLANE_SCALE) {}
 
 SDL_Window* Renderer::initWindow() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {

@@ -7,6 +7,7 @@
 #endif
 
 #include <vector>
+#include <string>
 
 extern const char* GLSL_VERSION;
 
@@ -18,8 +19,8 @@ public:
     static void destroy();
 
     static void renderRadioBtnSelection(const char* name, int* btnNum, const std::vector<const char *>& labels); // Render a group of radio buttons from which at most one item can be selected
-    static void renderIntSlider(const char* name, int* v, const int min, const int max);
-    static void renderFloatSlider(const char* name, float* v, const float min, const float max);
+    static void renderIntSlider(std::string name, int* v, const int min, const int max);
+    static void renderFloatSlider(std::string name, float* v, const float min, const float max, const float scaleFactor = 1.0f);
 private:
     bool showDemoWindow;
 };

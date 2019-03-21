@@ -16,6 +16,7 @@
 #include "../resource/shaderParser.hpp"
 
 extern const int DEFAULT_MSAA;
+extern const float PLANE_SCALE;
 extern const float DEFAULT_NEAR_PLANE;
 extern const float DEFAULT_FAR_PLANE;
 
@@ -67,16 +68,20 @@ public:
         update(interpolation);
 
         shader.use();
-        glm::mat4 model;
-        shader.setMat4("model", model);
         shader.setMat4("view", camera.getViewMatrix());
         shader.setMat4("projection", glm::perspective(glm::radians(camera.getZoom()), (float)windowWidth / (float)windowHeight, nearVanish, farVanish));
 
         // Render particles
         for (auto const& emitter : emitters) {
+            // Base scale for different geometries
             glm::mat4 baseScale;
-            baseScale = glm::scale(baseScale, glm::vec3(emitter->getBaseScale()));
+            // TODO: Very ugly way to integrate size of particle, use instanced model matrix instead
+            baseScale = glm::scale(baseScale, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
             shader.setMat4("baseScale", baseScale);
+
+            // Particle transformation
+            glm::mat4 model;
+            shader.setMat4("model", model);
             glBindVertexArray(emitter->getVAO());
             if (emitter->useEBO()) {
                 glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, emitter->getOffsets().size() / 3);
