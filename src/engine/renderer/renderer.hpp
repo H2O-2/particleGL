@@ -20,8 +20,6 @@ extern const float PLANE_SCALE;
 extern const float DEFAULT_NEAR_PLANE;
 extern const float DEFAULT_FAR_PLANE;
 
-typedef std::map<uint32_t, int> RenderData;
-
 class Renderer {
 public:
     Renderer();
@@ -32,8 +30,7 @@ public:
     void initShader(const Camera& camera); // Initialize shaders
 
     // Buffer particles attributes using instanced array
-    void initParticleBuffer(const uint32_t& VAO); // Allocate buffer for particles
-    // void bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[] = NULL);
+    void initParticleBuffer(); // Allocate buffer for particles
 
     void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets); // Update particle info in the buffer
 
@@ -67,21 +64,27 @@ public:
         const float interpolation = accumulator / secondPerFrame;
         update(interpolation);
 
-        shader.use();
+        // Update render mode
+        updateCurrentMode(emitters);
+
+        ShaderParser& shader = shaders[currentRenderMode];
         shader.setMat4("view", camera.getViewMatrix());
         shader.setMat4("projection", glm::perspective(glm::radians(camera.getZoom()), (float)windowWidth / (float)windowHeight, nearVanish, farVanish));
 
         // Render particles
         for (auto const& emitter : emitters) {
-            // Base scale for different geometries
-            glm::mat4 baseScale;
-            // TODO: Very ugly way to integrate size of particle, use instanced model matrix instead
-            baseScale = glm::scale(baseScale, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
-            shader.setMat4("baseScale", baseScale);
+            // Transforms for emitters
+            glm::mat4 emitterModel;
+            shader.setMat4("emitterModel", emitterModel);
 
-            // Particle transformation
-            glm::mat4 model;
-            shader.setMat4("model", model);
+            glm::mat4 particleModel;
+            // Scaling and rotation for particles
+            particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
+            shader.setMat4("particleModel", particleModel);
+
+            shader.setVec3("color", emitter->getParticleColor());
+
+            // Render particles
             glBindVertexArray(emitter->getVAO());
             if (emitter->useEBO()) {
                 glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, emitter->getOffsets().size() / 3);
@@ -94,30 +97,51 @@ public:
         SDL_GL_SwapWindow(window);
     }
 private:
+    // Rendering mode for particles.
+    // Uniform Model will pass to shader only instanced translation, rotation and scale will be passed as uniform variables while Varing model will pass instanced model matrices to shader
+    // Uniform Color will only pass color to fragment shdaer as uniform variable while Varing color will pass instanced colors to (vertex) shader
+    enum class RenderMode {
+        U_MODEL_U_COLOR, // Uniform Model Uniform Color
+        U_MODEL_V_COLOR, // Uniform Model Varing Color
+        V_MODEL_U_COLOR, // Varing Model Uniform Color
+        V_MODEL_V_COLOR  // Uniform Model Varing Color
+    };
+
+    static const int OFFSET_POSN;
+    static const int MODEL_MAT_POSN;
+    static const int COLOR_POSN;
+    static const RenderMode DEFAULT_RENDER;
+
+    // Rendering objects
+    SDL_GLContext glContext;
+    SDL_DisplayMode display;
+    SDL_Window* window;
+
+    // VBOs
+    uint32_t instancedOffsetVBO;
+    uint32_t instancedModelMatVBO;
+    uint32_t instancedColorVBO;
+
+    // Rendering attributes
+    glm::vec3 bgColor;
+    RenderMode currentRenderMode;
+    float curTime;
+    int msaaSample; // Level of MSAA
+    float secondPerFrame; // Time of one frame in second
     unsigned int windowWidth;
     unsigned int windowHeight;
 
-    glm::vec3 bgColor;
-    float secondPerFrame; // Time of one frame in second
-
-    SDL_Window* window;
-    SDL_GLContext glContext;
-
-    float curTime;
-
-    int msaaSample; // Level of MSAA
+    // Settings
     float nearVanish; // Far distance from the camera when particle vanishes. The actual value is a tenth of this value
     float farVanish; // Near distance from the camera when particle vanishes. The actual value is a tenth of this value
 
-    SDL_DisplayMode display;
+    std::unordered_map<RenderMode, ShaderParser> shaders; // Shaders corresponding to different render modes
 
-    uint32_t instancedVBO;
-
+    // Determines which render mode to use.
+    // Returns the Varing shader if both Varing and Uniform exists to avoid shader switching overhead
+    // (Need testing to make sure its the right thing to do)
+    void updateCurrentMode(const std::vector<std::shared_ptr<Emitter>>& emitters);
     /***** TODO *****/
     void updateMSAA();
     /***** TODO *****/
-
-    /***** DEBUG *****/
-    ShaderParser shader;
-    /***** DEBUG *****/
 };

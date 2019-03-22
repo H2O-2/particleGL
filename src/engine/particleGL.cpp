@@ -26,9 +26,9 @@ void ParticleGL::addEmitter() {
 }
 
 void ParticleGL::initBuffer() {
-    for (auto& emitter : emitters) {
+    for (size_t i = 0; i < emitters.size(); ++i) {
         // Buffer instanced array
-        renderer.initParticleBuffer(emitter->getVAO());
+        renderer.initParticleBuffer();
     }
 }
 
@@ -47,6 +47,7 @@ void ParticleGL::render() {
         ControlGUI::renderFloatSlider("Velocity", emitter->getInitialVelocityPtr(), 0.0f, 1000.0f, PARTICLE_VELOCITY_SCALE);
         ControlGUI::renderFloatSlider("Life [sec]", emitter->getParticleLifePtr(), 0.0f, 10.0f);
         ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
+        ControlGUI::renderColorEdit3("Color", emitter->getParticleColorPtr());
     }
     ControlGUI::finalizeRender();
 

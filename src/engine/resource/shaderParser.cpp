@@ -76,7 +76,7 @@ uint32_t ShaderParser::getID() const {
     return id;
 }
 
-void ShaderParser::use() {
+void ShaderParser::use() const {
     glUseProgram(id);
 }
 

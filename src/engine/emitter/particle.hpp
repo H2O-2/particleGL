@@ -12,7 +12,7 @@ enum class ParticleType {
 
 struct Particle {
 
-    Particle(glm::vec3 velocity, float life, float size) : life(life), color(glm::vec3(1.0f)), offset(glm::vec3(0.0f)),
+    Particle(glm::vec3 velocity, glm::vec3 color, float life, float size) : life(life), color(color), offset(glm::vec3(0.0f)),
         opacity(100.0f), rotation(glm::vec3(0.0f)), size(size), velocity(velocity) {}
 
     float life; // Age of the particle in seconds

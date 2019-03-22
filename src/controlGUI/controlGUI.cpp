@@ -46,15 +46,9 @@ void ControlGUI::finalizeRender() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ControlGUI::renderRadioBtnSelection(const char* name, int* btnNum, const std::vector<const char *>& labels) {
-    ImGui::Text(name);
-
-    for (int i = 0; i < labels.size() - 1; ++i) {
-        ImGui::RadioButton(labels[i], btnNum, i);
-        ImGui::SameLine();
-    }
-
-    ImGui::RadioButton(labels[labels.size() - 1], btnNum, labels.size() - 1);
+void ControlGUI::renderColorEdit3(std::string name, float* v) {
+    ImGui::Text(name.c_str());
+    ImGui::ColorEdit3(("##" + name).c_str(), v);
 }
 
 void ControlGUI::renderIntSlider(std::string name, int* v, const int min, const int max) {
@@ -68,3 +62,15 @@ void ControlGUI::renderFloatSlider(std::string name, float* v, const float min, 
     ImGui::SliderFloat(("##" + name).c_str(), &temp, min, max, "%.1f");
     *v = temp * scaleFactor;
 }
+
+void ControlGUI::renderRadioBtnSelection(const char* name, int* btnNum, const std::vector<const char *>& labels) {
+    ImGui::Text(name);
+
+    for (int i = 0; i < labels.size() - 1; ++i) {
+        ImGui::RadioButton(labels[i], btnNum, i);
+        ImGui::SameLine();
+    }
+
+    ImGui::RadioButton(labels[labels.size() - 1], btnNum, labels.size() - 1);
+}
+

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
@@ -14,7 +14,7 @@ public:
     ~ShaderParser();
     uint32_t getID() const;
     void init();
-    void use();
+    void use() const;
     void setInt(const string &name, const int v);
     void setFloat(const string &name, const float v);
     void setBool(const string &name, const bool v);
@@ -28,7 +28,7 @@ private:
         int size;
         GLenum type;
     };
-    std::map<string, UniformVariable> uniformBuffer;
+    std::unordered_map<string, UniformVariable> uniformBuffer;
     string vertexShaderPath;
     string fragShaderPath;
     string geometryShaderPath;

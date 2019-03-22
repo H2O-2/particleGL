@@ -3,6 +3,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include <glm/gtc/type_ptr.hpp>
+
 const int MAX_PARTICLE_NUM = 10000;
 const int INIT_PARTICLE_PER_SEC = 100;
 const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NONE;
@@ -11,7 +13,13 @@ const EmitterDirection INIT_EMIT_DIR = EmitterDirection::UNIFORM;
 const float INIT_DIR_SPREAD = 20.0f;
 const EmitterType INIT_EMITTER_TYPE = EmitterType::POINT;
 const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
+
+const glm::vec3 INIT_PARTICLE_COLOR = glm::vec3(1.0f);
+const int INIT_COLOR_RANDOMNESS = 0;
+
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
+const int INIT_ROTATION_RANDOMNESS = 0;
+
 const float INIT_PARTICLE_SIZE = 1.0f;
 const float PARTICLE_SIZE_SCALE = 0.2f;
 const float INIT_FEATHER = 50.0;
@@ -23,9 +31,9 @@ Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TY
         blendType(INIT_BLEND_TYPE), particlesPerSec(INIT_PARTICLE_PER_SEC),
         particlesPerFrame(INIT_PARTICLE_PER_SEC * secondPerFrame), particleType(INIT_PARTICLE_TYPE),
         direction(INIT_EMIT_DIR), directionSpread(-1.0), emitterType(INIT_EMITTER_TYPE), position(INIT_EMITTER_POSN),
-        rotation(glm::vec3(-1.0f)), feather(0.0f), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE),
-        particleLife(INIT_LIFE), lifeRandom(0), opacityRandom(0), rotationRandom(0), particleSize(INIT_PARTICLE_SIZE),
-        sizeRandom(0), lastUsedParticle(0) {
+        rotation(glm::vec3(-1.0f)), particleColor(INIT_PARTICLE_COLOR), colorRandom(INIT_COLOR_RANDOMNESS),
+        feather(0.0f), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE), particleLife(INIT_LIFE), lifeRandom(0),
+        opacityRandom(0), rotationRandom(INIT_ROTATION_RANDOMNESS), particleSize(INIT_PARTICLE_SIZE), sizeRandom(0), lastUsedParticle(0) {
 
     // Initialize geometry data
     setGeometry(particleType);
@@ -60,6 +68,10 @@ float* Emitter::getParticleSizePtr() {
     return &particleSize;
 }
 
+int Emitter::getSizeRandomness() const {
+    return sizeRandom;
+}
+
 ParticleType Emitter::getParticleType() const {
     return particleType;
 }
@@ -73,8 +85,24 @@ void Emitter::setParticleType(ParticleType particleType) {
     }
 }
 
+glm::vec3 Emitter::getParticleColor() const {
+    return particleColor;
+}
+
+float* Emitter::getParticleColorPtr() {
+    return glm::value_ptr(particleColor);
+}
+
+int Emitter::getColorRandomness() {
+    return colorRandom;
+}
+
 float* Emitter::getInitialVelocityPtr() {
     return &initVelocity;
+}
+
+int Emitter::getRotationRandomness() const {
+    return rotationRandom;
 }
 
 float Emitter::getBaseScale() const {
@@ -131,9 +159,9 @@ void Emitter::update(const float& interpolation) {
         float horizontalVelocity = initVelocity * sinf(inclination);
         glm::vec3 newParticleVelocity(horizontalVelocity * sinf(azimuth), initVelocity * cosf(inclination), horizontalVelocity * cosf(azimuth));
         if (newParticleIndex < 0) {
-            particles.emplace_back(newParticleVelocity, particleLife, particleSize);
+            particles.emplace_back(newParticleVelocity, particleColor, particleLife, particleSize);
         } else {
-            particles[newParticleIndex] = Particle(newParticleVelocity, particleLife, particleSize);
+            particles[newParticleIndex] = Particle(newParticleVelocity, particleColor, particleLife, particleSize);
         }
     }
 

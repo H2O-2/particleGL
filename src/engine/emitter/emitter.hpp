@@ -36,6 +36,8 @@ extern const EmitterDirection INIT_EMIT_DIR;
 extern const float INIT_DIR_SPREAD;
 extern const EmitterType INIT_EMITTER_TYPE;
 extern const glm::vec3 INIT_EMITTER_POSN;
+
+extern const glm::vec3 INIT_PARTICLE_COLOR;
 extern const glm::vec3 INIT_PARTICLE_ROTATION;
 extern const float INIT_PARTICLE_SIZE;
 extern const float PARTICLE_SIZE_SCALE;
@@ -55,21 +57,37 @@ public:
 
     /***** Particle Attributes *****/
     size_t getParticleNum() const;
+
     uint32_t* getParticlesPerSecPtr();
     void setParticlesPerSec(const uint32_t& particlesPerSec);
+
     ParticleType getParticleType() const;
     void setParticleType(ParticleType particleType);
+
     ParticleBlend getBlendType() const;
+
+    glm::vec3 getParticleColor() const;
+    float* getParticleColorPtr();
+    int getColorRandomness();
+
     float* getParticleLifePtr();
+    void setLifeRandomness(const int& lifeRandom);
+
+    void setOpacityRandomness(const int& opacityRandom);
+
+    glm::vec3 getParticleRotation() const;
+    int getRotationRandomness() const;
+    void setRotationRandomness(const int& rotationRandom);
+
     float getParticleSize() const;
     float* getParticleSizePtr();
+    int getSizeRandomness() const;
+    void setSizeRandomness(const int& sizeRandom);
+
     float* getInitialVelocityPtr();
     void setInitialVelocity(const float& initVelocity);
-    void setInitialVelocityRandomness(const float& initVelocityRandom);
-    void setLifeRandomness(const int& lifeRandom);
-    void setSizeRandomness(const int& sizeRandom);
-    void setRotationRandomness(const int& rotationRandom);
-    void setOpacityRandomness(const int& opacityRandom);
+    void setInitialVelocityRandomness(const int& initVelocityRandom);
+
 
     /***** Emitter Attributes *****/
     glm::vec3 getPosn() const;
@@ -112,6 +130,9 @@ private:
     glm::vec3 rotation; // Rotation of emitter
     glm::vec3 size; // Size of emitter, this is disabled for point emitters
 
+    glm::vec3 particleColor; // Color of particles
+    int colorRandom; // Randomness of color in percentage(%), 0% means no change of color to all particles and 100% means any color is possible
+
     float feather; // Level of feathering, only available for sphere type (currently)
 
     float initVelocity; // Initial velocity of particles measured in seconds
@@ -122,6 +143,7 @@ private:
     int lifeRandom; // Randomness of particle life span in percentage(%), 0% means the particles genearted at the same time will all die at once and 100% means a possible range of [0.9*l0, 1.1*l0] where l0 is the life span specified
 
     int opacityRandom; // Randomness of particle opacity in percentage(%), 100% means a possible range of [0, p0] where p0 is the specified opacity
+
     int rotationRandom; // Rotates the particle around a random axis, randomness in percentage(%) where 0% means 0 deg rotation for all particles and 100% means rotation in the range of [0, 360] deg
 
     float particleSize;
