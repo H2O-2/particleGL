@@ -85,7 +85,6 @@ void Renderer::initShader(const Camera& camera) {
     for (auto& shader : shaders) {
         shader.second.init();
     }
-    shaders[DEFAULT_RENDER].use();
 }
 
 void Renderer::initParticleBuffer() {
@@ -126,8 +125,6 @@ void Renderer::initParticleBuffer() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-// void Renderer::bufferParticles(glm::mat4 modelMats[], glm::vec3 colors[]) {}
-
 void Renderer::updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets) {
     glBindVertexArray(VAO);
 
@@ -135,11 +132,22 @@ void Renderer::updateParticleBuffer(const uint32_t& VAO, const std::vector<float
         case RenderMode::U_MODEL_U_COLOR:
             glBindBuffer(GL_ARRAY_BUFFER, instancedOffsetVBO);
             glBufferSubData(GL_ARRAY_BUFFER, 0, offsets.size() * sizeof(float), offsets.data());
-            glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-            glVertexAttribDivisor(1, 1);
+            glEnableVertexAttribArray(OFFSET_POSN);
+            glVertexAttribPointer(OFFSET_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+            glVertexAttribDivisor(OFFSET_POSN, 1);
             break;
         case RenderMode::U_MODEL_V_COLOR:
+            glBindBuffer(GL_ARRAY_BUFFER, instancedOffsetVBO);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, offsets.size() * sizeof(float), offsets.data());
+            glEnableVertexAttribArray(OFFSET_POSN);
+            glVertexAttribPointer(OFFSET_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+            glVertexAttribDivisor(OFFSET_POSN, 1);
+
+            // glBindBuffer(GL_ARRAY_BUFFER, instancedColorVBO);
+            // glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLE_NUM * 3 * sizeof(float), NULL, GL_STREAM_DRAW);
+            // glEnableVertexAttribArray(COLOR_POSN);
+            // glVertexAttribPointer(COLOR_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+            // glVertexAttribDivisor(COLOR_POSN, 1);
             break;
         case RenderMode::V_MODEL_U_COLOR:
             break;

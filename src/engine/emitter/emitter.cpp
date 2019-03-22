@@ -93,8 +93,12 @@ float* Emitter::getParticleColorPtr() {
     return glm::value_ptr(particleColor);
 }
 
-int Emitter::getColorRandomness() {
+int Emitter::getColorRandomness() const {
     return colorRandom;
+}
+
+int* Emitter::getColorRandomnessPtr() {
+    return &colorRandom;
 }
 
 float* Emitter::getInitialVelocityPtr() {
@@ -117,7 +121,7 @@ int Emitter::getIndexNum() const{
     return curGeomtry->getIndexNum();
 }
 
-std::vector<float> Emitter::getOffsets() {
+std::vector<float> Emitter::getOffsets() const {
     return offsets;
 }
 

@@ -48,6 +48,7 @@ void ParticleGL::render() {
         ControlGUI::renderFloatSlider("Life [sec]", emitter->getParticleLifePtr(), 0.0f, 10.0f);
         ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
         ControlGUI::renderColorEdit3("Color", emitter->getParticleColorPtr());
+        ControlGUI::renderIntSlider("Color Random", emitter->getColorRandomnessPtr(), 0, 100);
     }
     ControlGUI::finalizeRender();
 

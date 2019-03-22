@@ -68,6 +68,7 @@ public:
         updateCurrentMode(emitters);
 
         ShaderParser& shader = shaders[currentRenderMode];
+        shader.use();
         shader.setMat4("view", camera.getViewMatrix());
         shader.setMat4("projection", glm::perspective(glm::radians(camera.getZoom()), (float)windowWidth / (float)windowHeight, nearVanish, farVanish));
 
@@ -77,12 +78,24 @@ public:
             glm::mat4 emitterModel;
             shader.setMat4("emitterModel", emitterModel);
 
-            glm::mat4 particleModel;
             // Scaling and rotation for particles
-            particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
-            shader.setMat4("particleModel", particleModel);
-
-            shader.setVec3("color", emitter->getParticleColor());
+            glm::mat4 particleModel;
+            switch (currentRenderMode) {
+                case RenderMode::U_MODEL_U_COLOR:
+                    particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
+                    shader.setMat4("particleModel", particleModel);
+                    shader.setVec3("color", emitter->getParticleColor());
+                    break;
+                case RenderMode::U_MODEL_V_COLOR:
+                    particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
+                    shader.setMat4("particleModel", particleModel);
+                    break;
+                case RenderMode::V_MODEL_U_COLOR:
+                    shader.setVec3("color", emitter->getParticleColor());
+                    break;
+                default:
+                    break;
+            }
 
             // Render particles
             glBindVertexArray(emitter->getVAO());

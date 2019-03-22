@@ -68,7 +68,8 @@ public:
 
     glm::vec3 getParticleColor() const;
     float* getParticleColorPtr();
-    int getColorRandomness();
+    int getColorRandomness() const;
+    int* getColorRandomnessPtr();
 
     float* getParticleLifePtr();
     void setLifeRandomness(const int& lifeRandom);
@@ -104,7 +105,7 @@ public:
     float getBaseScale() const;
     GLenum getDrawMode() const;
     int getIndexNum() const;
-    std::vector<float> getOffsets();
+    std::vector<float> getOffsets() const;
     glm::mat4* getModelMatrices() const;
     uint32_t getVAO() const;
 
