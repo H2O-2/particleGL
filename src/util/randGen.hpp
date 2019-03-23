@@ -16,9 +16,10 @@ public:
     RandGen(uint32_t seed = 100000);
     uint32_t getSeed();
     void setSeed(uint32_t seed);
-    bool randBool();
+    bool randBool(const float p = 0.5f);
     IntDist::result_type randIntClosed(const int rangeMin, const int rangeMax);
     RealDist::result_type randRealClosed(const float rangeMin, const float rangeMax);
+    RealDist::result_type randRealOpenLeft(const float rangeMin, const float rangeMax);
     RealDist::result_type randRealOpenRight(const float rangeMin, const float rangeMax);
     glm::vec3 randVec3(const float rangeMin, const float rangeMax);
 private:

@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-RandGen::RandGen(uint32_t seed) : seed(seed), engine(RandEngine(seed)), boolDist(BoolDist(0.5)), intDist(IntDist(0, 101)), realDist(RealDist(0.0f, closedBound(0.5f))) {}
+RandGen::RandGen(uint32_t seed) : seed(seed), engine(RandEngine(seed)), boolDist(), intDist(IntDist(0, 101)), realDist(RealDist(0.0f, closedBound(0.5f))) {}
 
 uint32_t RandGen::getSeed() {
     return seed;
@@ -13,7 +13,14 @@ void RandGen::setSeed(uint32_t seed) {
     engine.seed(seed);
 }
 
-bool RandGen::randBool() {
+bool RandGen::randBool(const float p) {
+    // If requested probability of true is available, generate directly
+    if (p == boolDist.p()) {
+        return boolDist(engine);
+    }
+
+    // else re-initialize a new possibility and generate
+    boolDist = BoolDist(p);
     return boolDist(engine);
 }
 
@@ -32,14 +39,11 @@ RealDist::result_type RandGen::randRealClosed(const float rangeMin, const float 
     // Generate the upper bound to close the range of [rangeMin, rangeMax]
     float upperBound = closedBound(rangeMax);
 
-    // If requested range is available, generate directly
-    if (rangeMin == realDist.min() && upperBound == realDist.max()) {
-        return realDist(engine);
-    }
+    return randRealOpenLeft(rangeMin, upperBound);
+}
 
-    // else re-initialize a new range and generate
-    realDist = RealDist(rangeMin, upperBound);
-    return realDist(engine);
+RealDist::result_type RandGen::randRealOpenLeft(const float rangeMin, const float rangeMax) {
+    return -randRealOpenRight(-rangeMax, -rangeMin);
 }
 
 RealDist::result_type RandGen::randRealOpenRight(const float rangeMin, const float rangeMax) {

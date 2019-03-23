@@ -54,6 +54,8 @@ extern const float INIT_LIFE;
 extern const glm::vec3 INIT_PARTICLE_ROTATION;
 extern const float INIT_PARTICLE_SIZE;
 extern const float INIT_VELOCITY;
+extern const float INIT_VELOCITY_RANDOMNESS;
+extern const float INIT_VELOCITY_RANDOMNESS_DIST;
 extern const float PARTICLE_SIZE_SCALE;
 extern const float PARTICLE_VELOCITY_SCALE;
 
@@ -78,7 +80,6 @@ public:
 
     glm::vec3 getParticleColor() const;
     float* getParticleColorPtr();
-    float getParticleColorRandomness() const;
     float* getParticleColorRandomnessPtr();
 
     float* getParticleLifePtr();
@@ -96,7 +97,8 @@ public:
     void setParticleSizeRandomness(const float particleSizeRandom);
 
     float* getInitialVelocityPtr();
-    void setInitialVelocityRandomness(const float initVelocityRandom);
+    float* getInitialVelocityRandomnessPtr();
+    float* getInitialVelocityRandomnessDistributionPtr();
 
 
     /***** Emitter Attributes *****/
@@ -139,7 +141,9 @@ private:
     glm::vec3 size; // Size of emitter, this is disabled for point emitters
     float initVelocity; // Initial velocity of particles measured in seconds
     float initVelocityPerFrame; // Initial velocity of particles measured in frames
-    float initVelocityRandom; // Randomness of velocity in percentage(%), 0% means no change of velocity to all particles and 100% means a possible range of [0, 2*v0] of velocity where v0 is the velocity specified
+    float initVelocityRandom; // Randomness of velocity in percentage(%), 0% means no change of velocity to all particles and r% means a possible range of ((1-r%)*v0, (1+r%)*v0] of velocity where v0 is the velocity specified
+    // NOTE: The initVelocityRandomDistribution behaves differently from the Velocity Distribution in Particular as I found it couterintuitive
+    float initVelocityRandomDistribution; // Portion of the random generated initial velocity that is higher than the given initial velocity.
 
     /****** Particle Attributes ******/
     ParticleBlend blendType; // Type of blend applied to particles

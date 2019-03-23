@@ -29,6 +29,8 @@ const float PARTICLE_SIZE_SCALE = 0.2f;
 const float INIT_FEATHER = 50.0;
 const float PARTICLE_VELOCITY_SCALE = 7.0f / 1000.0f;
 const float INIT_VELOCITY = 100.0f;
+const float INIT_VELOCITY_RANDOMNESS = 0.2f;
+const float INIT_VELOCITY_RANDOMNESS_DIST = 0.5f;
 const float INIT_LIFE = 3.0f;
 
 Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TYPE), secondPerFrame(secondPerFrame),
@@ -36,8 +38,10 @@ Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TY
         particlesPerFrame(INIT_PARTICLE_PER_SEC * secondPerFrame), particleType(INIT_PARTICLE_TYPE),
         direction(INIT_EMIT_DIR), directionSpread(-1.0), emitterType(INIT_EMITTER_TYPE), position(INIT_EMITTER_POSN),
         rotation(glm::vec3(-1.0f)), particleColor(INIT_PARTICLE_COLOR), particleColorRandom(INIT_COLOR_RANDOMNESS),
-        feather(0.0f), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE), particleLife(INIT_LIFE), particleLifeRandom(0),
-        particleOpacityRandom(0), particleRotationRandom(INIT_ROTATION_RANDOMNESS), particleSize(INIT_PARTICLE_SIZE), particleSizeRandom(0),
+        feather(INIT_FEATHER), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE),
+        initVelocityRandom(INIT_VELOCITY_RANDOMNESS), initVelocityRandomDistribution(INIT_VELOCITY_RANDOMNESS_DIST),
+        particleLife(INIT_LIFE), particleLifeRandom(0), particleOpacityRandom(0),
+        particleRotationRandom(INIT_ROTATION_RANDOMNESS), particleSize(INIT_PARTICLE_SIZE), particleSizeRandom(0),
         emitterRenderMode(DEFAULT_RENDER), lastUsedParticle(0) {
 
     // Initialize geometry data
@@ -99,16 +103,20 @@ float* Emitter::getParticleColorPtr() {
     return glm::value_ptr(particleColor);
 }
 
-float Emitter::getParticleColorRandomness() const {
-    return particleColorRandom;
-}
-
 float* Emitter::getParticleColorRandomnessPtr() {
     return &particleColorRandom;
 }
 
 float* Emitter::getInitialVelocityPtr() {
     return &initVelocity;
+}
+
+float* Emitter::getInitialVelocityRandomnessPtr() {
+    return &initVelocityRandom;
+}
+
+float* Emitter::getInitialVelocityRandomnessDistributionPtr() {
+    return &initVelocityRandomDistribution;
 }
 
 float Emitter::getParticleRotationRandomness() const {
@@ -173,10 +181,15 @@ void Emitter::update(const float& interpolation) {
     for (int i = 0; i < newParticleNum; ++i) {
         newParticleIndex = getFirstUnusedParticle();
 
+        float newParticleInitVelocity = initVelocity;
+        if (initVelocityRandom > 0.0f) {
+            float offset = (randGen.randBool(initVelocityRandomDistribution) ? 1 : -1) * randGen.randRealOpenRight(0.0f, initVelocityRandom);
+            newParticleInitVelocity = initVelocity + offset;
+        }
         float inclination = randGen.randRealClosed(0.0f, M_PI);
         float azimuth = randGen.randRealOpenRight(0.0, 2 * M_PI);
-        float horizontalVelocity = initVelocity * sinf(inclination);
-        glm::vec3 newParticleVelocity(horizontalVelocity * sinf(azimuth), initVelocity * cosf(inclination), horizontalVelocity * cosf(azimuth));
+        float horizontalVelocity = newParticleInitVelocity * sinf(inclination);
+        glm::vec3 newParticleVelocity(horizontalVelocity * sinf(azimuth), newParticleInitVelocity * cosf(inclination), horizontalVelocity * cosf(azimuth));
 
         glm::vec3 newParticleColor(particleColor);
         if (particleColorRandom > 0.0f) {
