@@ -14,11 +14,10 @@ public:
     void render();
     bool shouldEnd() const;
 private:
+    float secondPerFrame; // Time of one frame in second
+
     Camera camera;
     SDL_Window* window;
     Renderer renderer;
     std::vector<std::shared_ptr<Emitter>> emitters;
-    float secondPerFrame; // Time of one frame in second
-
-    void setParticleType(const int& emitterIndex, ParticleType particleType);
 };

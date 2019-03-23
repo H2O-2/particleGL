@@ -13,8 +13,8 @@ const int Renderer::COLOR_POSN = 2;
 
 Renderer::Renderer() {}
 
-Renderer::Renderer(const uint32_t& windowWidth, const uint32_t& windowHeight, const float& secondPerFrame,
-                   const glm::vec3& bgColor, const int& msaaSample) :
+Renderer::Renderer(const uint32_t windowWidth, const uint32_t windowHeight, const float secondPerFrame,
+                   const glm::vec3& bgColor, const int msaaSample) :
     bgColor(bgColor), currentRenderMode(DEFAULT_RENDER), msaaSample(msaaSample), secondPerFrame(secondPerFrame),
     windowWidth(windowWidth), windowHeight(windowHeight), nearVanish(DEFAULT_NEAR_PLANE * PLANE_SCALE),
     farVanish(DEFAULT_FAR_PLANE * PLANE_SCALE) {}
@@ -124,7 +124,7 @@ void Renderer::initParticleBuffer() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Renderer::updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets) {
+void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets) {
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, instancedOffsetVBO);
@@ -134,7 +134,7 @@ void Renderer::updateParticleBuffer(const uint32_t& VAO, const std::vector<float
     glVertexAttribDivisor(OFFSET_POSN, 1);
 }
 
-void Renderer::updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets, const std::vector<float>& colors) {
+void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets, const std::vector<float>& colors) {
     updateParticleBuffer(VAO, offsets);
 
     glBindBuffer(GL_ARRAY_BUFFER, instancedColorVBO);
@@ -142,6 +142,25 @@ void Renderer::updateParticleBuffer(const uint32_t& VAO, const std::vector<float
     glEnableVertexAttribArray(COLOR_POSN);
     glVertexAttribPointer(COLOR_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glVertexAttribDivisor(COLOR_POSN, 1);
+}
+
+void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<glm::mat4>& modelMatrices) {
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, instancedModelMatVBO);
+    // glBufferSubData(GL_ARRAY_BUFFER, 0, modelMatrices.size() * )
+    glEnableVertexAttribArray(MODEL_MAT_POSN);
+    glEnableVertexAttribArray(MODEL_MAT_POSN + 1);
+    glEnableVertexAttribArray(MODEL_MAT_POSN + 2);
+    glEnableVertexAttribArray(MODEL_MAT_POSN + 3);
+    glVertexAttribPointer(MODEL_MAT_POSN, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)0);
+    glVertexAttribPointer(MODEL_MAT_POSN + 1, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(4 * sizeof(float)));
+    glVertexAttribPointer(MODEL_MAT_POSN + 2, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(8 * sizeof(float)));
+    glVertexAttribPointer(MODEL_MAT_POSN + 3, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(16 * sizeof(float)));
+    glVertexAttribDivisor(MODEL_MAT_POSN, 1);
+    glVertexAttribDivisor(MODEL_MAT_POSN + 1, 1);
+    glVertexAttribDivisor(MODEL_MAT_POSN + 2, 1);
+    glVertexAttribDivisor(MODEL_MAT_POSN + 3, 1);
 }
 
 SDL_GLContext Renderer::getGLContext() const {

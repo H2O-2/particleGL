@@ -23,7 +23,7 @@ extern const float DEFAULT_FAR_PLANE;
 class Renderer {
 public:
     Renderer();
-    Renderer(const uint32_t& windowWidth, const uint32_t& windowHeight, const float& framerate, const glm::vec3& bgColor, const int& msaaSample = DEFAULT_MSAA);
+    Renderer(const uint32_t windowWidth, const uint32_t windowHeight, const float framerate, const glm::vec3& bgColor, const int msaaSample = DEFAULT_MSAA);
 
     SDL_Window* initWindow(); // Initialize window and return the pointer of it
     void initTimer(); // Initialize curTime
@@ -33,9 +33,9 @@ public:
     void initParticleBuffer(); // Allocate buffer for particles
 
     // Update particle info in the buffer. Different overrides corresponds to different render modes
-    void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets); // U_Model_U_COLOR
-    void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets, const std::vector<float>& colors); // U_MODEL_V_COLOR
-    // void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets); // V_MODEL_U_COLOR
+    void updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets); // U_Model_U_COLOR
+    void updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets, const std::vector<float>& colors); // U_MODEL_V_COLOR
+    void updateParticleBuffer(const uint32_t VAO, const std::vector<glm::mat4>& modelMatrices); // V_MODEL_U_COLOR
     // void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets, const std::vector<float>& colors); // V_MODEL_V_COLOR
 
     bool isHidpi() const; // Returns true if the current display is HiDPI

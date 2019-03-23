@@ -78,10 +78,6 @@ float* Emitter::getParticleSizePtr() {
     return &particleSize;
 }
 
-float Emitter::getParticleSizeRandomness() const {
-    return particleSizeRandom;
-}
-
 ParticleType Emitter::getParticleType() const {
     return particleType;
 }
@@ -95,7 +91,7 @@ void Emitter::setParticleType(ParticleType particleType) {
     }
 }
 
-glm::vec3 Emitter::getParticleColor() const {
+const glm::vec3& Emitter::getParticleColor() const {
     return particleColor;
 }
 
@@ -135,11 +131,11 @@ int Emitter::getIndexNum() const{
     return curGeomtry->getIndexNum();
 }
 
-std::vector<float> Emitter::getInstancedColors() const {
+const std::vector<float>& Emitter::getInstancedColors() const {
     return colors;
 }
 
-std::vector<float> Emitter::getOffsets() const {
+const std::vector<float>& Emitter::getOffsets() const {
     return offsets;
 }
 
@@ -182,24 +178,30 @@ void Emitter::update(const float& interpolation) {
         newParticleIndex = getFirstUnusedParticle();
 
         float newParticleInitVelocity = initVelocity;
+        // Calculate random velocity if randomness is set
         if (initVelocityRandom > 0.0f) {
             float offset = (randGen.randBool(initVelocityRandomDistribution) ? 1 : -1) * randGen.randRealOpenRight(0.0f, initVelocityRandom);
             newParticleInitVelocity = initVelocity + offset;
         }
+
+        // Calculate actual velocity on different axis using spherical coordinate
         float inclination = randGen.randRealClosed(0.0f, M_PI);
         float azimuth = randGen.randRealOpenRight(0.0, 2 * M_PI);
         float horizontalVelocity = newParticleInitVelocity * sinf(inclination);
         glm::vec3 newParticleVelocity(horizontalVelocity * sinf(azimuth), newParticleInitVelocity * cosf(inclination), horizontalVelocity * cosf(azimuth));
 
         glm::vec3 newParticleColor(particleColor);
+        // Calculate random color if randomness is set
         if (particleColorRandom > 0.0f) {
            glm::vec3 randomColor = randGen.randVec3(0.0f, 1.0f);
            newParticleColor = colorLerp(randomColor, particleColor, particleColorRandom);
         }
 
         if (newParticleIndex < 0) {
+            // Push new particles to the particles vector if all particles are in use
             particles.emplace_back(newParticleVelocity, newParticleColor, particleLife, particleSize);
         } else {
+            // Otherwise replace the unused particle
             particles[newParticleIndex] = Particle(newParticleVelocity, newParticleColor, particleLife, particleSize);
         }
     }

@@ -1,10 +1,9 @@
 #include "particleGL.hpp"
 #include "../controlGUI/controlGUI.hpp"
 
-ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor) {
+ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor)
+    : secondPerFrame(1.0f / framerate), renderer(Renderer(windowWidth, windowHeight, secondPerFrame, bgColor)) {
     // Initialize renderer & OpenGL context
-    secondPerFrame = 1.0f / framerate;
-    renderer = Renderer(windowWidth, windowHeight, secondPerFrame, bgColor);
     this->window = renderer.initWindow();
     renderer.initTimer();
     renderer.initShader(camera);
@@ -82,7 +81,3 @@ void ParticleGL::render() {
 bool ParticleGL::shouldEnd() const {
     return EventManager::shouldQuit;
 }
-
-void ParticleGL::setParticleType(const int& emitterIndex, ParticleType particleType) {
-}
-

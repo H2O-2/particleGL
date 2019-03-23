@@ -78,7 +78,7 @@ public:
 
     ParticleBlend getBlendType() const;
 
-    glm::vec3 getParticleColor() const;
+    const glm::vec3& getParticleColor() const;
     float* getParticleColorPtr();
     float* getParticleColorRandomnessPtr();
 
@@ -87,13 +87,12 @@ public:
 
     void setParticleOpacityRandomness(const float opacityRandom);
 
-    glm::vec3 getParticleRotation() const;
+    const glm::vec3& getParticleRotation() const;
     float getParticleRotationRandomness() const;
     void setParticleRotationRandomness(const float particleRotationRandom);
 
     float getParticleSize() const;
     float* getParticleSizePtr();
-    float getParticleSizeRandomness() const;
     void setParticleSizeRandomness(const float particleSizeRandom);
 
     float* getInitialVelocityPtr();
@@ -102,23 +101,23 @@ public:
 
 
     /***** Emitter Attributes *****/
-    glm::vec3 getPosn() const;
+    const glm::vec3& getPosn() const;
     void setBlendType(ParticleBlend blendType);
     void setType(EmitterType emitterType);
     void setEmitDirection(EmitterDirection direction);
     void setDirectionSpread(const float& directionSpread);
     void setPosn(const glm::vec3& posn);
-    glm::vec3 getRotation() const;
+    const glm::vec3& getRotation() const;
     void setRotation(const glm::vec3& rotation);
-    glm::vec3 getSize() const;
+    const glm::vec3& getSize() const;
     void setSize(const glm::vec3& size);
 
     /***** User Unmodifiables *****/
     float getBaseScale() const;
     GLenum getDrawMode() const;
     int getIndexNum() const;
-    std::vector<float> getInstancedColors() const;
-    std::vector<float> getOffsets() const;
+    const std::vector<float>& getInstancedColors() const;
+    const std::vector<float>& getOffsets() const;
     glm::mat4* getModelMatrices() const;
     RenderMode getRenderMode() const;
     uint32_t getVAO() const;
