@@ -1,6 +1,7 @@
 #pragma once
 
 #include <random>
+#include <glm/glm.hpp>
 
 // Utility class for generating random numbers
 
@@ -15,10 +16,11 @@ public:
     RandGen(uint32_t seed = 100000);
     uint32_t getSeed();
     void setSeed(uint32_t seed);
-    IntDist::result_type randIntClosed(const int& rangeMin, const int& rangeMax);
-    RealDist::result_type randRealClosed(const float& rangeMin, const float& rangeMax);
-    RealDist::result_type randRealOpenRight(const float& rangeMin, const float& rangeMax);
     bool randBool();
+    IntDist::result_type randIntClosed(const int rangeMin, const int rangeMax);
+    RealDist::result_type randRealClosed(const float rangeMin, const float rangeMax);
+    RealDist::result_type randRealOpenRight(const float rangeMin, const float rangeMax);
+    glm::vec3 randVec3(const float rangeMin, const float rangeMax);
 private:
     uint32_t seed;
     RandEngine engine;
@@ -26,5 +28,5 @@ private:
     IntDist intDist;
     RealDist realDist;
 
-    float closedBound(const float& bound); // Returns the float to be used as the upper bound of uniform_real_distribution to form a closed interval with `bound` as upper bound
+    float closedBound(const float bound) const; // Returns the float to be used as the upper bound of uniform_real_distribution to form a closed interval with `bound` as upper bound
 };
