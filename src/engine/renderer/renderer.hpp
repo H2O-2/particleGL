@@ -32,11 +32,16 @@ public:
     // Buffer particles attributes using instanced array
     void initParticleBuffer(); // Allocate buffer for particles
 
-    void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets); // Update particle info in the buffer
+    // Update particle info in the buffer. Different overrides corresponds to different render modes
+    void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets); // U_Model_U_COLOR
+    void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets, const std::vector<float>& colors); // U_MODEL_V_COLOR
+    // void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets); // V_MODEL_U_COLOR
+    // void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets, const std::vector<float>& colors); // V_MODEL_V_COLOR
 
     bool isHidpi() const; // Returns true if the current display is HiDPI
 
     SDL_GLContext getGLContext() const;
+    RenderMode getCurrentRenderMode() const;
 
     void setMSAASample(const int& sample); // Set sample level for MSAA
 
@@ -65,7 +70,7 @@ public:
         update(interpolation);
 
         // Update render mode
-        updateCurrentMode(emitters);
+        updateCurrentRenderMode(emitters);
 
         ShaderParser& shader = shaders[currentRenderMode];
         shader.use();
@@ -110,20 +115,9 @@ public:
         SDL_GL_SwapWindow(window);
     }
 private:
-    // Rendering mode for particles.
-    // Uniform Model will pass to shader only instanced translation, rotation and scale will be passed as uniform variables while Varing model will pass instanced model matrices to shader
-    // Uniform Color will only pass color to fragment shdaer as uniform variable while Varing color will pass instanced colors to (vertex) shader
-    enum class RenderMode {
-        U_MODEL_U_COLOR, // Uniform Model Uniform Color
-        U_MODEL_V_COLOR, // Uniform Model Varing Color
-        V_MODEL_U_COLOR, // Varing Model Uniform Color
-        V_MODEL_V_COLOR  // Uniform Model Varing Color
-    };
-
     static const int OFFSET_POSN;
     static const int MODEL_MAT_POSN;
     static const int COLOR_POSN;
-    static const RenderMode DEFAULT_RENDER;
 
     // Rendering objects
     SDL_GLContext glContext;
@@ -153,7 +147,7 @@ private:
     // Determines which render mode to use.
     // Returns the Varing shader if both Varing and Uniform exists to avoid shader switching overhead
     // (Need testing to make sure its the right thing to do)
-    void updateCurrentMode(const std::vector<std::shared_ptr<Emitter>>& emitters);
+    void updateCurrentRenderMode(const std::vector<std::shared_ptr<Emitter>>& emitters);
     /***** TODO *****/
     void updateMSAA();
     /***** TODO *****/

@@ -7,7 +7,6 @@ const float PLANE_SCALE = 0.1f;
 const float DEFAULT_NEAR_PLANE = 1.0f;
 const float DEFAULT_FAR_PLANE = 20000.0f;
 
-const Renderer::RenderMode Renderer::DEFAULT_RENDER = RenderMode::U_MODEL_U_COLOR;
 const int Renderer::OFFSET_POSN = 1;
 const int Renderer::MODEL_MAT_POSN = 1;
 const int Renderer::COLOR_POSN = 2;
@@ -128,38 +127,29 @@ void Renderer::initParticleBuffer() {
 void Renderer::updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets) {
     glBindVertexArray(VAO);
 
-    switch (currentRenderMode) {
-        case RenderMode::U_MODEL_U_COLOR:
-            glBindBuffer(GL_ARRAY_BUFFER, instancedOffsetVBO);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, offsets.size() * sizeof(float), offsets.data());
-            glEnableVertexAttribArray(OFFSET_POSN);
-            glVertexAttribPointer(OFFSET_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-            glVertexAttribDivisor(OFFSET_POSN, 1);
-            break;
-        case RenderMode::U_MODEL_V_COLOR:
-            glBindBuffer(GL_ARRAY_BUFFER, instancedOffsetVBO);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, offsets.size() * sizeof(float), offsets.data());
-            glEnableVertexAttribArray(OFFSET_POSN);
-            glVertexAttribPointer(OFFSET_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-            glVertexAttribDivisor(OFFSET_POSN, 1);
+    glBindBuffer(GL_ARRAY_BUFFER, instancedOffsetVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, offsets.size() * sizeof(float), offsets.data());
+    glEnableVertexAttribArray(OFFSET_POSN);
+    glVertexAttribPointer(OFFSET_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribDivisor(OFFSET_POSN, 1);
+}
 
-            // glBindBuffer(GL_ARRAY_BUFFER, instancedColorVBO);
-            // glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLE_NUM * 3 * sizeof(float), NULL, GL_STREAM_DRAW);
-            // glEnableVertexAttribArray(COLOR_POSN);
-            // glVertexAttribPointer(COLOR_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-            // glVertexAttribDivisor(COLOR_POSN, 1);
-            break;
-        case RenderMode::V_MODEL_U_COLOR:
-            break;
-        case RenderMode::V_MODEL_V_COLOR:
-            break;
-        default:
-            break;
-    }
+void Renderer::updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets, const std::vector<float>& colors) {
+    updateParticleBuffer(VAO, offsets);
+
+    glBindBuffer(GL_ARRAY_BUFFER, instancedColorVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, colors.size() * sizeof(float), colors.data());
+    glEnableVertexAttribArray(COLOR_POSN);
+    glVertexAttribPointer(COLOR_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribDivisor(COLOR_POSN, 1);
 }
 
 SDL_GLContext Renderer::getGLContext() const {
     return glContext;
+}
+
+RenderMode Renderer::getCurrentRenderMode() const {
+    return currentRenderMode;
 }
 
 void Renderer::setMSAASample(const int& sample) {
@@ -186,17 +176,25 @@ void Renderer::clearScreen() {
 
 /***** Private *****/
 
-void Renderer::updateCurrentMode(const std::vector<std::shared_ptr<Emitter>>& emitters) {
+void Renderer::updateCurrentRenderMode(const std::vector<std::shared_ptr<Emitter>>& emitters) {
     bool colorVaring = false;
     bool modelVaring = false;
 
     for (auto const& emitter : emitters) {
-        if (emitter->getColorRandomness() > 0) {
-            colorVaring = true;
-        }
-
-        if (emitter->getRotationRandomness() > 0 || emitter->getSizeRandomness() > 0) {
-            modelVaring = true;
+        RenderMode curMode = emitter->getRenderMode();
+        switch (curMode) {
+            case RenderMode::U_MODEL_V_COLOR:
+                colorVaring = true;
+                break;
+            case RenderMode::V_MODEL_U_COLOR:
+                modelVaring = true;
+                break;
+            case RenderMode::V_MODEL_V_COLOR:
+                colorVaring = true;
+                modelVaring = true;
+                break;
+            default:
+                break;
         }
     }
 

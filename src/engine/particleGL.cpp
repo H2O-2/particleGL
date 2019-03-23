@@ -58,8 +58,22 @@ void ParticleGL::render() {
             // Update emitter & particle data
             emitters[i]->setParticleType(emitters[i]->newParticleType);
             emitters[i]->update(interpolation);
-            renderer.updateParticleBuffer(emitters[i]->getVAO(), emitters[i]->getOffsets());
+            switch (renderer.getCurrentRenderMode()) {
+                case RenderMode::U_MODEL_U_COLOR:
+                    renderer.updateParticleBuffer(emitters[i]->getVAO(), emitters[i]->getOffsets());
+                    break;
+                case RenderMode::U_MODEL_V_COLOR:
+                    renderer.updateParticleBuffer(emitters[i]->getVAO(), emitters[i]->getOffsets(), emitters[i]->getInstancedColors());
+                    break;
+                case RenderMode::V_MODEL_U_COLOR:
+                    break;
+                case RenderMode::V_MODEL_V_COLOR:
+                    break;
+                default:
+                    break;
+            }
         }
+
     });
 }
 

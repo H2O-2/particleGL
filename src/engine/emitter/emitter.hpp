@@ -4,7 +4,6 @@
 #include "../geometries/sphere.hpp"
 #include "../geometries/square.hpp"
 #include "../geometries/triangle.hpp"
-#include "../../util/makeUnique.hpp"
 #include "../../util/randGen.hpp"
 
 // Shape of particle emitter
@@ -28,6 +27,16 @@ enum class ParticleBlend {
     LIGHTEN
 };
 
+// Rendering mode for particles.
+// Uniform Model will pass to shader only instanced translation, rotation and scale will be passed as uniform variables while Varing model will pass instanced model matrices to shader
+// Uniform Color will only pass color to fragment shdaer as uniform variable while Varing color will pass instanced colors to (vertex) shader
+enum class RenderMode {
+    U_MODEL_U_COLOR, // Uniform Model Uniform Color
+    U_MODEL_V_COLOR, // Uniform Model Varing Color
+    V_MODEL_U_COLOR, // Varing Model Uniform Color
+    V_MODEL_V_COLOR  // Uniform Model Varing Color
+};
+
 extern const int MAX_PARTICLE_NUM;
 extern const int INIT_PARTICLE_PER_SEC;
 extern const ParticleBlend INIT_BLEND_TYPE;
@@ -36,6 +45,7 @@ extern const EmitterDirection INIT_EMIT_DIR;
 extern const float INIT_DIR_SPREAD;
 extern const EmitterType INIT_EMITTER_TYPE;
 extern const glm::vec3 INIT_EMITTER_POSN;
+extern const RenderMode DEFAULT_RENDER;
 
 extern const glm::vec3 INIT_PARTICLE_COLOR;
 extern const glm::vec3 INIT_PARTICLE_ROTATION;
@@ -102,11 +112,14 @@ public:
     glm::vec3 getSize() const;
     void setSize(const glm::vec3& size);
 
+    /***** User Unmodifiables *****/
     float getBaseScale() const;
     GLenum getDrawMode() const;
     int getIndexNum() const;
+    std::vector<float> getInstancedColors() const;
     std::vector<float> getOffsets() const;
     glm::mat4* getModelMatrices() const;
+    RenderMode getRenderMode() const;
     uint32_t getVAO() const;
 
     bool useEBO() const;
@@ -156,13 +169,16 @@ private:
     /** TODO: color over life and random color **/
     /** TODO: Pre Run **/
 
+    RenderMode emitterRenderMode;
 
     RandGen randGen; // Random number generator
 
     uint16_t lastUsedParticle; // Last used particle
+    std::vector<float> colors; // Offsets of particles
     std::vector<float> offsets; // Offsets of particles
     float newParticleNumBuffer; // Buffers the current `number` of particles to be emitted. This value is always smaller than one after each update
 
     int getFirstUnusedParticle(); // Get the index of first unused particle in particles vector
     void setGeometry(ParticleType particleType); // Buffer the geometry and GPU data for geometry of given type
+    void updateRenderMode();
 };
