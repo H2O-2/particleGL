@@ -3,8 +3,6 @@
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#include <stdio.h>
-
 const char* GLSL_VERSION = "#version 330";
 
 void ControlGUI::init(SDL_Window* window, SDL_GLContext glContext, bool isHiDpi) {
@@ -56,6 +54,13 @@ void ControlGUI::renderIntSlider(std::string name, int* v, const int min, const 
     ImGui::SliderInt(("##" + name).c_str(), v, min, max);
 }
 
+void ControlGUI::renderIntSlider(std::string name, float* v, const int min, const int max, const float scaleFactor) {
+    int temp = static_cast<int>(*v / scaleFactor);
+    ImGui::Text(name.c_str());
+    ImGui::SliderInt(("##" + name).c_str(), &temp, min, max);
+    *v = temp * scaleFactor;
+}
+
 void ControlGUI::renderFloatSlider(std::string name, float* v, const float min, const float max, const float scaleFactor) {
     float temp = *v / scaleFactor;
     ImGui::Text(name.c_str());
@@ -66,7 +71,7 @@ void ControlGUI::renderFloatSlider(std::string name, float* v, const float min, 
 void ControlGUI::renderRadioBtnSelection(const char* name, int* btnNum, const std::vector<const char *>& labels) {
     ImGui::Text(name);
 
-    for (int i = 0; i < labels.size() - 1; ++i) {
+    for (size_t i = 0; i < labels.size() - 1; ++i) {
         ImGui::RadioButton(labels[i], btnNum, i);
         ImGui::SameLine();
     }

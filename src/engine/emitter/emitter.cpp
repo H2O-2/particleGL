@@ -16,12 +16,13 @@ const float INIT_DIR_SPREAD = 20.0f;
 const EmitterType INIT_EMITTER_TYPE = EmitterType::POINT;
 const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
 const RenderMode DEFAULT_RENDER = RenderMode::U_MODEL_U_COLOR;
+const float RANDOMNESS_SCALE = 0.01f;
 
 const glm::vec3 INIT_PARTICLE_COLOR = glm::vec3(1.0f);
-const int INIT_COLOR_RANDOMNESS = 0;
+const float INIT_COLOR_RANDOMNESS = 0.0f;
 
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
-const int INIT_ROTATION_RANDOMNESS = 0;
+const float INIT_ROTATION_RANDOMNESS = 0.0f;
 
 const float INIT_PARTICLE_SIZE = 1.0f;
 const float PARTICLE_SIZE_SCALE = 0.2f;
@@ -34,9 +35,9 @@ Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TY
         blendType(INIT_BLEND_TYPE), particlesPerSec(INIT_PARTICLE_PER_SEC),
         particlesPerFrame(INIT_PARTICLE_PER_SEC * secondPerFrame), particleType(INIT_PARTICLE_TYPE),
         direction(INIT_EMIT_DIR), directionSpread(-1.0), emitterType(INIT_EMITTER_TYPE), position(INIT_EMITTER_POSN),
-        rotation(glm::vec3(-1.0f)), particleColor(INIT_PARTICLE_COLOR), colorRandom(INIT_COLOR_RANDOMNESS),
-        feather(0.0f), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE), particleLife(INIT_LIFE), lifeRandom(0),
-        opacityRandom(0), rotationRandom(INIT_ROTATION_RANDOMNESS), particleSize(INIT_PARTICLE_SIZE), sizeRandom(0),
+        rotation(glm::vec3(-1.0f)), particleColor(INIT_PARTICLE_COLOR), particleColorRandom(INIT_COLOR_RANDOMNESS),
+        feather(0.0f), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE), particleLife(INIT_LIFE), particleLifeRandom(0),
+        particleOpacityRandom(0), particleRotationRandom(INIT_ROTATION_RANDOMNESS), particleSize(INIT_PARTICLE_SIZE), particleSizeRandom(0),
         emitterRenderMode(DEFAULT_RENDER), lastUsedParticle(0) {
 
     // Initialize geometry data
@@ -73,8 +74,8 @@ float* Emitter::getParticleSizePtr() {
     return &particleSize;
 }
 
-int Emitter::getSizeRandomness() const {
-    return sizeRandom;
+float Emitter::getParticleSizeRandomness() const {
+    return particleSizeRandom;
 }
 
 ParticleType Emitter::getParticleType() const {
@@ -98,20 +99,20 @@ float* Emitter::getParticleColorPtr() {
     return glm::value_ptr(particleColor);
 }
 
-int Emitter::getColorRandomness() const {
-    return colorRandom;
+float Emitter::getParticleColorRandomness() const {
+    return particleColorRandom;
 }
 
-int* Emitter::getColorRandomnessPtr() {
-    return &colorRandom;
+float* Emitter::getParticleColorRandomnessPtr() {
+    return &particleColorRandom;
 }
 
 float* Emitter::getInitialVelocityPtr() {
     return &initVelocity;
 }
 
-int Emitter::getRotationRandomness() const {
-    return rotationRandom;
+float Emitter::getParticleRotationRandomness() const {
+    return particleRotationRandom;
 }
 
 float Emitter::getBaseScale() const {
@@ -178,9 +179,9 @@ void Emitter::update(const float& interpolation) {
         glm::vec3 newParticleVelocity(horizontalVelocity * sinf(azimuth), initVelocity * cosf(inclination), horizontalVelocity * cosf(azimuth));
 
         glm::vec3 newParticleColor(particleColor);
-        if (colorRandom > 0) {
+        if (particleColorRandom > 0.0f) {
            glm::vec3 randomColor = randGen.randVec3(0.0f, 1.0f);
-           newParticleColor = colorLerp(randomColor, particleColor, colorRandom / 100.0f);
+           newParticleColor = colorLerp(randomColor, particleColor, particleColorRandom);
         }
 
         if (newParticleIndex < 0) {
@@ -279,11 +280,11 @@ void Emitter::updateRenderMode() {
     bool colorVaring = false;
     bool modelVaring = false;
 
-    if (colorRandom > 0) {
+    if (particleColorRandom > 0.0f) {
         colorVaring = true;
     }
 
-    if (rotationRandom + sizeRandom > 0) {
+    if (particleRotationRandom + particleSizeRandom > 0.0f) {
         modelVaring = true;
     }
 
