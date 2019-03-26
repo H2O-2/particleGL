@@ -71,6 +71,7 @@ void ParticleGL::render() {
                     renderer.updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices());
                     break;
                 case RenderMode::V_MODEL_V_COLOR:
+                    renderer.updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices(), emitter->getInstancedColors());
                     break;
                 default:
                     break;

@@ -8,8 +8,8 @@ const float DEFAULT_NEAR_PLANE = 1.0f;
 const float DEFAULT_FAR_PLANE = 20000.0f;
 
 const int Renderer::OFFSET_POSN = 1;
-const int Renderer::MODEL_MAT_POSN = 1;
 const int Renderer::COLOR_POSN = 2;
+const int Renderer::MODEL_MAT_POSN = 3;
 
 Renderer::Renderer() {}
 
@@ -94,7 +94,6 @@ void Renderer::initParticleBuffer() {
     glEnableVertexAttribArray(OFFSET_POSN);
     glVertexAttribPointer(OFFSET_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glVertexAttribDivisor(OFFSET_POSN, 1);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Create buffer for instanced model matrices
     glGenBuffers(1, &instancedModelMatVBO);
@@ -112,7 +111,6 @@ void Renderer::initParticleBuffer() {
     glVertexAttribDivisor(MODEL_MAT_POSN + 1, 1);
     glVertexAttribDivisor(MODEL_MAT_POSN + 2, 1);
     glVertexAttribDivisor(MODEL_MAT_POSN + 3, 1);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Create buffer for instanced color
     glGenBuffers(1, &instancedColorVBO);
@@ -134,7 +132,6 @@ void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>
     glVertexAttribDivisor(OFFSET_POSN, 1);
 }
 
-// TODO: Does not need to be called every frame
 void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets, const std::vector<float>& colors) {
     updateParticleBuffer(VAO, offsets);
 

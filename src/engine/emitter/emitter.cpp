@@ -206,7 +206,7 @@ void Emitter::update(const float& interpolation) {
         // Calculate random size if randomness is set
         if (particleSizeRandom > 0.0f) {
             float offset = particleSizeRandom * particleSize;
-            newParticleSize = randGen.randRealClosed(particleSize - offset, particleSize + offset);
+            newParticleSize = randGen.randRealOpenRight(particleSize - offset, particleSize + offset);
         }
 
         if (newParticleIndex < 0) {

@@ -96,7 +96,11 @@ public:
                     shader.setMat4("particleModel", particleModel);
                     break;
                 case RenderMode::V_MODEL_U_COLOR:
+                    shader.setFloat("baseScale", emitter->getBaseScale());
                     shader.setVec3("color", emitter->getParticleColor());
+                    break;
+                case RenderMode::V_MODEL_V_COLOR:
+                    shader.setFloat("baseScale", emitter->getBaseScale());
                     break;
                 default:
                     break;
