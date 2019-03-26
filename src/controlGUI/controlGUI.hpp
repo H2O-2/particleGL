@@ -18,6 +18,8 @@ public:
     static void finalizeRender();
     static void destroy();
 
+    static bool renderMenu(std::string name);
+
     static void renderColorEdit3(std::string name, float* v);
     static void renderIntSlider(std::string name, int* v, const int min, const int max);
     static void renderIntSlider(std::string name, float* v, const int min, const int max, const float scaleFactor);

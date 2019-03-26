@@ -83,7 +83,7 @@ public:
     float* getParticleColorRandomnessPtr();
 
     float* getParticleLifePtr();
-    void setLifeRandomness(const float particleLifeRandom);
+    float* getParticleLifeRandomnessPtr();
 
     void setParticleOpacityRandomness(const float opacityRandom);
 

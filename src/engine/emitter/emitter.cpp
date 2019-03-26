@@ -72,6 +72,10 @@ float* Emitter::getParticleLifePtr() {
     return &particleLife;
 }
 
+float* Emitter::getParticleLifeRandomnessPtr() {
+    return &particleLifeRandom;
+}
+
 float Emitter::getParticleSize() const {
     return particleSize;
 }
@@ -202,19 +206,26 @@ void Emitter::update(const float& interpolation) {
            newParticleColor = colorLerp(randomColor, particleColor, particleColorRandom);
         }
 
+        float newParticleLife = particleLife;
+        // Calculate random life if randomness is set
+        if (particleLifeRandom > 0.0f) {
+            float offset = particleLifeRandom * particleLife;
+            newParticleLife = fmax(randGen.randRealOpenRight(particleLife - offset, particleLife + offset), 0.0f);
+        }
+
         float newParticleSize = particleSize;
         // Calculate random size if randomness is set
         if (particleSizeRandom > 0.0f) {
             float offset = particleSizeRandom * particleSize;
-            newParticleSize = randGen.randRealOpenRight(particleSize - offset, particleSize + offset);
+            newParticleSize = fmax(randGen.randRealClosed(particleSize - offset, particleSize + offset), 0.0f);
         }
 
         if (newParticleIndex < 0) {
             // Push new particles to the particles vector if all particles are in use
-            particles.emplace_back(newParticleVelocity, newParticleColor, particleLife, newParticleSize);
+            particles.emplace_back(newParticleVelocity, newParticleColor, newParticleLife, newParticleSize);
         } else {
             // Otherwise replace the unused particle
-            particles[newParticleIndex] = Particle(newParticleVelocity, newParticleColor, particleLife, newParticleSize);
+            particles[newParticleIndex] = Particle(newParticleVelocity, newParticleColor, newParticleLife, newParticleSize);
         }
     }
 

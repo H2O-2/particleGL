@@ -41,16 +41,34 @@ void ParticleGL::render() {
     // Render GUI
     ControlGUI::preRender(window);
     for (auto& emitter : emitters) {
-        ControlGUI::renderRadioBtnSelection("Particle Type", (int *)&(emitter->newParticleType), {"Sphere", "Square", "Triangle"});
-        ControlGUI::renderIntSlider("Particles/sec", (int *)emitter->getParticlesPerSecPtr(), 0, 1000);
-        ControlGUI::renderFloatSlider("Velocity", emitter->getInitialVelocityPtr(), 0.0f, 1000.0f, PARTICLE_VELOCITY_SCALE);
-        ControlGUI::renderIntSlider("Velocity Random [%%]", emitter->getInitialVelocityRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
-        ControlGUI::renderFloatSlider("Velocity Distribution", emitter->getInitialVelocityRandomnessDistributionPtr(), 0.0f, 1.0);
-        ControlGUI::renderFloatSlider("Life [sec]", emitter->getParticleLifePtr(), 0.0f, 10.0f);
-        ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
-        ControlGUI::renderIntSlider("Size Random [%%]", emitter->getParticleSizeRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
-        ControlGUI::renderColorEdit3("Color", emitter->getParticleColorPtr());
-        ControlGUI::renderIntSlider("Color Random", emitter->getParticleColorRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
+        if (ControlGUI::renderMenu("Emitter (Master)")) {
+            ControlGUI::renderIntSlider("Particles/sec", (int *)emitter->getParticlesPerSecPtr(), 0, 1000);
+            ControlGUI::renderFloatSlider("Velocity", emitter->getInitialVelocityPtr(), 0.0f, 1000.0f, PARTICLE_VELOCITY_SCALE);
+            ControlGUI::renderIntSlider("Velocity Random [%%]", emitter->getInitialVelocityRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
+            ControlGUI::renderFloatSlider("Velocity Distribution", emitter->getInitialVelocityRandomnessDistributionPtr(), 0.0f, 1.0);
+        }
+
+        if (ControlGUI::renderMenu("Particle (Master)")) {
+            ControlGUI::renderRadioBtnSelection("Particle Type", (int *)&(emitter->newParticleType), {"Sphere", "Square", "Triangle"});
+            ControlGUI::renderFloatSlider("Life [sec]", emitter->getParticleLifePtr(), 0.0f, 10.0f);
+            ControlGUI::renderIntSlider("Life Random [%%]", emitter->getParticleLifeRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
+            ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
+            ControlGUI::renderIntSlider("Size Random [%%]", emitter->getParticleSizeRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
+            ControlGUI::renderColorEdit3("Color", emitter->getParticleColorPtr());
+            ControlGUI::renderIntSlider("Color Random", emitter->getParticleColorRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
+        }
+
+        if (ControlGUI::renderMenu("Physics (Master)")) {
+
+        }
+
+        if (ControlGUI::renderMenu("Visibility")) {
+
+        }
+
+        if (ControlGUI::renderMenu("Rendering")) {
+
+        }
     }
     ControlGUI::finalizeRender();
 

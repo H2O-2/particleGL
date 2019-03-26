@@ -44,6 +44,10 @@ void ControlGUI::finalizeRender() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+bool ControlGUI::renderMenu(std::string name) {
+    return ImGui::CollapsingHeader(name.c_str());
+}
+
 void ControlGUI::renderColorEdit3(std::string name, float* v) {
     ImGui::Text(name.c_str());
     ImGui::ColorEdit3(("##" + name).c_str(), v);

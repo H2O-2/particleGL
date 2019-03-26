@@ -1,6 +1,5 @@
 #include <glad/glad.h>
 #include "eventManager.hpp"
-#include <stdio.h>
 
 bool EventManager::shouldQuit = false;
 bool EventManager::enableMouseView = false;
