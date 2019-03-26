@@ -35,8 +35,8 @@ public:
     // Update particle info in the buffer. Different overrides corresponds to different render modes
     void updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets); // U_Model_U_COLOR
     void updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets, const std::vector<float>& colors); // U_MODEL_V_COLOR
-    void updateParticleBuffer(const uint32_t VAO, const std::vector<glm::mat4>& modelMatrices); // V_MODEL_U_COLOR
-    // void updateParticleBuffer(const uint32_t& VAO, const std::vector<float>& offsets, const std::vector<float>& colors); // V_MODEL_V_COLOR
+    void updateParticleBufferWithMatrices(const uint32_t VAO, const std::vector<float>& modelMatrices); // V_MODEL_U_COLOR
+    void updateParticleBufferWithMatrices(const uint32_t VAO, const std::vector<float>& modelMatrices, const std::vector<float>& colors); // V_MODEL_U_COLOR
 
     bool isHidpi() const; // Returns true if the current display is HiDPI
 
@@ -65,10 +65,6 @@ public:
             accumulator -= secondPerFrame;
         }
 
-        // Calculate the portion of the partial frame left in the accumulator and update
-        const float interpolation = accumulator / secondPerFrame;
-        update(interpolation);
-
         // Update render mode
         updateCurrentRenderMode(emitters);
 
@@ -76,6 +72,10 @@ public:
         shader.use();
         shader.setMat4("view", camera.getViewMatrix());
         shader.setMat4("projection", glm::perspective(glm::radians(camera.getZoom()), (float)windowWidth / (float)windowHeight, nearVanish, farVanish));
+
+        // Calculate the portion of the partial frame left in the accumulator and update
+        const float interpolation = accumulator / secondPerFrame;
+        update(interpolation);
 
         // Render particles
         for (auto const& emitter : emitters) {
@@ -105,9 +105,9 @@ public:
             // Render particles
             glBindVertexArray(emitter->getVAO());
             if (emitter->useEBO()) {
-                glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, emitter->getOffsets().size() / 3);
+                glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, emitter->getCurrentParticleNum());
             } else {
-                glDrawArraysInstanced(emitter->getDrawMode(), 0, emitter->getIndexNum(), emitter->getOffsets().size() / 3);
+                glDrawArraysInstanced(emitter->getDrawMode(), 0, emitter->getIndexNum(), emitter->getCurrentParticleNum());
             }
             glBindVertexArray(0);
         }

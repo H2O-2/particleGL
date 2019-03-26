@@ -3,6 +3,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "../../util/interpolations.hpp"
 #include "../../util/makeUnique.hpp"
@@ -54,6 +55,7 @@ Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TY
     // Reserve memory for instanced particle info
     offsets.reserve(MAX_PARTICLE_NUM * 3);
     colors.reserve(MAX_PARTICLE_NUM * 3);
+    modelMatrices.reserve(MAX_PARTICLE_NUM * 16);
 }
 
 Emitter::~Emitter() {}
@@ -76,6 +78,10 @@ float Emitter::getParticleSize() const {
 
 float* Emitter::getParticleSizePtr() {
     return &particleSize;
+}
+
+float* Emitter::getParticleSizeRandomnessPtr() {
+    return &particleSizeRandom;
 }
 
 ParticleType Emitter::getParticleType() const {
@@ -131,6 +137,10 @@ int Emitter::getIndexNum() const{
     return curGeomtry->getIndexNum();
 }
 
+int Emitter::getCurrentParticleNum() const {
+    return activeParticleNum;
+}
+
 const std::vector<float>& Emitter::getInstancedColors() const {
     return colors;
 }
@@ -139,14 +149,8 @@ const std::vector<float>& Emitter::getOffsets() const {
     return offsets;
 }
 
-glm::mat4* Emitter::getModelMatrices() const{
-    std::vector<glm::mat4> modelMatrices;
-
-    /***** Use Random if necessary afterwards *****/
-    // position
-
-
-    return modelMatrices.data();
+const std::vector<float>& Emitter::getModelMatrices() const{
+    return modelMatrices;
 }
 
 RenderMode Emitter::getRenderMode() const {
@@ -163,6 +167,7 @@ bool Emitter::useEBO() const {
 
 void Emitter::update(const float& interpolation) {
     updateRenderMode();
+    activeParticleNum = 0;
 
     // Update particlesPerFrame with (possibly) new particle emit rate and framerate
     particlesPerFrame = particlesPerSec * secondPerFrame;
@@ -197,51 +202,60 @@ void Emitter::update(const float& interpolation) {
            newParticleColor = colorLerp(randomColor, particleColor, particleColorRandom);
         }
 
+        float newParticleSize = particleSize;
+        // Calculate random size if randomness is set
+        if (particleSizeRandom > 0.0f) {
+            float offset = particleSizeRandom * particleSize;
+            newParticleSize = randGen.randRealClosed(particleSize - offset, particleSize + offset);
+        }
+
         if (newParticleIndex < 0) {
             // Push new particles to the particles vector if all particles are in use
-            particles.emplace_back(newParticleVelocity, newParticleColor, particleLife, particleSize);
+            particles.emplace_back(newParticleVelocity, newParticleColor, particleLife, newParticleSize);
         } else {
             // Otherwise replace the unused particle
-            particles[newParticleIndex] = Particle(newParticleVelocity, newParticleColor, particleLife, particleSize);
+            particles[newParticleIndex] = Particle(newParticleVelocity, newParticleColor, particleLife, newParticleSize);
         }
     }
 
     // Then update particle attributes
     colors.clear();
+    modelMatrices.clear();
     offsets.clear();
 
-    for (size_t j = 0; j < particles.size(); ++j) {
-        Particle& particle = particles[j];
+    for (auto& particle : particles) {
+        if (particle.life <= 0) continue;
 
-        if (particle.life > 0) {
-            // Update particle info
-            particle.life -= secondPerFrame * interpolation;
-            particle.offset += particle.velocity * interpolation;
+        // Add to current particle to active particles
+        activeParticleNum++;
 
-            // Update particle offset if render mode is Uniform Model
-            if (emitterRenderMode == RenderMode::U_MODEL_U_COLOR || emitterRenderMode == RenderMode::U_MODEL_V_COLOR) {
-                if (offsets.size() > j * 3) {
-                    offsets[j * 3] = particle.offset.x;
-                    offsets[j * 3 + 1] = particle.offset.y;
-                    offsets[j * 3 + 2] = particle.offset.z;
-                } else {
-                    offsets.emplace_back(particle.offset.x);
-                    offsets.emplace_back(particle.offset.y);
-                    offsets.emplace_back(particle.offset.z);
-                }
+        // Update particle info
+        particle.life -= secondPerFrame * interpolation;
+        particle.offset += particle.velocity * interpolation;
+
+        // Update particle offset if render mode is Uniform Model
+        if (emitterRenderMode == RenderMode::U_MODEL_U_COLOR || emitterRenderMode == RenderMode::U_MODEL_V_COLOR) {
+            offsets.emplace_back(particle.offset.x);
+            offsets.emplace_back(particle.offset.y);
+            offsets.emplace_back(particle.offset.z);
+        // Else update particle model matrices
+        } else {
+            glm::mat4 model;
+            model = glm::translate(model, particle.offset);
+            if (particle.rotation != glm::vec3(0.0f)) {
+                model = glm::rotate(model, particle.rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+                model = glm::rotate(model, particle.rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+                model = glm::rotate(model, particle.rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
             }
+            model = glm::scale(model, glm::vec3(particle.size));
+            float* modelArr = glm::value_ptr(model);
+            modelMatrices.insert(modelMatrices.end(), modelArr, modelArr + 16);
+        }
 
-            if (emitterRenderMode == RenderMode::V_MODEL_V_COLOR || emitterRenderMode == RenderMode::U_MODEL_V_COLOR) {
-                if (colors.size() > j * 3) {
-                    colors[j * 3] = particle.color.r;
-                    colors[j * 3 + 1] = particle.color.g;
-                    colors[j * 3 + 2] = particle.color.b;
-                } else {
-                    colors.emplace_back(particle.color.r);
-                    colors.emplace_back(particle.color.g);
-                    colors.emplace_back(particle.color.b);
-                }
-            }
+        if (emitterRenderMode == RenderMode::V_MODEL_V_COLOR || emitterRenderMode == RenderMode::U_MODEL_V_COLOR) {
+            colors.emplace_back(particle.color.r);
+            colors.emplace_back(particle.color.g);
+            colors.emplace_back(particle.color.b);
         }
     }
 }

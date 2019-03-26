@@ -100,14 +100,14 @@ void Renderer::initParticleBuffer() {
     glGenBuffers(1, &instancedModelMatVBO);
     glBindBuffer(GL_ARRAY_BUFFER, instancedModelMatVBO);
     glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLE_NUM * 16 * sizeof(float), NULL, GL_STREAM_DRAW);
+    glVertexAttribPointer(MODEL_MAT_POSN, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)0);
+    glVertexAttribPointer(MODEL_MAT_POSN + 1, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(4 * sizeof(float)));
+    glVertexAttribPointer(MODEL_MAT_POSN + 2, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(8 * sizeof(float)));
+    glVertexAttribPointer(MODEL_MAT_POSN + 3, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(12 * sizeof(float)));
     glEnableVertexAttribArray(MODEL_MAT_POSN);
     glEnableVertexAttribArray(MODEL_MAT_POSN + 1);
     glEnableVertexAttribArray(MODEL_MAT_POSN + 2);
     glEnableVertexAttribArray(MODEL_MAT_POSN + 3);
-    glVertexAttribPointer(MODEL_MAT_POSN, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)0);
-    glVertexAttribPointer(MODEL_MAT_POSN + 1, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(4 * sizeof(float)));
-    glVertexAttribPointer(MODEL_MAT_POSN + 2, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(8 * sizeof(float)));
-    glVertexAttribPointer(MODEL_MAT_POSN + 3, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(16 * sizeof(float)));
     glVertexAttribDivisor(MODEL_MAT_POSN, 1);
     glVertexAttribDivisor(MODEL_MAT_POSN + 1, 1);
     glVertexAttribDivisor(MODEL_MAT_POSN + 2, 1);
@@ -134,6 +134,7 @@ void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>
     glVertexAttribDivisor(OFFSET_POSN, 1);
 }
 
+// TODO: Does not need to be called every frame
 void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets, const std::vector<float>& colors) {
     updateParticleBuffer(VAO, offsets);
 
@@ -144,11 +145,11 @@ void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>
     glVertexAttribDivisor(COLOR_POSN, 1);
 }
 
-void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<glm::mat4>& modelMatrices) {
+void Renderer::updateParticleBufferWithMatrices(const uint32_t VAO, const std::vector<float>& modelMatrices) {
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, instancedModelMatVBO);
-    // glBufferSubData(GL_ARRAY_BUFFER, 0, modelMatrices.size() * )
+    glBufferSubData(GL_ARRAY_BUFFER, 0, modelMatrices.size() * sizeof(float), modelMatrices.data());
     glEnableVertexAttribArray(MODEL_MAT_POSN);
     glEnableVertexAttribArray(MODEL_MAT_POSN + 1);
     glEnableVertexAttribArray(MODEL_MAT_POSN + 2);
@@ -156,11 +157,21 @@ void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<glm::m
     glVertexAttribPointer(MODEL_MAT_POSN, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)0);
     glVertexAttribPointer(MODEL_MAT_POSN + 1, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(4 * sizeof(float)));
     glVertexAttribPointer(MODEL_MAT_POSN + 2, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(8 * sizeof(float)));
-    glVertexAttribPointer(MODEL_MAT_POSN + 3, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(16 * sizeof(float)));
+    glVertexAttribPointer(MODEL_MAT_POSN + 3, 4, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(12 * sizeof(float)));
     glVertexAttribDivisor(MODEL_MAT_POSN, 1);
     glVertexAttribDivisor(MODEL_MAT_POSN + 1, 1);
     glVertexAttribDivisor(MODEL_MAT_POSN + 2, 1);
     glVertexAttribDivisor(MODEL_MAT_POSN + 3, 1);
+}
+
+void Renderer::updateParticleBufferWithMatrices(const uint32_t VAO, const std::vector<float>& modelMatrices, const std::vector<float>& colors) {
+    updateParticleBufferWithMatrices(VAO, modelMatrices);
+
+    glBindBuffer(GL_ARRAY_BUFFER, instancedColorVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, colors.size() * sizeof(float), colors.data());
+    glEnableVertexAttribArray(COLOR_POSN);
+    glVertexAttribPointer(COLOR_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribDivisor(COLOR_POSN, 1);
 }
 
 SDL_GLContext Renderer::getGLContext() const {

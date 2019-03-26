@@ -48,6 +48,7 @@ void ParticleGL::render() {
         ControlGUI::renderFloatSlider("Velocity Distribution", emitter->getInitialVelocityRandomnessDistributionPtr(), 0.0f, 1.0);
         ControlGUI::renderFloatSlider("Life [sec]", emitter->getParticleLifePtr(), 0.0f, 10.0f);
         ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
+        ControlGUI::renderIntSlider("Size Random [%%]", emitter->getParticleSizeRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
         ControlGUI::renderColorEdit3("Color", emitter->getParticleColorPtr());
         ControlGUI::renderIntSlider("Color Random", emitter->getParticleColorRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
     }
@@ -55,18 +56,19 @@ void ParticleGL::render() {
 
     // Render
     renderer.renderEngine(emitters, camera, [&](const float& interpolation) {
-        for (int i = 0; i < emitters.size(); ++i) {
+        for (auto const& emitter : emitters) {
             // Update emitter & particle data
-            emitters[i]->setParticleType(emitters[i]->newParticleType);
-            emitters[i]->update(interpolation);
+            emitter->setParticleType(emitter->newParticleType);
+            emitter->update(interpolation);
             switch (renderer.getCurrentRenderMode()) {
                 case RenderMode::U_MODEL_U_COLOR:
-                    renderer.updateParticleBuffer(emitters[i]->getVAO(), emitters[i]->getOffsets());
+                    renderer.updateParticleBuffer(emitter->getVAO(), emitter->getOffsets());
                     break;
                 case RenderMode::U_MODEL_V_COLOR:
-                    renderer.updateParticleBuffer(emitters[i]->getVAO(), emitters[i]->getOffsets(), emitters[i]->getInstancedColors());
+                    renderer.updateParticleBuffer(emitter->getVAO(), emitter->getOffsets(), emitter->getInstancedColors());
                     break;
                 case RenderMode::V_MODEL_U_COLOR:
+                    renderer.updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices());
                     break;
                 case RenderMode::V_MODEL_V_COLOR:
                     break;
