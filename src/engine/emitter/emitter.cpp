@@ -2,6 +2,9 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#ifndef M_PI
+    #define M_PI 3.14159265359
+#endif
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -59,6 +62,14 @@ Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TY
 }
 
 Emitter::~Emitter() {}
+
+const glm::vec3& Emitter::getEmitterPosn() const {
+    return position;
+}
+
+float* Emitter::getEmitterPosnPtr() {
+    return glm::value_ptr(position);
+}
 
 size_t Emitter::getParticleNum() const {
     return particles.size();

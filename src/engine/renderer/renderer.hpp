@@ -81,6 +81,7 @@ public:
         for (auto const& emitter : emitters) {
             // Transforms for emitters
             glm::mat4 emitterModel;
+            emitterModel = glm::translate(emitterModel, emitter->getEmitterPosn());
             shader.setMat4("emitterModel", emitterModel);
 
             // Scaling and rotation for particles

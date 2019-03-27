@@ -48,6 +48,11 @@ bool ControlGUI::renderMenu(std::string name) {
     return ImGui::CollapsingHeader(name.c_str());
 }
 
+void ControlGUI::render3dFloatSlider(std::string name, float* v) {
+    ImGui::Text(name.c_str());
+    ImGui::DragFloat3(("##" + name).c_str(), v);
+}
+
 void ControlGUI::renderColorEdit3(std::string name, float* v) {
     ImGui::Text(name.c_str());
     ImGui::ColorEdit3(("##" + name).c_str(), v);
@@ -70,6 +75,11 @@ void ControlGUI::renderFloatSlider(std::string name, float* v, const float min, 
     ImGui::Text(name.c_str());
     ImGui::SliderFloat(("##" + name).c_str(), &temp, min, max, "%.1f");
     *v = temp * scaleFactor;
+}
+
+void ControlGUI::renderPullDownMenu(std::string name, const std::vector<const char *>& items, int* currentItem) {
+    ImGui::Text(name.c_str());
+    ImGui::Combo(("##" + name).c_str(), currentItem, items.data(), items.size());
 }
 
 void ControlGUI::renderRadioBtnSelection(const char* name, int* btnNum, const std::vector<const char *>& labels) {

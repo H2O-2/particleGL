@@ -68,6 +68,19 @@ public:
     Emitter(const float& secondPerFrame);
     ~Emitter();
 
+    /***** Emitter Attributes *****/
+    const glm::vec3& getEmitterPosn() const;
+    float* getEmitterPosnPtr();
+    void setBlendType(ParticleBlend blendType);
+    void setType(EmitterType emitterType);
+    void setEmitDirection(EmitterDirection direction);
+    void setDirectionSpread(const float& directionSpread);
+    void setPosn(const glm::vec3& posn);
+    const glm::vec3& getRotation() const;
+    void setRotation(const glm::vec3& rotation);
+    const glm::vec3& getSize() const;
+    void setSize(const glm::vec3& size);
+
     /***** Particle Attributes *****/
     size_t getParticleNum() const;
 
@@ -98,19 +111,6 @@ public:
     float* getInitialVelocityPtr();
     float* getInitialVelocityRandomnessPtr();
     float* getInitialVelocityRandomnessDistributionPtr();
-
-
-    /***** Emitter Attributes *****/
-    const glm::vec3& getPosn() const;
-    void setBlendType(ParticleBlend blendType);
-    void setType(EmitterType emitterType);
-    void setEmitDirection(EmitterDirection direction);
-    void setDirectionSpread(const float& directionSpread);
-    void setPosn(const glm::vec3& posn);
-    const glm::vec3& getRotation() const;
-    void setRotation(const glm::vec3& rotation);
-    const glm::vec3& getSize() const;
-    void setSize(const glm::vec3& size);
 
     /***** User Unmodifiables *****/
     float getBaseScale() const;
