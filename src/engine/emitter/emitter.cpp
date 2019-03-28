@@ -11,42 +11,51 @@
 #include "../../util/interpolations.hpp"
 #include "../../util/makeUnique.hpp"
 
-const int MAX_PARTICLE_NUM = 10000;
-const int INIT_PARTICLE_PER_SEC = 100;
-const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NONE;
-const ParticleType INIT_PARTICLE_TYPE = ParticleType::SPHERE;
-const EmitterDirection INIT_EMIT_DIR = EmitterDirection::UNIFORM;
-const float INIT_DIR_SPREAD = 20.0f;
-const EmitterType INIT_EMITTER_TYPE = EmitterType::POINT;
-const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
 const RenderMode DEFAULT_RENDER = RenderMode::U_MODEL_U_COLOR;
+const int INIT_PARTICLE_PER_SEC = 100;
+const ParticleType INIT_PARTICLE_TYPE = ParticleType::SPHERE;
+const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NONE;
+const float INIT_DIR_SPREAD = 20.0f;
+const EmitterDirection INIT_EMIT_DIR = EmitterDirection::UNIFORM;
+const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
+const EmitterType INIT_EMITTER_TYPE = EmitterType::POINT;
+const int MAX_PARTICLE_NUM = 10000;
 const float RANDOMNESS_SCALE = 0.01f;
 
 const glm::vec3 INIT_PARTICLE_COLOR = glm::vec3(1.0f);
 const float INIT_COLOR_RANDOMNESS = 0.0f;
-
+const float INIT_PARTICLE_FEATHER = 50.0;
+const float INIT_FEATHER_RANDOMNESS = 0.0f;
+const float INIT_PARTICLE_LIFE = 3.0f;
+const float INIT_LIFE_RANDOMNESS = 0.0f;
+const float INIT_PARTICLE_OPACITY = 1.0f;
+const float INIT_OPACITY_RANDOMNESS = 0.0f;
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
 const float INIT_ROTATION_RANDOMNESS = 0.0f;
-
 const float INIT_PARTICLE_SIZE = 1.0f;
-const float PARTICLE_SIZE_SCALE = 0.2f;
-const float INIT_FEATHER = 50.0;
-const float PARTICLE_VELOCITY_SCALE = 7.0f / 1000.0f;
+const float INIT_SIZE_RANDOMNESS = 0.0f;
 const float INIT_VELOCITY = 100.0f;
 const float INIT_VELOCITY_RANDOMNESS = 0.2f;
 const float INIT_VELOCITY_RANDOMNESS_DIST = 0.5f;
-const float INIT_LIFE = 3.0f;
+const float PARTICLE_SIZE_SCALE = 0.2f;
+const float PARTICLE_VELOCITY_SCALE = 7.0f / 1000.0f;
 
-Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TYPE), secondPerFrame(secondPerFrame),
-        blendType(INIT_BLEND_TYPE), particlesPerSec(INIT_PARTICLE_PER_SEC),
-        particlesPerFrame(INIT_PARTICLE_PER_SEC * secondPerFrame), particleType(INIT_PARTICLE_TYPE),
-        direction(INIT_EMIT_DIR), directionSpread(-1.0), emitterType(INIT_EMITTER_TYPE), position(INIT_EMITTER_POSN),
-        rotation(glm::vec3(-1.0f)), particleColor(INIT_PARTICLE_COLOR), particleColorRandom(INIT_COLOR_RANDOMNESS),
-        feather(INIT_FEATHER), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE),
-        initVelocityRandom(INIT_VELOCITY_RANDOMNESS), initVelocityRandomDistribution(INIT_VELOCITY_RANDOMNESS_DIST),
-        particleLife(INIT_LIFE), particleLifeRandom(0), particleOpacityRandom(0),
-        particleRotationRandom(INIT_ROTATION_RANDOMNESS), particleSize(INIT_PARTICLE_SIZE), particleSizeRandom(0),
-        emitterRenderMode(DEFAULT_RENDER), lastUsedParticle(0) {
+Emitter::Emitter(const float& secondPerFrame) :
+    /***** Emitter Attributes *****/
+    direction(INIT_EMIT_DIR), directionSpread(-1.0),
+    emitterType(INIT_EMITTER_TYPE), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE),
+    initVelocityRandom(INIT_VELOCITY_RANDOMNESS), initVelocityRandomDistribution(INIT_VELOCITY_RANDOMNESS_DIST),
+    particlesPerSec(INIT_PARTICLE_PER_SEC), position(INIT_EMITTER_POSN), rotation(glm::vec3(-1.0f)), randGen(),
+    /***** Particle Attributes *****/
+    blendType(INIT_BLEND_TYPE), feather(INIT_PARTICLE_FEATHER),
+    particleColor(INIT_PARTICLE_COLOR), particleColorRandom(INIT_COLOR_RANDOMNESS),
+    particleLife(INIT_PARTICLE_LIFE), particleLifeRandom(INIT_LIFE_RANDOMNESS),
+    particleOpacity(INIT_PARTICLE_OPACITY), particleOpacityRandom(INIT_OPACITY_RANDOMNESS),
+    particleRotation(INIT_PARTICLE_ROTATION), particleRotationRandom(INIT_ROTATION_RANDOMNESS),
+    particleSize(INIT_PARTICLE_SIZE), particleSizeRandom(INIT_SIZE_RANDOMNESS),
+    particlesPerFrame(INIT_PARTICLE_PER_SEC * secondPerFrame), particleType(INIT_PARTICLE_TYPE),
+    /***** User Unmodifiables *****/
+    secondPerFrame(secondPerFrame), emitterRenderMode(DEFAULT_RENDER), lastUsedParticle(0) {
 
     // Initialize geometry data
     setGeometry(particleType);
@@ -63,6 +72,7 @@ Emitter::Emitter(const float& secondPerFrame) : newParticleType(INIT_PARTICLE_TY
 
 Emitter::~Emitter() {}
 
+/***** Emitter Attributes *****/
 const glm::vec3& Emitter::getEmitterPosn() const {
     return position;
 }
@@ -71,32 +81,15 @@ float* Emitter::getEmitterPosnPtr() {
     return glm::value_ptr(position);
 }
 
+
+
+/***** Particle Attributes *****/
 size_t Emitter::getParticleNum() const {
     return particles.size();
 }
 
 uint32_t* Emitter::getParticlesPerSecPtr() {
     return &particlesPerSec;
-}
-
-float* Emitter::getParticleLifePtr() {
-    return &particleLife;
-}
-
-float* Emitter::getParticleLifeRandomnessPtr() {
-    return &particleLifeRandom;
-}
-
-float Emitter::getParticleSize() const {
-    return particleSize;
-}
-
-float* Emitter::getParticleSizePtr() {
-    return &particleSize;
-}
-
-float* Emitter::getParticleSizeRandomnessPtr() {
-    return &particleSizeRandom;
 }
 
 ParticleType Emitter::getParticleType() const {
@@ -124,6 +117,30 @@ float* Emitter::getParticleColorRandomnessPtr() {
     return &particleColorRandom;
 }
 
+float* Emitter::getParticleLifePtr() {
+    return &particleLife;
+}
+
+float* Emitter::getParticleLifeRandomnessPtr() {
+    return &particleLifeRandom;
+}
+
+float Emitter::getParticleRotationRandomness() const {
+    return particleRotationRandom;
+}
+
+float Emitter::getParticleSize() const {
+    return particleSize;
+}
+
+float* Emitter::getParticleSizePtr() {
+    return &particleSize;
+}
+
+float* Emitter::getParticleSizeRandomnessPtr() {
+    return &particleSizeRandom;
+}
+
 float* Emitter::getInitialVelocityPtr() {
     return &initVelocity;
 }
@@ -134,10 +151,6 @@ float* Emitter::getInitialVelocityRandomnessPtr() {
 
 float* Emitter::getInitialVelocityRandomnessDistributionPtr() {
     return &initVelocityRandomDistribution;
-}
-
-float Emitter::getParticleRotationRandomness() const {
-    return particleRotationRandom;
 }
 
 float Emitter::getBaseScale() const {

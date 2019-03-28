@@ -32,16 +32,9 @@ public:
     // Buffer particles attributes using instanced array
     void initParticleBuffer(); // Allocate buffer for particles
 
-    // Update particle info in the buffer. Different overrides corresponds to different render modes
-    void updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets); // U_Model_U_COLOR
-    void updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets, const std::vector<float>& colors); // U_MODEL_V_COLOR
-    void updateParticleBufferWithMatrices(const uint32_t VAO, const std::vector<float>& modelMatrices); // V_MODEL_U_COLOR
-    void updateParticleBufferWithMatrices(const uint32_t VAO, const std::vector<float>& modelMatrices, const std::vector<float>& colors); // V_MODEL_U_COLOR
+    SDL_GLContext getGLContext() const;
 
     bool isHidpi() const; // Returns true if the current display is HiDPI
-
-    SDL_GLContext getGLContext() const;
-    RenderMode getCurrentRenderMode() const;
 
     void setMSAASample(const int& sample); // Set sample level for MSAA
 
@@ -49,76 +42,7 @@ public:
 
     void clearScreen();
 
-    // Render particles
-    template<typename Function>
-    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera, Function update) {
-        // Referenced from https://gafferongames.com/post/fix_your_timestep/
-        float accumulator = 0.0f;
-        float newTime = SDL_GetTicks() * 0.001f;
-        float deltaTime = newTime - curTime;
-        curTime = newTime;
-
-        accumulator += deltaTime;
-
-        while (accumulator >= secondPerFrame) {
-            update(1.0f); // update with one full frame
-            accumulator -= secondPerFrame;
-        }
-
-        // Update render mode
-        updateCurrentRenderMode(emitters);
-
-        ShaderParser& shader = shaders[currentRenderMode];
-        shader.use();
-        shader.setMat4("view", camera.getViewMatrix());
-        shader.setMat4("projection", glm::perspective(glm::radians(camera.getZoom()), (float)windowWidth / (float)windowHeight, nearVanish, farVanish));
-
-        // Calculate the portion of the partial frame left in the accumulator and update
-        const float interpolation = accumulator / secondPerFrame;
-        update(interpolation);
-
-        // Render particles
-        for (auto const& emitter : emitters) {
-            // Transforms for emitters
-            glm::mat4 emitterModel;
-            emitterModel = glm::translate(emitterModel, emitter->getEmitterPosn());
-            shader.setMat4("emitterModel", emitterModel);
-
-            // Scaling and rotation for particles
-            glm::mat4 particleModel;
-            switch (currentRenderMode) {
-                case RenderMode::U_MODEL_U_COLOR:
-                    particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
-                    shader.setMat4("particleModel", particleModel);
-                    shader.setVec3("color", emitter->getParticleColor());
-                    break;
-                case RenderMode::U_MODEL_V_COLOR:
-                    particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
-                    shader.setMat4("particleModel", particleModel);
-                    break;
-                case RenderMode::V_MODEL_U_COLOR:
-                    shader.setFloat("baseScale", emitter->getBaseScale());
-                    shader.setVec3("color", emitter->getParticleColor());
-                    break;
-                case RenderMode::V_MODEL_V_COLOR:
-                    shader.setFloat("baseScale", emitter->getBaseScale());
-                    break;
-                default:
-                    break;
-            }
-
-            // Render particles
-            glBindVertexArray(emitter->getVAO());
-            if (emitter->useEBO()) {
-                glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, emitter->getCurrentParticleNum());
-            } else {
-                glDrawArraysInstanced(emitter->getDrawMode(), 0, emitter->getIndexNum(), emitter->getCurrentParticleNum());
-            }
-            glBindVertexArray(0);
-        }
-
-        SDL_GL_SwapWindow(window);
-    }
+    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera); // Update and render particles
 private:
     static const int OFFSET_POSN;
     static const int MODEL_MAT_POSN;
@@ -153,6 +77,15 @@ private:
     // Returns the Varing shader if both Varing and Uniform exists to avoid shader switching overhead
     // (Need testing to make sure its the right thing to do)
     void updateCurrentRenderMode(const std::vector<std::shared_ptr<Emitter>>& emitters);
+
+    void updateParticleStatus(const std::vector<std::shared_ptr<Emitter>>& emitters, const float& interpolation) const; // Update emitter & particle data
+
+    // Update particle info in the buffer. Different overrides corresponds to different render modes
+    void updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets); // U_Model_U_COLOR
+    void updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets, const std::vector<float>& colors); // U_MODEL_V_COLOR
+    void updateParticleBufferWithMatrices(const uint32_t VAO, const std::vector<float>& modelMatrices); // V_MODEL_U_COLOR
+    void updateParticleBufferWithMatrices(const uint32_t VAO, const std::vector<float>& modelMatrices, const std::vector<float>& colors); // V_MODEL_U_COLOR
+
     /***** TODO *****/
     void updateMSAA();
     /***** TODO *****/

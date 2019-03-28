@@ -122,6 +122,151 @@ void Renderer::initParticleBuffer() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+SDL_GLContext Renderer::getGLContext() const {
+    return glContext;
+}
+
+bool Renderer::isHidpi() const {
+    return display.w > 2048;
+}
+
+void Renderer::setMSAASample(const int& sample) {
+    if (msaaSample != sample) {
+        msaaSample = sample;
+        updateMSAA();
+    }
+}
+
+void Renderer::clean() {
+    SDL_GL_DeleteContext(glContext);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+
+void Renderer::clearScreen() {
+    glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera) {
+    // Referenced from https://gafferongames.com/post/fix_your_timestep/
+    float accumulator = 0.0f;
+    float newTime = SDL_GetTicks() * 0.001f;
+    float deltaTime = newTime - curTime;
+    curTime = newTime;
+
+    accumulator += deltaTime;
+
+    while (accumulator >= secondPerFrame) {
+        updateParticleStatus(emitters, 1.0f); // update with one full frame
+        accumulator -= secondPerFrame;
+    }
+
+    // Update render mode
+    updateCurrentRenderMode(emitters);
+
+    ShaderParser& shader = shaders[currentRenderMode];
+    shader.use();
+    shader.setMat4("view", camera.getViewMatrix());
+    shader.setMat4("projection", glm::perspective(glm::radians(camera.getZoom()), (float)windowWidth / (float)windowHeight, nearVanish, farVanish));
+
+    // Calculate the portion of the partial frame left in the accumulator and update
+    const float interpolation = accumulator / secondPerFrame;
+    updateParticleStatus(emitters, interpolation);
+
+    // Render particles
+    for (auto const& emitter : emitters) {
+        // Transformations for emitters
+        glm::mat4 emitterModel;
+        emitterModel = glm::translate(emitterModel, emitter->getEmitterPosn());
+        shader.setMat4("emitterModel", emitterModel);
+
+        // Update the transformation & color buffers for particles
+        // i.e. update instanced vertex attributes (buffers) and uniform variables
+        glm::mat4 particleModel;
+        switch (currentRenderMode) {
+            case RenderMode::U_MODEL_U_COLOR:
+                updateParticleBuffer(emitter->getVAO(), emitter->getOffsets());
+
+                particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
+                shader.setMat4("particleModel", particleModel);
+                shader.setVec3("color", emitter->getParticleColor());
+                break;
+            case RenderMode::U_MODEL_V_COLOR:
+                updateParticleBuffer(emitter->getVAO(), emitter->getOffsets(), emitter->getInstancedColors());
+
+                particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
+                shader.setMat4("particleModel", particleModel);
+                break;
+            case RenderMode::V_MODEL_U_COLOR:
+                updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices());
+
+                shader.setFloat("baseScale", emitter->getBaseScale());
+                shader.setVec3("color", emitter->getParticleColor());
+                break;
+            case RenderMode::V_MODEL_V_COLOR:
+                updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices(), emitter->getInstancedColors());
+
+                shader.setFloat("baseScale", emitter->getBaseScale());
+                break;
+            default:
+                break;
+        }
+
+        // Render particles
+        glBindVertexArray(emitter->getVAO());
+        if (emitter->useEBO()) {
+            glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, emitter->getCurrentParticleNum());
+        } else {
+            glDrawArraysInstanced(emitter->getDrawMode(), 0, emitter->getIndexNum(), emitter->getCurrentParticleNum());
+        }
+        glBindVertexArray(0);
+    }
+
+    SDL_GL_SwapWindow(window);
+}
+
+/***** Private *****/
+
+void Renderer::updateCurrentRenderMode(const std::vector<std::shared_ptr<Emitter>>& emitters) {
+    bool colorVaring = false;
+    bool modelVaring = false;
+
+    for (auto const& emitter : emitters) {
+        RenderMode curMode = emitter->getRenderMode();
+        switch (curMode) {
+            case RenderMode::U_MODEL_V_COLOR:
+                colorVaring = true;
+                break;
+            case RenderMode::V_MODEL_U_COLOR:
+                modelVaring = true;
+                break;
+            case RenderMode::V_MODEL_V_COLOR:
+                colorVaring = true;
+                modelVaring = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (colorVaring && modelVaring) {
+        currentRenderMode = RenderMode::V_MODEL_V_COLOR;
+    } else if (colorVaring) {
+        currentRenderMode = RenderMode::U_MODEL_V_COLOR;
+    } else if (modelVaring) {
+        currentRenderMode = RenderMode::V_MODEL_U_COLOR;
+    } else {
+        currentRenderMode = RenderMode::U_MODEL_U_COLOR;
+    }
+}
+
+void Renderer::updateParticleStatus(const std::vector<std::shared_ptr<Emitter>>& emitters, const float& interpolation) const {
+    for (auto const& emitter : emitters) {
+        emitter->update(interpolation);
+    }
+}
+
 void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets) {
     glBindVertexArray(VAO);
 
@@ -169,71 +314,6 @@ void Renderer::updateParticleBufferWithMatrices(const uint32_t VAO, const std::v
     glEnableVertexAttribArray(COLOR_POSN);
     glVertexAttribPointer(COLOR_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glVertexAttribDivisor(COLOR_POSN, 1);
-}
-
-SDL_GLContext Renderer::getGLContext() const {
-    return glContext;
-}
-
-RenderMode Renderer::getCurrentRenderMode() const {
-    return currentRenderMode;
-}
-
-void Renderer::setMSAASample(const int& sample) {
-    if (msaaSample != sample) {
-        msaaSample = sample;
-        updateMSAA();
-    }
-}
-
-bool Renderer::isHidpi() const {
-    return display.w > 2048;
-}
-
-void Renderer::clean() {
-    SDL_GL_DeleteContext(glContext);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-}
-
-void Renderer::clearScreen() {
-    glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-/***** Private *****/
-
-void Renderer::updateCurrentRenderMode(const std::vector<std::shared_ptr<Emitter>>& emitters) {
-    bool colorVaring = false;
-    bool modelVaring = false;
-
-    for (auto const& emitter : emitters) {
-        RenderMode curMode = emitter->getRenderMode();
-        switch (curMode) {
-            case RenderMode::U_MODEL_V_COLOR:
-                colorVaring = true;
-                break;
-            case RenderMode::V_MODEL_U_COLOR:
-                modelVaring = true;
-                break;
-            case RenderMode::V_MODEL_V_COLOR:
-                colorVaring = true;
-                modelVaring = true;
-                break;
-            default:
-                break;
-        }
-    }
-
-    if (colorVaring && modelVaring) {
-        currentRenderMode = RenderMode::V_MODEL_V_COLOR;
-    } else if (colorVaring) {
-        currentRenderMode = RenderMode::U_MODEL_V_COLOR;
-    } else if (modelVaring) {
-        currentRenderMode = RenderMode::V_MODEL_U_COLOR;
-    } else {
-        currentRenderMode = RenderMode::U_MODEL_U_COLOR;
-    }
 }
 
 void Renderer::updateMSAA() {}

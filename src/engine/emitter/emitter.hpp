@@ -49,10 +49,17 @@ extern const int MAX_PARTICLE_NUM;
 extern const float RANDOMNESS_SCALE;
 
 extern const glm::vec3 INIT_PARTICLE_COLOR;
-extern const float INIT_FEATHER;
-extern const float INIT_LIFE;
+extern const float INIT_COLOR_RANDOMNESS;
+extern const float INIT_PARTICLE_FEATHER;
+extern const float INIT_FEATHER_RANDOMNESS;
+extern const float INIT_PARTICLE_LIFE;
+extern const float INIT_LIFE_RANDOMNESS;
+extern const float INIT_PARTICLE_OPACITY;
+extern const float INIT_OPACITY_RANDOMNESS;
 extern const glm::vec3 INIT_PARTICLE_ROTATION;
+extern const float INIT_ROTATION_RANDOMNESS;
 extern const float INIT_PARTICLE_SIZE;
+extern const float INIT_SIZE_RANDOMNESS;
 extern const float INIT_VELOCITY;
 extern const float INIT_VELOCITY_RANDOMNESS;
 extern const float INIT_VELOCITY_RANDOMNESS_DIST;
@@ -63,23 +70,16 @@ class Emitter {
 public:
     typedef std::vector<Particle> Particles;
 
-    ParticleType newParticleType;
-
     Emitter(const float& secondPerFrame);
     ~Emitter();
 
     /***** Emitter Attributes *****/
     const glm::vec3& getEmitterPosn() const;
     float* getEmitterPosnPtr();
-    void setBlendType(ParticleBlend blendType);
-    void setType(EmitterType emitterType);
-    void setEmitDirection(EmitterDirection direction);
-    void setDirectionSpread(const float& directionSpread);
-    void setPosn(const glm::vec3& posn);
-    const glm::vec3& getRotation() const;
-    void setRotation(const glm::vec3& rotation);
-    const glm::vec3& getSize() const;
-    void setSize(const glm::vec3& size);
+    const glm::vec3& getEmitterRotation() const;
+    const glm::vec3& getEmitterSize() const;
+
+
 
     /***** Particle Attributes *****/
     size_t getParticleNum() const;
@@ -112,6 +112,8 @@ public:
     float* getInitialVelocityRandomnessPtr();
     float* getInitialVelocityRandomnessDistributionPtr();
 
+
+
     /***** User Unmodifiables *****/
     float getBaseScale() const;
     GLenum getDrawMode() const;
@@ -134,37 +136,52 @@ private:
     EmitterDirection direction; // Emitter direction
     float directionSpread; // Spread of the particle beam in percentage(%), this is disabled for uniform emitter direction
     EmitterType emitterType; // Emitter type (i.e. shape of the emitter)
-    uint32_t particlesPerSec; // Number of particles generated per second
-    glm::vec3 position; // Position of emitter
-    RandGen randGen; // Random number generator
-    glm::vec3 rotation; // Rotation of emitter
-    glm::vec3 size; // Size of emitter, this is disabled for point emitters
+
     float initVelocity; // Initial velocity of particles measured in seconds
     float initVelocityPerFrame; // Initial velocity of particles measured in frames
     float initVelocityRandom; // Randomness of velocity in percentage(%), 0% means no change of velocity to all particles and r% means a possible range of ((1-r%)*v0, (1+r%)*v0] of velocity where v0 is the velocity specified
-    // NOTE: The initVelocityRandomDistribution behaves differently from the Velocity Distribution in Particular as I found it couterintuitive
     float initVelocityRandomDistribution; // Portion of the random generated initial velocity that is higher than the given initial velocity.
+    // NOTE: The initVelocityRandomDistribution behaves differently from the Velocity Distribution in Particular as I found it couterintuitive
+
+    uint32_t particlesPerSec; // Number of particles generated per second
+
+    glm::vec3 position; // Position of emitter
+    glm::vec3 rotation; // Rotation of emitter
+    glm::vec3 size; // Size of emitter, this is disabled for point emitters
+
+    RandGen randGen; // Random number generator
+
+
 
     /****** Particle Attributes ******/
     ParticleBlend blendType; // Type of blend applied to particles
+
     float feather; // Level of feathering, only available for sphere type (currently)
+
     glm::vec3 particleColor; // Color of particles
     float particleColorRandom; // Randomness of color in percentage(%), 0% means no change of color to all particles and 100% means any color is possible
+
     float particleLife; // Particle life span in seconds
     float particleLifeRandom; // Randomness of particle life span in percentage(%), 0% means the particles genearted at the same time will all die at once and 100% means a possible range of [0.9*l0, 1.1*l0] where l0 is the life span specified
+
     float particleOpacity;
     float particleOpacityRandom; // Randomness of particle opacity in percentage(%), 100% means a possible range of [0, p0] where p0 is the specified opacity
+
     glm::vec3 particleRotation;
     float particleRotationRandom; // Rotates the particle around a random axis, randomness in percentage(%) where 0% means 0 deg rotation for all particles and 100% means rotation in the range of [0, 360] deg
+    // float randomRotationSpeed; // Rotates the particle around a random axis, randomness in percentage(%) where a 0% means no randomness in rotation speed and 100% means
+
     float particleSize;
     float particleSizeRandom; // Randomness of particle size in percentage(%), 100% means a possible range of [0.2*s0, 5*s0] where s0 is the specified size
+
     float particlesPerFrame; // Number of particles generated per frame, i.e. in `secondPerFrame` second, this could be smaller than one
     ParticleType particleType; // Shape of particles
-    // float randomRotationSpeed; // Rotates the particle around a random axis, randomness in percentage(%) where a 0% means no randomness in rotation speed and 100% means
 
     /** TODO: size over life **/
     /** TODO: color over life and random color **/
     /** TODO: Pre Run **/
+
+
 
     /***** User Unmodifiables *****/
     std::unique_ptr<Geometry> curGeomtry; // Current geometry shape of the particles

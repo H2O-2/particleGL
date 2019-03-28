@@ -2,6 +2,9 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#ifndef M_PI
+    #define M_PI 3.14159265359
+#endif
 
 const int DEFAULT_SEGMENT_NUM = 360;
 const float SPHERE_BASE_SCALE = 1.0f;

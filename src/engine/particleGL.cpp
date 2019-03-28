@@ -40,7 +40,10 @@ void ParticleGL::render() {
 
     // Render GUI
     ControlGUI::preRender(window);
+    ParticleType newParticleType;
     for (auto& emitter : emitters) {
+        newParticleType = emitter->getParticleType();
+
         if (ControlGUI::renderMenu("Emitter (Master)")) {
             ControlGUI::renderIntSlider("Particles/sec", (int *)emitter->getParticlesPerSecPtr(), 0, 1000);
             ControlGUI::render3dFloatSlider("Position", emitter->getEmitterPosnPtr());
@@ -50,7 +53,7 @@ void ParticleGL::render() {
         }
 
         if (ControlGUI::renderMenu("Particle (Master)")) {
-            ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle"}, (int *)&(emitter->newParticleType));
+            ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle"}, (int *)&(newParticleType));
             ControlGUI::renderFloatSlider("Life [sec]", emitter->getParticleLifePtr(), 0.0f, 10.0f);
             ControlGUI::renderIntSlider("Life Random [%%]", emitter->getParticleLifeRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
             ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
@@ -70,34 +73,13 @@ void ParticleGL::render() {
         if (ControlGUI::renderMenu("Rendering")) {
 
         }
+
+        emitter->setParticleType(newParticleType);
     }
     ControlGUI::finalizeRender();
 
     // Render
-    renderer.renderEngine(emitters, camera, [&](const float& interpolation) {
-        for (auto const& emitter : emitters) {
-            // Update emitter & particle data
-            emitter->setParticleType(emitter->newParticleType);
-            emitter->update(interpolation);
-            switch (renderer.getCurrentRenderMode()) {
-                case RenderMode::U_MODEL_U_COLOR:
-                    renderer.updateParticleBuffer(emitter->getVAO(), emitter->getOffsets());
-                    break;
-                case RenderMode::U_MODEL_V_COLOR:
-                    renderer.updateParticleBuffer(emitter->getVAO(), emitter->getOffsets(), emitter->getInstancedColors());
-                    break;
-                case RenderMode::V_MODEL_U_COLOR:
-                    renderer.updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices());
-                    break;
-                case RenderMode::V_MODEL_V_COLOR:
-                    renderer.updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices(), emitter->getInstancedColors());
-                    break;
-                default:
-                    break;
-            }
-        }
-
-    });
+    renderer.renderEngine(emitters, camera);
 }
 
 bool ParticleGL::shouldEnd() const {
