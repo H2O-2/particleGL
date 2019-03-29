@@ -37,9 +37,7 @@ IntDist::result_type RandGen::randIntClosed(const int rangeMin, const int rangeM
 
 RealDist::result_type RandGen::randRealClosed(const float rangeMin, const float rangeMax) {
     // Generate the upper bound to close the range of [rangeMin, rangeMax]
-    float upperBound = closedBound(rangeMax);
-
-    return randRealOpenLeft(rangeMin, upperBound);
+    return randRealOpenRight(rangeMin, closedBound(rangeMax));
 }
 
 RealDist::result_type RandGen::randRealOpenLeft(const float rangeMin, const float rangeMax) {
@@ -57,12 +55,12 @@ RealDist::result_type RandGen::randRealOpenRight(const float rangeMin, const flo
     return realDist(engine);
 }
 
-glm::vec3 RandGen::randVec3(const float rangeMin, const float rangeMax) {
-    if (rangeMin != realDist.min() || rangeMax != realDist.max()) {
-        realDist = RealDist(rangeMin, rangeMax);
-    }
+glm::vec3 RandGen::randVec3Closed(const float rangeMin, const float rangeMax) {
+    return glm::vec3(randRealClosed(rangeMin, rangeMax), randRealClosed(rangeMin, rangeMax), randRealClosed(rangeMin, rangeMax));
+}
 
-    return glm::vec3(realDist(engine), realDist(engine), realDist(engine));
+glm::vec3 RandGen::randVec3Closed(const float rangeMinX, const float rangeMaxX, const float rangeMinY, const float rangeMaxY, const float rangeMinZ, const float rangeMaxZ) {
+    return glm::vec3(randRealClosed(rangeMinX, rangeMaxX), randRealClosed(rangeMinY, rangeMaxY), randRealClosed(rangeMinZ, rangeMaxZ));
 }
 
 /***** Private *****/

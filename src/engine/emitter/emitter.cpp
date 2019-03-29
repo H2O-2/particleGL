@@ -226,7 +226,7 @@ void Emitter::update(const float& interpolation) {
         glm::vec3 newParticleColor(particleColor);
         // Calculate random color if randomness is set
         if (particleColorRandom > 0.0f) {
-           glm::vec3 randomColor = randGen.randVec3(0.0f, 1.0f);
+           glm::vec3 randomColor = randGen.randVec3Closed(0.0f, 1.0f);
            newParticleColor = colorLerp(randomColor, particleColor, particleColorRandom);
         }
 
@@ -246,10 +246,10 @@ void Emitter::update(const float& interpolation) {
 
         if (newParticleIndex < 0) {
             // Push new particles to the particles vector if all particles are in use
-            particles.emplace_back(newParticleVelocity, newParticleColor, newParticleLife, newParticleSize);
+            particles.emplace_back(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleSize, newParticleVelocity);
         } else {
             // Otherwise replace the unused particle
-            particles[newParticleIndex] = Particle(newParticleVelocity, newParticleColor, newParticleLife, newParticleSize);
+            particles[newParticleIndex] = Particle(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleSize, newParticleVelocity);
         }
     }
 
@@ -296,6 +296,17 @@ void Emitter::update(const float& interpolation) {
 }
 
 /***** Private *****/
+
+glm::vec3 Emitter::generateInitialParticlePosn() {
+    switch (emitterType) {
+        case EmitterType::BOX:
+            return randGen.randVec3Closed(position.x - size.x / 2, position.x + size.x / 2, position.y - size.y / 2, position.y + size.y / 2, position.z - size.z / 2, position.z + size.z / 2);
+        case EmitterType::SPHERE:
+            return glm::vec3();
+        default:
+            return position;
+    }
+}
 
 int Emitter::getFirstUnusedParticle() {
     for (uint16_t i = lastUsedParticle; i < particles.size(); ++i) {

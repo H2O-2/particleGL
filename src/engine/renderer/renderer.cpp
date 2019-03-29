@@ -177,9 +177,6 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
     // Render particles
     for (auto const& emitter : emitters) {
         // Transformations for emitters
-        glm::mat4 emitterModel;
-        emitterModel = glm::translate(emitterModel, emitter->getEmitterPosn());
-        shader.setMat4("emitterModel", emitterModel);
 
         // Update the transformation & color buffers for particles
         // i.e. update instanced vertex attributes (buffers) and uniform variables

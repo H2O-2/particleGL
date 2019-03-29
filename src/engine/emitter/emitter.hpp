@@ -196,6 +196,7 @@ private:
     std::vector<float> offsets; // Offsets of particles
     float newParticleNumBuffer; // Buffers the current `number` of particles to be emitted. This value is always smaller than one after each update
 
+    glm::vec3 generateInitialParticlePosn(); // Return a birth position for some particle according to current emitter type
     int getFirstUnusedParticle(); // Get the index of first unused particle in particles vector
     void setGeometry(ParticleType particleType); // Buffer the geometry and GPU data for geometry of given type
     void updateRenderMode();

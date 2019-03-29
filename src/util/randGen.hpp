@@ -21,7 +21,8 @@ public:
     RealDist::result_type randRealClosed(const float rangeMin, const float rangeMax);
     RealDist::result_type randRealOpenLeft(const float rangeMin, const float rangeMax);
     RealDist::result_type randRealOpenRight(const float rangeMin, const float rangeMax);
-    glm::vec3 randVec3(const float rangeMin, const float rangeMax);
+    glm::vec3 randVec3Closed(const float rangeMin, const float rangeMax);
+    glm::vec3 randVec3Closed(const float rangeMinX, const float rangeMaxX, const float rangeMinY, const float rangeMaxY, const float rangeMinZ, const float rangeMaxZ);
 private:
     uint32_t seed;
     RandEngine engine;
