@@ -18,6 +18,9 @@ const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NONE;
 const float INIT_DIR_SPREAD = 20.0f;
 const EmitterDirection INIT_EMIT_DIR = EmitterDirection::UNIFORM;
 const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
+const glm::vec3 INIT_EMITTER_SIZE = glm::vec3(105.0f);
+const float EMITTER_SIZE_SCALE = 0.21f;
+const EmitterSize INIT_EMITTER_SIZE_TYPE = EmitterSize::LINKED;
 const EmitterType INIT_EMITTER_TYPE = EmitterType::POINT;
 const int MAX_PARTICLE_NUM = 10000;
 const float RANDOMNESS_SCALE = 0.01f;
@@ -38,14 +41,15 @@ const float INIT_VELOCITY = 100.0f;
 const float INIT_VELOCITY_RANDOMNESS = 0.2f;
 const float INIT_VELOCITY_RANDOMNESS_DIST = 0.5f;
 const float PARTICLE_SIZE_SCALE = 0.2f;
-const float PARTICLE_VELOCITY_SCALE = 7.0f / 1000.0f;
+const float PARTICLE_VELOCITY_SCALE = 0.007f;
 
 Emitter::Emitter(const float& secondPerFrame) :
     /***** Emitter Attributes *****/
     direction(INIT_EMIT_DIR), directionSpread(-1.0),
     emitterType(INIT_EMITTER_TYPE), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE),
     initVelocityRandom(INIT_VELOCITY_RANDOMNESS), initVelocityRandomDistribution(INIT_VELOCITY_RANDOMNESS_DIST),
-    particlesPerSec(INIT_PARTICLE_PER_SEC), position(INIT_EMITTER_POSN), rotation(glm::vec3(-1.0f)), randGen(),
+    particlesPerSec(INIT_PARTICLE_PER_SEC), position(INIT_EMITTER_POSN), rotation(glm::vec3(-1.0f)),
+    size(INIT_EMITTER_SIZE), emitterSizeType(INIT_EMITTER_SIZE_TYPE), randGen(),
     /***** Particle Attributes *****/
     blendType(INIT_BLEND_TYPE), feather(INIT_PARTICLE_FEATHER),
     particleColor(INIT_PARTICLE_COLOR), particleColorRandom(INIT_COLOR_RANDOMNESS),
@@ -79,6 +83,26 @@ const glm::vec3& Emitter::getEmitterPosn() const {
 
 float* Emitter::getEmitterPosnPtr() {
     return glm::value_ptr(position);
+}
+
+float* Emitter::getEmitterSizePtr() {
+    return glm::value_ptr(size);
+}
+
+EmitterSize Emitter::getEmitterSizeType() const {
+    return emitterSizeType;
+}
+
+EmitterSize* Emitter::getEmitterSizeTypePtr() {
+    return &emitterSizeType;
+}
+
+EmitterType Emitter::getEmitterType() const {
+    return emitterType;
+}
+
+EmitterType* Emitter::getEmitterTypePtr() {
+    return &emitterType;
 }
 
 
@@ -300,7 +324,7 @@ void Emitter::update(const float& interpolation) {
 glm::vec3 Emitter::generateInitialParticlePosn() {
     switch (emitterType) {
         case EmitterType::BOX:
-            return randGen.randVec3Closed(position.x - size.x / 2, position.x + size.x / 2, position.y - size.y / 2, position.y + size.y / 2, position.z - size.z / 2, position.z + size.z / 2);
+            return randGen.randVec3Closed(position.x - size.x / 2.0f, position.x + size.x / 2.0f, position.y - size.y / 2.0f, position.y + size.y / 2.0f, position.z - size.z / 2.0f, position.z + size.z / 2.0f);
         case EmitterType::SPHERE:
             return glm::vec3();
         default:

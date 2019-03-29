@@ -1,7 +1,4 @@
 #include "controlGUI.hpp"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_sdl.h"
-#include "imgui/imgui_impl_opengl3.h"
 
 const char* GLSL_VERSION = "#version 330";
 
@@ -50,7 +47,16 @@ bool ControlGUI::renderMenu(std::string name) {
 
 void ControlGUI::render3dFloatSlider(std::string name, float* v) {
     ImGui::Text(name.c_str());
-    ImGui::DragFloat3(("##" + name).c_str(), v);
+    ImGui::DragFloat3(("##" + name).c_str(), v, 1.0f, 0.0f, 0.0f, "%.1f");
+}
+
+void ControlGUI::render3dUnsignedIntSlider(std::string name, float* v, const float scaleFactor) {
+    int temp[3] = {static_cast<int>(v[0] / scaleFactor), static_cast<int>(v[1] / scaleFactor), static_cast<int>(v[2] / scaleFactor)};
+    ImGui::Text(name.c_str());
+    ImGui::DragInt3(("##" + name).c_str(), temp);
+    for (int i = 0; i < 3; ++i) {
+        v[i] = temp[i] > 0 ? temp[i] * scaleFactor : 0;
+    }
 }
 
 void ControlGUI::renderColorEdit3(std::string name, float* v) {
@@ -70,16 +76,33 @@ void ControlGUI::renderIntSlider(std::string name, float* v, const int min, cons
     *v = temp * scaleFactor;
 }
 
+void ControlGUI::renderUnsignedIntDragger(std::string name, float* v, const int len, const float scaleFactor) {
+    int temp = static_cast<int>(v[0] / scaleFactor);
+    ImGui::Text(name.c_str());
+    ImGui::DragInt(("##" + name).c_str(), &temp);
+    v[0] = temp > 0 ? temp * scaleFactor : 0;
+
+    for (int i = 1; i < len; ++i) {
+        v[i] = v[0];
+    }
+}
+
+void ControlGUI::renderFloatDragger(std::string name, float* v, const int len, const float scaleFactor) {
+    float temp = v[0] / scaleFactor;
+    ImGui::Text(name.c_str());
+    ImGui::DragFloat(("##" + name).c_str(), &temp, 1.0f, 0.0f, 0.0f, "%.1f");
+    v[0] = temp * scaleFactor;
+
+    for (int i = 1; i < len; ++i) {
+        v[i] = v[0];
+    }
+}
+
 void ControlGUI::renderFloatSlider(std::string name, float* v, const float min, const float max, const float scaleFactor) {
     float temp = *v / scaleFactor;
     ImGui::Text(name.c_str());
     ImGui::SliderFloat(("##" + name).c_str(), &temp, min, max, "%.1f");
     *v = temp * scaleFactor;
-}
-
-void ControlGUI::renderPullDownMenu(std::string name, const std::vector<const char *>& items, int* currentItem) {
-    ImGui::Text(name.c_str());
-    ImGui::Combo(("##" + name).c_str(), currentItem, items.data(), items.size());
 }
 
 void ControlGUI::renderRadioBtnSelection(const char* name, int* btnNum, const std::vector<const char *>& labels) {

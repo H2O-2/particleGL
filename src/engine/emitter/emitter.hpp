@@ -8,9 +8,9 @@
 
 // Shape of particle emitter
 enum class EmitterType {
-    POINT,
-    BOX,
-    SPHERE,
+    POINT, // Particles will emit from one point, this is the default setting
+    BOX, // Particles will be born in random position inside a box
+    SPHERE, // Particles will be born in random position inside a sphere
 };
 
 // Type of emission done by the emitter
@@ -19,9 +19,16 @@ enum class EmitterDirection {
     DIRECTIONAL, // A certain direction, defaults to the direction of y axis
 };
 
+// How emitter size can be specified. This is not applicable to point type emitter
+// When switching from INDIVIDUAL to LINKED, the size value on X direction will be used
+enum class EmitterSize {
+    LINKED, // Size is the same on all directions (X, Y, Z)
+    INDIVIDUAL // Size can be modified to different values on different directions
+};
+
 // Type of blend between particles
 enum class ParticleBlend {
-    NONE,
+    NONE, // No blending, this is the default setting
     ADD,
     SCREEN,
     LIGHTEN
@@ -44,6 +51,9 @@ extern const ParticleBlend INIT_BLEND_TYPE;
 extern const float INIT_DIR_SPREAD;
 extern const EmitterDirection INIT_EMIT_DIR;
 extern const glm::vec3 INIT_EMITTER_POSN;
+extern const glm::vec3 INIT_EMITTER_SIZE;
+extern const float EMITTER_SIZE_SCALE;
+extern const EmitterSize INIT_EMITTER_SIZE_TYPE;
 extern const EmitterType INIT_EMITTER_TYPE;
 extern const int MAX_PARTICLE_NUM;
 extern const float RANDOMNESS_SCALE;
@@ -77,7 +87,14 @@ public:
     const glm::vec3& getEmitterPosn() const;
     float* getEmitterPosnPtr();
     const glm::vec3& getEmitterRotation() const;
+
     const glm::vec3& getEmitterSize() const;
+    float* getEmitterSizePtr();
+    EmitterSize getEmitterSizeType() const;
+    EmitterSize* getEmitterSizeTypePtr();
+
+    EmitterType getEmitterType() const;
+    EmitterType* getEmitterTypePtr();
 
 
 
@@ -148,6 +165,7 @@ private:
     glm::vec3 position; // Position of emitter
     glm::vec3 rotation; // Rotation of emitter
     glm::vec3 size; // Size of emitter, this is disabled for point emitters
+    EmitterSize emitterSizeType; // Specifies how emitter size can be modified, this is disabled for point emitters
 
     RandGen randGen; // Random number generator
 

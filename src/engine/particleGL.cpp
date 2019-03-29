@@ -41,19 +41,34 @@ void ParticleGL::render() {
     // Render GUI
     ControlGUI::preRender(window);
     ParticleType newParticleType;
+    EmitterType emitterType;
+    EmitterSize emitterSizeType;
     for (auto& emitter : emitters) {
         newParticleType = emitter->getParticleType();
+        emitterType = emitter->getEmitterType();
+        emitterSizeType = emitter->getEmitterSizeType();
 
         if (ControlGUI::renderMenu("Emitter (Master)")) {
             ControlGUI::renderIntSlider("Particles/sec", (int *)emitter->getParticlesPerSecPtr(), 0, 1000);
+            ControlGUI::renderPullDownMenu("Emitter Type", {"Point", "Box", "Sphere"}, emitter->getEmitterTypePtr());
             ControlGUI::render3dFloatSlider("Position", emitter->getEmitterPosnPtr());
             ControlGUI::renderFloatSlider("Velocity", emitter->getInitialVelocityPtr(), 0.0f, 1000.0f, PARTICLE_VELOCITY_SCALE);
             ControlGUI::renderIntSlider("Velocity Random [%%]", emitter->getInitialVelocityRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
             ControlGUI::renderFloatSlider("Velocity Distribution", emitter->getInitialVelocityRandomnessDistributionPtr(), 0.0f, 1.0);
+
+            if (emitterType != EmitterType::POINT) {
+                ControlGUI::renderPullDownMenu("Emitter Size", {"XYZ Linked", "XYZ Individual"}, emitter->getEmitterSizeTypePtr());
+
+                if (emitterSizeType == EmitterSize::LINKED) {
+                    ControlGUI::renderUnsignedIntDragger("Emitter Size XYZ", emitter->getEmitterSizePtr(), 3, EMITTER_SIZE_SCALE);
+                } else {
+                    ControlGUI::render3dUnsignedIntSlider("Emitter Size XYZ", emitter->getEmitterSizePtr(), EMITTER_SIZE_SCALE);
+                }
+            }
         }
 
         if (ControlGUI::renderMenu("Particle (Master)")) {
-            ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle"}, (int *)&(newParticleType));
+            ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle"}, &(newParticleType));
             ControlGUI::renderFloatSlider("Life [sec]", emitter->getParticleLifePtr(), 0.0f, 10.0f);
             ControlGUI::renderIntSlider("Life Random [%%]", emitter->getParticleLifeRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
             ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
