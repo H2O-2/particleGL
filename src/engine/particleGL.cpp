@@ -52,6 +52,7 @@ void ParticleGL::render() {
             ControlGUI::renderIntSlider("Particles/sec", (int *)emitter->getParticlesPerSecPtr(), 0, 1000);
             ControlGUI::renderPullDownMenu("Emitter Type", {"Point", "Box", "Sphere"}, emitter->getEmitterTypePtr());
             ControlGUI::render3dFloatSlider("Position", emitter->getEmitterPosnPtr());
+            ControlGUI::render3dFloatSlider("Rotation (°)", emitter->getEmitterRotationPtr());
             ControlGUI::renderFloatSlider("Velocity", emitter->getInitialVelocityPtr(), 0.0f, 1000.0f, PARTICLE_VELOCITY_SCALE);
             ControlGUI::renderIntSlider("Velocity Random [%%]", emitter->getInitialVelocityRandomnessPtr(), 0, 100, RANDOMNESS_SCALE);
             ControlGUI::renderFloatSlider("Velocity Distribution", emitter->getInitialVelocityRandomnessDistributionPtr(), 0.0f, 1.0);

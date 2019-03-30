@@ -51,6 +51,7 @@ extern const ParticleBlend INIT_BLEND_TYPE;
 extern const float INIT_DIR_SPREAD;
 extern const EmitterDirection INIT_EMIT_DIR;
 extern const glm::vec3 INIT_EMITTER_POSN;
+extern const glm::vec3 INIT_EMITTER_ROTATION;
 extern const glm::vec3 INIT_EMITTER_SIZE;
 extern const float EMITTER_SIZE_SCALE;
 extern const EmitterSize INIT_EMITTER_SIZE_TYPE;
@@ -86,7 +87,9 @@ public:
     /***** Emitter Attributes *****/
     const glm::vec3& getEmitterPosn() const;
     float* getEmitterPosnPtr();
+
     const glm::vec3& getEmitterRotation() const;
+    float* getEmitterRotationPtr();
 
     const glm::vec3& getEmitterSize() const;
     float* getEmitterSizePtr();

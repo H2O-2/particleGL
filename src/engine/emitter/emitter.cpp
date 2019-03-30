@@ -18,6 +18,7 @@ const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NONE;
 const float INIT_DIR_SPREAD = 20.0f;
 const EmitterDirection INIT_EMIT_DIR = EmitterDirection::UNIFORM;
 const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
+const glm::vec3 INIT_EMITTER_ROTATION = glm::vec3(0.0f);
 const glm::vec3 INIT_EMITTER_SIZE = glm::vec3(105.0f);
 const float EMITTER_SIZE_SCALE = 0.21f;
 const EmitterSize INIT_EMITTER_SIZE_TYPE = EmitterSize::LINKED;
@@ -48,7 +49,7 @@ Emitter::Emitter(const float& secondPerFrame) :
     direction(INIT_EMIT_DIR), directionSpread(-1.0),
     emitterType(INIT_EMITTER_TYPE), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE),
     initVelocityRandom(INIT_VELOCITY_RANDOMNESS), initVelocityRandomDistribution(INIT_VELOCITY_RANDOMNESS_DIST),
-    particlesPerSec(INIT_PARTICLE_PER_SEC), position(INIT_EMITTER_POSN), rotation(glm::vec3(-1.0f)),
+    particlesPerSec(INIT_PARTICLE_PER_SEC), position(INIT_EMITTER_POSN), rotation(INIT_EMITTER_ROTATION),
     size(INIT_EMITTER_SIZE), emitterSizeType(INIT_EMITTER_SIZE_TYPE), randGen(),
     /***** Particle Attributes *****/
     blendType(INIT_BLEND_TYPE), feather(INIT_PARTICLE_FEATHER),
@@ -83,6 +84,10 @@ const glm::vec3& Emitter::getEmitterPosn() const {
 
 float* Emitter::getEmitterPosnPtr() {
     return glm::value_ptr(position);
+}
+
+float* Emitter::getEmitterRotationPtr() {
+    return glm::value_ptr(rotation);
 }
 
 float* Emitter::getEmitterSizePtr() {
@@ -322,9 +327,13 @@ void Emitter::update(const float& interpolation) {
 /***** Private *****/
 
 glm::vec3 Emitter::generateInitialParticlePosn() {
+    glm::mat4 rotationMat;
+    rotationMat = glm::rotate(rotationMat, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    rotationMat = glm::rotate(rotationMat, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    rotationMat = glm::rotate(rotationMat, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     switch (emitterType) {
         case EmitterType::BOX:
-            return randGen.randVec3Closed(position.x - size.x / 2.0f, position.x + size.x / 2.0f, position.y - size.y / 2.0f, position.y + size.y / 2.0f, position.z - size.z / 2.0f, position.z + size.z / 2.0f);
+            return glm::vec3(rotationMat * glm::vec4(randGen.randVec3Closed(position.x - size.x / 2.0f, position.x + size.x / 2.0f, position.y - size.y / 2.0f, position.y + size.y / 2.0f, position.z - size.z / 2.0f, position.z + size.z / 2.0f), 1.0f));
         case EmitterType::SPHERE:
             return glm::vec3();
         default:
