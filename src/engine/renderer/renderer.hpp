@@ -15,10 +15,19 @@
 #include "../emitter/emitter.hpp"
 #include "../resource/shaderParser.hpp"
 
+// Type of blend between particles
+enum class ParticleBlend {
+    NORMAL, // Blend according to opacity, this is the default setting
+    ADD,
+    SCREEN,
+    LIGHTEN
+};
+
 extern const int DEFAULT_MSAA;
 extern const float PLANE_SCALE;
 extern const float DEFAULT_NEAR_PLANE;
 extern const float DEFAULT_FAR_PLANE;
+extern const ParticleBlend INIT_BLEND_TYPE;
 
 class Renderer {
 public:
@@ -35,6 +44,9 @@ public:
     SDL_GLContext getGLContext() const;
 
     bool isHidpi() const; // Returns true if the current display is HiDPI
+
+    ParticleBlend getBlendType() const;
+    ParticleBlend* getBlendTypePtr();
 
     void setMSAASample(const int& sample); // Set sample level for MSAA
 
@@ -60,6 +72,8 @@ private:
 
     // Rendering attributes
     glm::vec3 bgColor;
+    ParticleBlend blendType; // Type of blend applied to particles
+    ParticleBlend prevBlendType;
     RenderMode currentRenderMode;
     float curTime;
     int msaaSample; // Level of MSAA
@@ -72,6 +86,8 @@ private:
     float farVanish; // Near distance from the camera when particle vanishes. The actual value is a tenth of this value
 
     std::unordered_map<RenderMode, ShaderParser> shaders; // Shaders corresponding to different render modes
+
+    void updateBlendMode(); // Update blend mode of particles
 
     // Determines which render mode to use.
     // Returns the Varing shader if both Varing and Uniform exists to avoid shader switching overhead

@@ -15,7 +15,6 @@
 const RenderMode DEFAULT_RENDER = RenderMode::U_MODEL_U_COLOR;
 const int INIT_PARTICLE_PER_SEC = 100;
 const ParticleType INIT_PARTICLE_TYPE = ParticleType::SPHERE;
-const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NONE;
 const float INIT_DIR_SPREAD = 0.2f;
 const EmitterDirection INIT_EMIT_DIR = EmitterDirection::UNIFORM;
 const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
@@ -53,7 +52,7 @@ Emitter::Emitter(const float& secondPerFrame) :
     particlesPerSec(INIT_PARTICLE_PER_SEC), position(INIT_EMITTER_POSN), rotation(INIT_EMITTER_ROTATION),
     size(INIT_EMITTER_SIZE), emitterSizeType(INIT_EMITTER_SIZE_TYPE), randGen(),
     /***** Particle Attributes *****/
-    blendType(INIT_BLEND_TYPE), feather(INIT_PARTICLE_FEATHER),
+    feather(INIT_PARTICLE_FEATHER),
     particleColor(INIT_PARTICLE_COLOR), particleColorRandom(INIT_COLOR_RANDOMNESS),
     particleLife(INIT_PARTICLE_LIFE), particleLifeRandom(INIT_LIFE_RANDOMNESS),
     particleOpacity(INIT_PARTICLE_OPACITY), particleOpacityRandom(INIT_OPACITY_RANDOMNESS),

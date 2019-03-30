@@ -26,14 +26,6 @@ enum class EmitterSize {
     INDIVIDUAL // Size can be modified to different values on different directions
 };
 
-// Type of blend between particles
-enum class ParticleBlend {
-    NONE, // No blending, this is the default setting
-    ADD,
-    SCREEN,
-    LIGHTEN
-};
-
 // Rendering mode for particles.
 // Uniform Model will pass to shader only instanced translation, rotation and scale will be passed as uniform variables while Varing model will pass instanced model matrices to shader
 // Uniform Color will only pass color to fragment shdaer as uniform variable while Varing color will pass instanced colors to (vertex) shader
@@ -47,7 +39,6 @@ enum class RenderMode {
 extern const RenderMode DEFAULT_RENDER;
 extern const int INIT_PARTICLE_PER_SEC;
 extern const ParticleType INIT_PARTICLE_TYPE;
-extern const ParticleBlend INIT_BLEND_TYPE;
 extern const float INIT_DIR_SPREAD;
 extern const EmitterDirection INIT_EMIT_DIR;
 extern const glm::vec3 INIT_EMITTER_POSN;
@@ -112,8 +103,6 @@ public:
 
     ParticleType getParticleType() const;
     void setParticleType(ParticleType particleType);
-
-    ParticleBlend getBlendType() const;
 
     const glm::vec4 getParticleColorAndOpacity() const;
     float* getParticleColorPtr();
@@ -180,8 +169,6 @@ private:
 
 
     /****** Particle Attributes ******/
-    ParticleBlend blendType; // Type of blend applied to particles
-
     float feather; // Level of feathering, only available for sphere type (currently)
 
     glm::vec3 particleColor; // Color of particles

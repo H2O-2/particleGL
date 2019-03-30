@@ -6,6 +6,7 @@ const int DEFAULT_MSAA = 8;
 const float PLANE_SCALE = 0.1f;
 const float DEFAULT_NEAR_PLANE = 1.0f;
 const float DEFAULT_FAR_PLANE = 20000.0f;
+const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NORMAL;
 
 const int Renderer::OFFSET_POSN = 1;
 const int Renderer::COLOR_POSN = 2;
@@ -15,7 +16,7 @@ Renderer::Renderer() {}
 
 Renderer::Renderer(const uint32_t windowWidth, const uint32_t windowHeight, const float secondPerFrame,
                    const glm::vec3& bgColor, const int msaaSample) :
-    bgColor(bgColor), currentRenderMode(DEFAULT_RENDER), msaaSample(msaaSample), secondPerFrame(secondPerFrame),
+    bgColor(bgColor), blendType(INIT_BLEND_TYPE), prevBlendType(INIT_BLEND_TYPE), currentRenderMode(DEFAULT_RENDER), msaaSample(msaaSample), secondPerFrame(secondPerFrame),
     windowWidth(windowWidth), windowHeight(windowHeight), nearVanish(DEFAULT_NEAR_PLANE * PLANE_SCALE),
     farVanish(DEFAULT_FAR_PLANE * PLANE_SCALE) {}
 
@@ -133,6 +134,10 @@ bool Renderer::isHidpi() const {
     return display.w > 2048;
 }
 
+ParticleBlend* Renderer::getBlendTypePtr() {
+    return &blendType;
+}
+
 void Renderer::setMSAASample(const int& sample) {
     if (msaaSample != sample) {
         msaaSample = sample;
@@ -167,6 +172,9 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
 
     // Update render mode
     updateCurrentRenderMode(emitters);
+
+    // Update blend mode
+    updateBlendMode();
 
     ShaderParser& shader = shaders[currentRenderMode];
     shader.use();
@@ -227,6 +235,33 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
 }
 
 /***** Private *****/
+
+void Renderer::updateBlendMode() {
+    if (prevBlendType == blendType) return;
+
+    if (prevBlendType == ParticleBlend::LIGHTEN)
+        glBlendEquation(GL_FUNC_ADD);
+
+    switch (blendType) {
+        case ParticleBlend::NORMAL:
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        case ParticleBlend::ADD:
+            glBlendFunc(GL_ONE, GL_ONE);
+            break;
+        case ParticleBlend::SCREEN:
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+            break;
+        case ParticleBlend::LIGHTEN:
+            glBlendEquation(GL_MAX);
+            glBlendFunc(GL_ONE, GL_ONE);
+            break;
+        default:
+            break;
+    }
+
+    prevBlendType = blendType;
+}
 
 void Renderer::updateCurrentRenderMode(const std::vector<std::shared_ptr<Emitter>>& emitters) {
     bool colorVaring = false;
