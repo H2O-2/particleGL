@@ -2,7 +2,7 @@
 #include "../controlGUI/controlGUI.hpp"
 
 ParticleGL::ParticleGL(unsigned int windowWidth, unsigned int windowHeight, float framerate, glm::vec3 bgColor)
-    : secondPerFrame(1.0f / framerate), renderer(Renderer(windowWidth, windowHeight, secondPerFrame, bgColor)) {
+    : secondPerFrame(1.0f / framerate), paused(false), renderer(Renderer(windowWidth, windowHeight, secondPerFrame, bgColor)) {
     // Initialize renderer & OpenGL context
     this->window = renderer.initWindow();
     renderer.initTimer();
@@ -75,7 +75,7 @@ void ParticleGL::render() {
 
         if (ControlGUI::renderMenu("Particle (Master)")) {
             ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle"}, &(newParticleType));
-            ControlGUI::renderFloatSlider("Life [sec]", emitter->getParticleLifePtr(), 0.0f, 10.0f);
+            ControlGUI::renderFloatDragger("Life [sec]", emitter->getParticleLifePtr(), 1, 0.05f);
             ControlGUI::renderFloatSlider("Life Random [%%]", emitter->getParticleLifeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
             ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
             ControlGUI::renderFloatSlider("Size Random [%%]", emitter->getParticleSizeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
@@ -95,12 +95,14 @@ void ParticleGL::render() {
 
         }
 
+        ControlGUI::renderCheckbox("Pause", &paused);
+
         emitter->setParticleType(newParticleType);
     }
     ControlGUI::finalizeRender();
 
     // Render
-    renderer.renderEngine(emitters, camera);
+    renderer.renderEngine(emitters, camera, paused);
 }
 
 bool ParticleGL::shouldEnd() const {

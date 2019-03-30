@@ -59,6 +59,10 @@ void ControlGUI::render3dUnsignedIntSlider(std::string name, float* v, const flo
     }
 }
 
+void ControlGUI::renderCheckbox(const char* name, bool* v) {
+    ImGui::Checkbox(name, v);
+}
+
 void ControlGUI::renderColorEdit3(std::string name, float* v) {
     ImGui::Text(name.c_str());
     ImGui::ColorEdit3(("##" + name).c_str(), v);
@@ -87,10 +91,10 @@ void ControlGUI::renderUnsignedIntDragger(std::string name, float* v, const int 
     }
 }
 
-void ControlGUI::renderFloatDragger(std::string name, float* v, const int len, const float scaleFactor) {
+void ControlGUI::renderFloatDragger(std::string name, float* v, const int len, const float dragSpeed, const float scaleFactor) {
     float temp = v[0] / scaleFactor;
     ImGui::Text(name.c_str());
-    ImGui::DragFloat(("##" + name).c_str(), &temp, 1.0f, 0.0f, 0.0f, "%.1f");
+    ImGui::DragFloat(("##" + name).c_str(), &temp, dragSpeed, 0.0f, 0.0f, "%.1f");
     v[0] = temp * scaleFactor;
 
     for (int i = 1; i < len; ++i) {

@@ -148,7 +148,7 @@ void Renderer::clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera) {
+void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera, const bool paused) {
     // Referenced from https://gafferongames.com/post/fix_your_timestep/
     float accumulator = 0.0f;
     float newTime = SDL_GetTicks() * 0.001f;
@@ -158,7 +158,7 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
     accumulator += deltaTime;
 
     while (accumulator >= secondPerFrame) {
-        updateParticleStatus(emitters, 1.0f); // update with one full frame
+        updateParticleStatus(emitters, 1.0f, paused); // update with one full frame
         accumulator -= secondPerFrame;
     }
 
@@ -172,7 +172,7 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
 
     // Calculate the portion of the partial frame left in the accumulator and update
     const float interpolation = accumulator / secondPerFrame;
-    updateParticleStatus(emitters, interpolation);
+    updateParticleStatus(emitters, interpolation, paused);
 
     // Render particles
     for (auto const& emitter : emitters) {
@@ -258,7 +258,9 @@ void Renderer::updateCurrentRenderMode(const std::vector<std::shared_ptr<Emitter
     }
 }
 
-void Renderer::updateParticleStatus(const std::vector<std::shared_ptr<Emitter>>& emitters, const float& interpolation) const {
+void Renderer::updateParticleStatus(const std::vector<std::shared_ptr<Emitter>>& emitters, const float interpolation, const bool paused) const {
+    if (paused) return;
+
     for (auto const& emitter : emitters) {
         emitter->update(interpolation);
     }

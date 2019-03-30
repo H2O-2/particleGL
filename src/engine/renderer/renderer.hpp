@@ -42,7 +42,7 @@ public:
 
     void clearScreen();
 
-    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera); // Update and render particles
+    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera, const bool paused); // Update and render particles
 private:
     static const int OFFSET_POSN;
     static const int MODEL_MAT_POSN;
@@ -78,7 +78,7 @@ private:
     // (Need testing to make sure its the right thing to do)
     void updateCurrentRenderMode(const std::vector<std::shared_ptr<Emitter>>& emitters);
 
-    void updateParticleStatus(const std::vector<std::shared_ptr<Emitter>>& emitters, const float& interpolation) const; // Update emitter & particle data
+    void updateParticleStatus(const std::vector<std::shared_ptr<Emitter>>& emitters, const float interpolation, const bool paused) const; // Update emitter & particle data
 
     // Update particle info in the buffer. Different overrides corresponds to different render modes
     void updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets); // U_Model_U_COLOR

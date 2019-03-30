@@ -23,7 +23,7 @@ const glm::vec3 INIT_EMITTER_SIZE = glm::vec3(105.0f);
 const float EMITTER_SIZE_SCALE = 0.21f;
 const EmitterSize INIT_EMITTER_SIZE_TYPE = EmitterSize::LINKED;
 const EmitterType INIT_EMITTER_TYPE = EmitterType::POINT;
-const int MAX_PARTICLE_NUM = 10000;
+const int MAX_PARTICLE_NUM = 30000;
 const float PERCENTAGE_SCALE = 0.01f;
 
 const glm::vec3 INIT_PARTICLE_COLOR = glm::vec3(1.0f);
