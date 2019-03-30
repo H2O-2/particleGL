@@ -24,7 +24,7 @@ const float EMITTER_SIZE_SCALE = 0.21f;
 const EmitterSize INIT_EMITTER_SIZE_TYPE = EmitterSize::LINKED;
 const EmitterType INIT_EMITTER_TYPE = EmitterType::POINT;
 const int MAX_PARTICLE_NUM = 10000;
-const float RANDOMNESS_SCALE = 0.01f;
+const float PERCENTAGE_SCALE = 0.01f;
 
 const glm::vec3 INIT_PARTICLE_COLOR = glm::vec3(1.0f);
 const float INIT_COLOR_RANDOMNESS = 0.0f;
@@ -78,8 +78,16 @@ Emitter::Emitter(const float& secondPerFrame) :
 Emitter::~Emitter() {}
 
 /***** Emitter Attributes *****/
+EmitterDirection Emitter::getEmitterDirectionType() {
+    return direction;
+}
+
 EmitterDirection* Emitter::getEmitterDirectionTypePtr() {
     return &direction;
+}
+
+float* Emitter::getEmitterDirectionSpreadPtr() {
+    return &directionSpread;
 }
 
 const glm::vec3& Emitter::getEmitterPosn() const {

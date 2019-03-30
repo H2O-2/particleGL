@@ -57,7 +57,7 @@ extern const float EMITTER_SIZE_SCALE;
 extern const EmitterSize INIT_EMITTER_SIZE_TYPE;
 extern const EmitterType INIT_EMITTER_TYPE;
 extern const int MAX_PARTICLE_NUM;
-extern const float RANDOMNESS_SCALE;
+extern const float PERCENTAGE_SCALE;
 
 extern const glm::vec3 INIT_PARTICLE_COLOR;
 extern const float INIT_COLOR_RANDOMNESS;
@@ -85,6 +85,7 @@ public:
     ~Emitter();
 
     /***** Emitter Attributes *****/
+    EmitterDirection getEmitterDirectionType();
     EmitterDirection* getEmitterDirectionTypePtr();
     float* getEmitterDirectionSpreadPtr();
 
