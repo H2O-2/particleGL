@@ -15,7 +15,7 @@ const RenderMode DEFAULT_RENDER = RenderMode::U_MODEL_U_COLOR;
 const int INIT_PARTICLE_PER_SEC = 100;
 const ParticleType INIT_PARTICLE_TYPE = ParticleType::SPHERE;
 const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NONE;
-const float INIT_DIR_SPREAD = 20.0f;
+const float INIT_DIR_SPREAD = 0.2f;
 const EmitterDirection INIT_EMIT_DIR = EmitterDirection::UNIFORM;
 const glm::vec3 INIT_EMITTER_POSN = glm::vec3(0.0f);
 const glm::vec3 INIT_EMITTER_ROTATION = glm::vec3(0.0f);
@@ -46,7 +46,7 @@ const float PARTICLE_VELOCITY_SCALE = 0.007f;
 
 Emitter::Emitter(const float& secondPerFrame) :
     /***** Emitter Attributes *****/
-    direction(INIT_EMIT_DIR), directionSpread(-1.0),
+    direction(INIT_EMIT_DIR), directionSpread(INIT_DIR_SPREAD),
     emitterType(INIT_EMITTER_TYPE), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE),
     initVelocityRandom(INIT_VELOCITY_RANDOMNESS), initVelocityRandomDistribution(INIT_VELOCITY_RANDOMNESS_DIST),
     particlesPerSec(INIT_PARTICLE_PER_SEC), position(INIT_EMITTER_POSN), rotation(INIT_EMITTER_ROTATION),
@@ -78,6 +78,10 @@ Emitter::Emitter(const float& secondPerFrame) :
 Emitter::~Emitter() {}
 
 /***** Emitter Attributes *****/
+EmitterDirection* Emitter::getEmitterDirectionTypePtr() {
+    return &direction;
+}
+
 const glm::vec3& Emitter::getEmitterPosn() const {
     return position;
 }
@@ -224,7 +228,12 @@ bool Emitter::useEBO() const {
 
 void Emitter::update(const float& interpolation) {
     updateRenderMode();
-    activeParticleNum = 0;
+
+    // Update emitter's model matrix
+    emitterRotation = glm::rotate(glm::mat4(), glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    emitterRotation = glm::rotate(emitterRotation, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    emitterRotation = glm::rotate(emitterRotation, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    emitterTranslation = glm::translate(glm::mat4(), position);
 
     // Update particlesPerFrame with (possibly) new particle emit rate and framerate
     particlesPerFrame = particlesPerSec * secondPerFrame;
@@ -238,19 +247,6 @@ void Emitter::update(const float& interpolation) {
     int newParticleIndex = 0;
     for (int i = 0; i < newParticleNum; ++i) {
         newParticleIndex = getFirstUnusedParticle();
-
-        float newParticleInitVelocity = initVelocity;
-        // Calculate random velocity if randomness is set
-        if (initVelocityRandom > 0.0f) {
-            float offset = (randGen.randBool(initVelocityRandomDistribution) ? 1 : -1) * randGen.randRealOpenRight(0.0f, initVelocityRandom);
-            newParticleInitVelocity = initVelocity + offset;
-        }
-
-        // Calculate actual velocity on different axis using spherical coordinate
-        float inclination = randGen.randRealClosed(0.0f, M_PI);
-        float azimuth = randGen.randRealOpenRight(0.0, 2 * M_PI);
-        float horizontalVelocity = newParticleInitVelocity * sinf(inclination);
-        glm::vec3 newParticleVelocity(horizontalVelocity * sinf(azimuth), newParticleInitVelocity * cosf(inclination), horizontalVelocity * cosf(azimuth));
 
         glm::vec3 newParticleColor(particleColor);
         // Calculate random color if randomness is set
@@ -275,10 +271,10 @@ void Emitter::update(const float& interpolation) {
 
         if (newParticleIndex < 0) {
             // Push new particles to the particles vector if all particles are in use
-            particles.emplace_back(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleSize, newParticleVelocity);
+            particles.emplace_back(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleSize, generateInitialParticleVelocity());
         } else {
             // Otherwise replace the unused particle
-            particles[newParticleIndex] = Particle(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleSize, newParticleVelocity);
+            particles[newParticleIndex] = Particle(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleSize, generateInitialParticleVelocity());
         }
     }
 
@@ -286,6 +282,8 @@ void Emitter::update(const float& interpolation) {
     colors.clear();
     modelMatrices.clear();
     offsets.clear();
+
+    activeParticleNum = 0;
 
     for (auto& particle : particles) {
         if (particle.life <= 0) continue;
@@ -327,18 +325,44 @@ void Emitter::update(const float& interpolation) {
 /***** Private *****/
 
 glm::vec3 Emitter::generateInitialParticlePosn() {
-    glm::mat4 rotationMat;
-    rotationMat = glm::rotate(rotationMat, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    rotationMat = glm::rotate(rotationMat, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    rotationMat = glm::rotate(rotationMat, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 emitterModel = emitterTranslation * emitterRotation;
+    glm::vec3 halfSize = size / 2.0f;
     switch (emitterType) {
         case EmitterType::BOX:
-            return glm::vec3(rotationMat * glm::vec4(randGen.randVec3Closed(position.x - size.x / 2.0f, position.x + size.x / 2.0f, position.y - size.y / 2.0f, position.y + size.y / 2.0f, position.z - size.z / 2.0f, position.z + size.z / 2.0f), 1.0f));
+            return glm::vec3(emitterModel * glm::vec4(randGen.randVec3Closed(-halfSize, halfSize), 1.0f));
         case EmitterType::SPHERE:
+            // TODO
             return glm::vec3();
         default:
-            return position;
+            return glm::vec3(emitterModel * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     }
+}
+
+glm::vec3 Emitter::generateInitialParticleVelocity() {
+    float newParticleInitVelocity = initVelocity;
+    // Calculate random velocity if randomness is set
+    if (initVelocityRandom > 0.0f) {
+        float offset = (randGen.randBool(initVelocityRandomDistribution) ? 1 : -1) * randGen.randRealOpenRight(0.0f, initVelocityRandom);
+        newParticleInitVelocity = glm::max(initVelocity + offset, 0.0f);
+    }
+
+    // Calculate actual velocity on different axis using spherical coordinate
+    float inclination, azimuth;
+    if (direction == EmitterDirection::UNIFORM) {
+        inclination = randGen.randRealClosed(0.0f, M_PI);
+        azimuth = randGen.randRealOpenRight(0.0, 2 * M_PI);
+    } else if (direction == EmitterDirection::DIRECTIONAL) {
+        float halfPi = M_PI / 2.0f;
+        float halfSpread = directionSpread * M_PI;
+        float quaterSpread = halfSpread / 2.0f;
+        inclination = randGen.randRealClosed(halfPi - quaterSpread, halfPi + quaterSpread);
+        azimuth = randGen.randRealOpenRight(-halfSpread, halfSpread);
+    }
+
+    float horizontalVelocity = newParticleInitVelocity * sinf(inclination);
+
+    // Apply only emitter's rotation matrix to velocity since vector does not have position
+    return glm::vec3(emitterRotation * glm::vec4(horizontalVelocity * sinf(azimuth), newParticleInitVelocity * cosf(inclination), horizontalVelocity * cosf(azimuth), 1.0f));
 }
 
 int Emitter::getFirstUnusedParticle() {

@@ -59,8 +59,8 @@ glm::vec3 RandGen::randVec3Closed(const float rangeMin, const float rangeMax) {
     return glm::vec3(randRealClosed(rangeMin, rangeMax), randRealClosed(rangeMin, rangeMax), randRealClosed(rangeMin, rangeMax));
 }
 
-glm::vec3 RandGen::randVec3Closed(const float rangeMinX, const float rangeMaxX, const float rangeMinY, const float rangeMaxY, const float rangeMinZ, const float rangeMaxZ) {
-    return glm::vec3(randRealClosed(rangeMinX, rangeMaxX), randRealClosed(rangeMinY, rangeMaxY), randRealClosed(rangeMinZ, rangeMaxZ));
+glm::vec3 RandGen::randVec3Closed(const glm::vec3& rangeMin, const glm::vec3& rangeMax) {
+    return glm::vec3(randRealClosed(rangeMin.x, rangeMax.x), randRealClosed(rangeMin.y, rangeMax.y), randRealClosed(rangeMin.z, rangeMax.z));
 }
 
 /***** Private *****/
