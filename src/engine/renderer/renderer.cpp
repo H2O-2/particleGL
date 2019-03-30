@@ -64,6 +64,9 @@ SDL_Window* Renderer::initWindow() {
     SDL_GL_GetDrawableSize(window, &framebufferWidth, &framebufferHeight);
     glViewport(0, 0, framebufferWidth, framebufferHeight);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
@@ -187,7 +190,7 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
 
                 particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
                 shader.setMat4("particleModel", particleModel);
-                shader.setVec3("color", emitter->getParticleColor());
+                shader.setVec4("color", emitter->getParticleColorAndOpacity());
                 break;
             case RenderMode::U_MODEL_V_COLOR:
                 updateParticleBuffer(emitter->getVAO(), emitter->getOffsets(), emitter->getInstancedColors());
@@ -199,7 +202,7 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
                 updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices());
 
                 shader.setFloat("baseScale", emitter->getBaseScale());
-                shader.setVec3("color", emitter->getParticleColor());
+                shader.setVec4("color", emitter->getParticleColorAndOpacity());
                 break;
             case RenderMode::V_MODEL_V_COLOR:
                 updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices(), emitter->getInstancedColors());
@@ -282,7 +285,7 @@ void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>
     glBindBuffer(GL_ARRAY_BUFFER, instancedColorVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, colors.size() * sizeof(float), colors.data());
     glEnableVertexAttribArray(COLOR_POSN);
-    glVertexAttribPointer(COLOR_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(COLOR_POSN, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glVertexAttribDivisor(COLOR_POSN, 1);
 }
 
@@ -311,7 +314,7 @@ void Renderer::updateParticleBufferWithMatrices(const uint32_t VAO, const std::v
     glBindBuffer(GL_ARRAY_BUFFER, instancedColorVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, colors.size() * sizeof(float), colors.data());
     glEnableVertexAttribArray(COLOR_POSN);
-    glVertexAttribPointer(COLOR_POSN, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(COLOR_POSN, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glVertexAttribDivisor(COLOR_POSN, 1);
 }
 

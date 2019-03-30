@@ -20,6 +20,7 @@ public:
     void setBool(const string &name, const bool v);
     void setVec2(const string &name, const glm::vec2 &v);
     void setVec3(const string &name, const glm::vec3 &v);
+    void setVec4(const string &name, const glm::vec4 &v);
     void setMat4(const string &name, const glm::mat4 &v);
 private:
     uint32_t id;

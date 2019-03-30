@@ -79,6 +79,8 @@ void ParticleGL::render() {
             ControlGUI::renderFloatSlider("Life Random [%%]", emitter->getParticleLifeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
             ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
             ControlGUI::renderFloatSlider("Size Random [%%]", emitter->getParticleSizeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
+            ControlGUI::renderFloatSlider("Opacity", emitter->getParicleOpacityPtr(), 0.0f, 100.0f, PERCENTAGE_SCALE);
+            ControlGUI::renderFloatSlider("Opacity Random [%%]", emitter->getParicleOpacityRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
             ControlGUI::renderColorEdit3("Color", emitter->getParticleColorPtr());
             ControlGUI::renderIntSlider("Color Random", emitter->getParticleColorRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
         }

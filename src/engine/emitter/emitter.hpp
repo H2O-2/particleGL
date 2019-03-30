@@ -115,14 +115,15 @@ public:
 
     ParticleBlend getBlendType() const;
 
-    const glm::vec3& getParticleColor() const;
+    const glm::vec4 getParticleColorAndOpacity() const;
     float* getParticleColorPtr();
     float* getParticleColorRandomnessPtr();
 
     float* getParticleLifePtr();
     float* getParticleLifeRandomnessPtr();
 
-    void setParticleOpacityRandomness(const float opacityRandom);
+    float* getParicleOpacityPtr();
+    float* getParicleOpacityRandomnessPtr();
 
     const glm::vec3& getParticleRotation() const;
     float getParticleRotationRandomness() const;
@@ -189,7 +190,7 @@ private:
     float particleLife; // Particle life span in seconds
     float particleLifeRandom; // Randomness of particle life span in percentage(%), 0% means the particles genearted at the same time will all die at once and 100% means a possible range of [0.9*l0, 1.1*l0] where l0 is the life span specified
 
-    float particleOpacity;
+    float particleOpacity; // Opacity of particles in percentage
     float particleOpacityRandom; // Randomness of particle opacity in percentage(%), 100% means a possible range of [0, p0] where p0 is the specified opacity
 
     glm::vec3 particleRotation;

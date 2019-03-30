@@ -12,9 +12,9 @@ enum class ParticleType {
 
 struct Particle {
 
-    Particle(const float life, const glm::vec3& color, const glm::vec3& offset, const float size,
+    Particle(const float life, const glm::vec3& color, const glm::vec3& offset, const float opacity, const float size,
              const glm::vec3& velocity) :
-        life(life), color(color), offset(offset), opacity(100.0f), rotation(glm::vec3(0.0f)), size(size),
+        life(life), color(color), offset(offset), opacity(opacity), rotation(glm::vec3(0.0f)), size(size),
         velocity(velocity) {}
 
     float life; // Age of the particle in seconds
@@ -28,4 +28,10 @@ struct Particle {
 
     float size; // Particle size
     glm::vec3 velocity; // Particle velocity
+
+    // Since we assume that the camera cannot move, z coordinate is used instead of distance to camera
+    // Particle further away from the camera will be smaller using this definition of <
+    bool operator<(const Particle& p) const {
+        return offset.z < p.offset.z;
+    }
 };

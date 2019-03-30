@@ -1,5 +1,6 @@
 #include "emitter.hpp"
 
+#include <algorithm>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #ifndef M_PI
@@ -146,8 +147,8 @@ void Emitter::setParticleType(ParticleType particleType) {
     }
 }
 
-const glm::vec3& Emitter::getParticleColor() const {
-    return particleColor;
+const glm::vec4 Emitter::getParticleColorAndOpacity() const {
+    return glm::vec4(particleColor, particleOpacity);
 }
 
 float* Emitter::getParticleColorPtr() {
@@ -164,6 +165,14 @@ float* Emitter::getParticleLifePtr() {
 
 float* Emitter::getParticleLifeRandomnessPtr() {
     return &particleLifeRandom;
+}
+
+float* Emitter::getParicleOpacityPtr() {
+    return &particleOpacity;
+}
+
+float* Emitter::getParicleOpacityRandomnessPtr() {
+    return &particleOpacityRandom;
 }
 
 float Emitter::getParticleRotationRandomness() const {
@@ -270,6 +279,13 @@ void Emitter::update(const float& interpolation) {
             newParticleLife = fmax(randGen.randRealOpenRight(particleLife - offset, particleLife + offset), 0.0f);
         }
 
+        float newParticleOpacity = particleOpacity;
+        // Calculate random opacity if randomness is set
+        if (particleOpacityRandom > 0.0f) {
+            float offset = particleOpacityRandom * particleOpacity;
+            newParticleOpacity = glm::clamp(randGen.randRealClosed(particleOpacity - offset, particleOpacity + offset), 0.0f, 1.0f);
+        }
+
         float newParticleSize = particleSize;
         // Calculate random size if randomness is set
         if (particleSizeRandom > 0.0f) {
@@ -279,10 +295,10 @@ void Emitter::update(const float& interpolation) {
 
         if (newParticleIndex < 0) {
             // Push new particles to the particles vector if all particles are in use
-            particles.emplace_back(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleSize, generateInitialParticleVelocity());
+            particles.emplace_back(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleOpacity, newParticleSize, generateInitialParticleVelocity());
         } else {
             // Otherwise replace the unused particle
-            particles[newParticleIndex] = Particle(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleSize, generateInitialParticleVelocity());
+            particles[newParticleIndex] = Particle(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleOpacity, newParticleSize, generateInitialParticleVelocity());
         }
     }
 
@@ -290,6 +306,9 @@ void Emitter::update(const float& interpolation) {
     colors.clear();
     modelMatrices.clear();
     offsets.clear();
+
+    // Sort particles from far to near the camera for blending to work properly
+    std::sort(particles.begin(), particles.end());
 
     activeParticleNum = 0;
 
@@ -326,6 +345,7 @@ void Emitter::update(const float& interpolation) {
             colors.emplace_back(particle.color.r);
             colors.emplace_back(particle.color.g);
             colors.emplace_back(particle.color.b);
+            colors.emplace_back(particle.opacity);
         }
     }
 }
@@ -351,7 +371,7 @@ glm::vec3 Emitter::generateInitialParticleVelocity() {
     // Calculate random velocity if randomness is set
     if (initVelocityRandom > 0.0f) {
         float offset = (randGen.randBool(initVelocityRandomDistribution) ? 1 : -1) * randGen.randRealOpenRight(0.0f, initVelocityRandom);
-        newParticleInitVelocity = glm::max(initVelocity + offset, 0.0f);
+        newParticleInitVelocity = fmax(initVelocity + offset, 0.0f);
     }
 
     // Calculate actual velocity on different axis using spherical coordinate
@@ -420,7 +440,7 @@ void Emitter::updateRenderMode() {
     bool colorVaring = false;
     bool modelVaring = false;
 
-    if (particleColorRandom > 0.0f) {
+    if (particleColorRandom + particleOpacityRandom > 0.0f) {
         colorVaring = true;
     }
 

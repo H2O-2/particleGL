@@ -100,6 +100,10 @@ void ShaderParser::setVec3(const string &name, const glm::vec3 &v) {
     return glUniform3fv(getUniformLocation(name), 1, &v[0]);
 }
 
+void ShaderParser::setVec4(const string &name, const glm::vec4 &v) {
+    return glUniform4fv(getUniformLocation(name), 1, &v[0]);
+}
+
 void ShaderParser::setMat4(const string &name, const glm::mat4 &v) {
     return glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &v[0][0]);
 }
