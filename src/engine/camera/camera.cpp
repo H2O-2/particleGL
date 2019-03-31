@@ -1,5 +1,7 @@
 #include "camera.hpp"
 
+#include <cmath>
+
 const glm::vec3 DEFAULT_POSN(0.0f, 0.0f, 200.0f);
 const glm::vec3 DEFAULT_DIR(0.0f, 0.0f, -1.0f);
 const glm::vec3 DEFAULT_RIGHT(1.0f, 0.0f, 0.0f);
@@ -34,21 +36,16 @@ void Camera::setCameraDirection(int xOffset, int yOffset) {
 }
 
 float Camera::getZoom() const {
-    // if (zoom >= 1.0f) {
-    //     return zoom;
-    // } else {
-    //     return 1.0f / (2.0f - zoom);
-    // }
     return zoom;
 }
 
 void Camera::setZoom(int offset) {
-    if (zoom >= 1.0f && zoom <= 45.0f)
+    if (zoom >= 1.0f && zoom < 90.0f)
         zoom -= offset;
-    if (zoom <= 1.0f)
+    if (zoom < 1.0f)
         zoom = 1.0f;
-    if (zoom >= 45.0f)
-        zoom = 45.0f;
+    if (zoom >= 90.0f)
+        zoom = std::nextafter(90.0f, std::numeric_limits<float>::min());
 }
 
 
