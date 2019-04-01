@@ -5,8 +5,9 @@ float SQUARE_INDEX = 6;
 float SQUARE_BASE_SCALE = 2.0f;
 
 Square::Square(float aspectRatio) : Geometry(SQUARE_INDEX, SQUARE_BASE_SCALE, GL_TRIANGLES), aspectRatio(aspectRatio) {
-    posns.reserve(indexNum);
-    indices.reserve(6);
+    posns.reserve(indexNum - 2);
+    indices.reserve(indexNum);
+    texCoords.reserve(indexNum - 2);
 }
 
 void Square::init() {
@@ -16,6 +17,11 @@ void Square::init() {
         0, 2, 1,
         0, 3, 2
     };
+
+    texCoords.emplace_back(1.0f, 1.0f);
+    texCoords.emplace_back(1.0f, 0.0f);
+    texCoords.emplace_back(0.0f, 0.0f);
+    texCoords.emplace_back(0.0f, 1.0f);
 
     // Write to GPU
     bufferGeometry();
@@ -33,6 +39,7 @@ void Square::setAspectRatio(const float r) {
     }
 }
 
+// TODO: Apply base scale to width and height instead of passing a uniform to shader
 void Square::initSquareVertices() {
     if (!posns.empty())
         posns.clear();

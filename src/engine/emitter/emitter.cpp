@@ -39,6 +39,7 @@ const float INIT_ROTATION_RANDOMNESS = 0.0f;
 const float INIT_PARTICLE_ASPECT = 1.0f;
 const float INIT_PARTICLE_SIZE = 1.0f;
 const float INIT_SIZE_RANDOMNESS = 0.0f;
+const string INIT_PARTICLE_TEXTURE = "bilibili.png";
 const float INIT_VELOCITY = 100.0f;
 const float INIT_VELOCITY_RANDOMNESS = 0.2f;
 const float INIT_VELOCITY_RANDOMNESS_DIST = 0.5f;
@@ -59,9 +60,10 @@ Emitter::Emitter(const float& secondPerFrame) :
     particleOpacity(INIT_PARTICLE_OPACITY), particleOpacityRandom(INIT_OPACITY_RANDOMNESS),
     particleRotation(INIT_PARTICLE_ROTATION), particleRotationRandom(INIT_ROTATION_RANDOMNESS),
     particleSize(INIT_PARTICLE_SIZE), particleSizeRandom(INIT_SIZE_RANDOMNESS),
-    particlesPerFrame(INIT_PARTICLE_PER_SEC * secondPerFrame), particleType(INIT_PARTICLE_TYPE),
+    particleTexturePath(INIT_PARTICLE_TEXTURE), particleType(INIT_PARTICLE_TYPE),
     /***** User Unmodifiables *****/
-    secondPerFrame(secondPerFrame), emitterRenderMode(DEFAULT_RENDER), lastUsedParticle(0) {
+    particleTexture(Texture(particleTexturePath)), secondPerFrame(secondPerFrame),
+    particlesPerFrame(INIT_PARTICLE_PER_SEC * secondPerFrame), emitterRenderMode(DEFAULT_RENDER), lastUsedParticle(0) {
 
     // Initialize geometry data
     setGeometry(particleType);
@@ -243,6 +245,10 @@ uint32_t Emitter::getVAO() const {
     return curGeomtry->getVAO();
 }
 
+void Emitter::bindTexture(const GLenum textureUnit) {
+    particleTexture.bind(textureUnit);
+}
+
 bool Emitter::useEBO() const {
     return curGeomtry->useEBO();
 }
@@ -250,6 +256,7 @@ bool Emitter::useEBO() const {
 void Emitter::updateCurGeometry() {
     switch (particleType) {
         case ParticleType::SQUARE:
+        case ParticleType::SPRITE:
             static_cast<Square*>(curGeomtry.get())->setAspectRatio(particleAspectRatio);
             break;
         default:
@@ -447,6 +454,8 @@ void Emitter::setGeometry(ParticleType particleType) {
         case ParticleType::TRIANGLE:
             curGeomtry = make_unique<Triangle>();
             break;
+        case ParticleType::SPRITE:
+            curGeomtry = make_unique<Square>(particleTexture.getAspectRatio());
         default:
             break;
     };

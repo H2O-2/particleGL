@@ -7,16 +7,18 @@ const float PLANE_SCALE = 0.1f;
 const float DEFAULT_NEAR_PLANE = 1.0f;
 const float DEFAULT_FAR_PLANE = 20000.0f;
 const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NORMAL;
+const float INIT_COLOR_BLEND = 1.0f;
 
-const int Renderer::OFFSET_POSN = 1;
-const int Renderer::COLOR_POSN = 2;
-const int Renderer::MODEL_MAT_POSN = 3;
+const int Renderer::OFFSET_POSN = 2;
+const int Renderer::COLOR_POSN = 3;
+const int Renderer::MODEL_MAT_POSN = 4;
 
 Renderer::Renderer() {}
 
 Renderer::Renderer(const uint32_t windowWidth, const uint32_t windowHeight, const float secondPerFrame,
                    const glm::vec3& bgColor, const int msaaSample) :
-    bgColor(bgColor), blendType(INIT_BLEND_TYPE), prevBlendType(INIT_BLEND_TYPE), currentRenderMode(DEFAULT_RENDER), msaaSample(msaaSample), secondPerFrame(secondPerFrame),
+    bgColor(bgColor), blendType(INIT_BLEND_TYPE), prevBlendType(INIT_BLEND_TYPE), colorBlend(INIT_COLOR_BLEND),
+    currentRenderMode(DEFAULT_RENDER), msaaSample(msaaSample), secondPerFrame(secondPerFrame),
     windowWidth(windowWidth), windowHeight(windowHeight), nearVanish(DEFAULT_NEAR_PLANE * PLANE_SCALE),
     farVanish(DEFAULT_FAR_PLANE * PLANE_SCALE) {}
 
@@ -79,14 +81,16 @@ void Renderer::initTimer() {
 }
 
 void Renderer::initShader(const Camera& camera) {
-    shaders.emplace(RenderMode::U_MODEL_U_COLOR, ShaderParser("shaders/geometry/geoUniformModelUniformColor.vert", "shaders/geometry/geoUniformColor.frag"));
-    shaders.emplace(RenderMode::U_MODEL_V_COLOR, ShaderParser("shaders/geometry/geoUniformModelVaringColor.vert", "shaders/geometry/geoVaringColor.frag"));
-    shaders.emplace(RenderMode::V_MODEL_U_COLOR, ShaderParser("shaders/geometry/geoVaringModelUniformColor.vert", "shaders/geometry/geoUniformColor.frag"));
-    shaders.emplace(RenderMode::V_MODEL_V_COLOR, ShaderParser("shaders/geometry/geoVaringModelVaringColor.vert", "shaders/geometry/geoVaringColor.frag"));
+    shaders.emplace(RenderMode::U_MODEL_U_COLOR, ShaderPair({{true, ShaderParser("shaders/geometry/geoUniformModelUniformColor.vert", "shaders/texture/textureUniformColor.frag")}, {false, ShaderParser("shaders/geometry/geoUniformModelUniformColor.vert", "shaders/geometry/geoUniformColor.frag")}}));
+    shaders.emplace(RenderMode::U_MODEL_V_COLOR, ShaderPair({{true, ShaderParser("shaders/geometry/geoUniformModelVaringColor.vert", "shaders/texture/textureVaringColor.frag")}, {false, ShaderParser("shaders/geometry/geoUniformModelVaringColor.vert", "shaders/geometry/geoVaringColor.frag")}}));
+    shaders.emplace(RenderMode::V_MODEL_U_COLOR, ShaderPair({{true, ShaderParser("shaders/geometry/geoVaringModelUniformColor.vert", "shaders/texture/textureUniformColor.frag")}, {false, ShaderParser("shaders/geometry/geoVaringModelUniformColor.vert", "shaders/geometry/geoUniformColor.frag")}}));
+    shaders.emplace(RenderMode::V_MODEL_V_COLOR, ShaderPair({{true, ShaderParser("shaders/geometry/geoVaringModelVaringColor.vert", "shaders/texture/textureVaringColor.frag")}, {false, ShaderParser("shaders/geometry/geoVaringModelVaringColor.vert", "shaders/geometry/geoVaringColor.frag")}}));
 
     // Initialize all shaders and use the default one
-    for (auto& shader : shaders) {
-        shader.second.init();
+    for (auto& shaderPair : shaders) {
+        for (auto& shader : shaderPair.second) {
+            shader.second.init();
+        }
     }
 }
 
@@ -138,6 +142,10 @@ ParticleBlend* Renderer::getBlendTypePtr() {
     return &blendType;
 }
 
+float* Renderer::getColorBlendPtr() {
+    return &colorBlend;
+}
+
 void Renderer::setMSAASample(const int& sample) {
     if (msaaSample != sample) {
         msaaSample = sample;
@@ -176,44 +184,54 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
     // Update blend mode
     updateBlendMode();
 
-    ShaderParser& shader = shaders[currentRenderMode];
-    shader.use();
-    shader.setMat4("view", camera.getViewMatrix());
-    shader.setMat4("projection", glm::perspective(glm::radians(camera.getZoom()), (float)windowWidth / (float)windowHeight, nearVanish, farVanish));
-
     // Calculate the portion of the partial frame left in the accumulator and update
     const float interpolation = accumulator / secondPerFrame;
     updateParticleStatus(emitters, interpolation, paused);
 
     // Render particles
-    for (auto const& emitter : emitters) {
-        // Transformations for emitters
+    for (uint32_t i = 0; i < emitters.size(); ++i) {
+        auto const& emitter = emitters[i];
+
+        bool isSprite = (emitter->getParticleType() == ParticleType::SPRITE);
+
+        ShaderParser& shader = shaders[currentRenderMode][isSprite];
+        shader.use();
+        shader.setMat4("view", camera.getViewMatrix());
+        shader.setMat4("projection", glm::perspective(glm::radians(camera.getZoom()), (float)windowWidth / (float)windowHeight, nearVanish, farVanish));
+
+        if (isSprite) {
+            shader.setFloat("colorBlend", colorBlend);
+            shader.setInt("particleTexture", GL_TEXTURE0 + i);
+            emitter->bindTexture(GL_TEXTURE0 + i);
+        }
+
+        glBindVertexArray(emitter->getVAO());
 
         // Update the transformation & color buffers for particles
         // i.e. update instanced vertex attributes (buffers) and uniform variables
         glm::mat4 particleModel;
         switch (currentRenderMode) {
             case RenderMode::U_MODEL_U_COLOR:
-                updateParticleBuffer(emitter->getVAO(), emitter->getOffsets());
+                updateParticleBuffer(emitter->getOffsets());
 
                 particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
                 shader.setMat4("particleModel", particleModel);
                 shader.setVec4("color", emitter->getParticleColorAndOpacity());
                 break;
             case RenderMode::U_MODEL_V_COLOR:
-                updateParticleBuffer(emitter->getVAO(), emitter->getOffsets(), emitter->getInstancedColors());
+                updateParticleBuffer(emitter->getOffsets(), emitter->getInstancedColors());
 
                 particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
                 shader.setMat4("particleModel", particleModel);
                 break;
             case RenderMode::V_MODEL_U_COLOR:
-                updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices());
+                updateParticleBufferWithMatrices(emitter->getModelMatrices());
 
                 shader.setFloat("baseScale", emitter->getBaseScale());
                 shader.setVec4("color", emitter->getParticleColorAndOpacity());
                 break;
             case RenderMode::V_MODEL_V_COLOR:
-                updateParticleBufferWithMatrices(emitter->getVAO(), emitter->getModelMatrices(), emitter->getInstancedColors());
+                updateParticleBufferWithMatrices(emitter->getModelMatrices(), emitter->getInstancedColors());
 
                 shader.setFloat("baseScale", emitter->getBaseScale());
                 break;
@@ -222,7 +240,6 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
         }
 
         // Render particles
-        glBindVertexArray(emitter->getVAO());
         if (emitter->useEBO()) {
             glDrawElementsInstanced(emitter->getDrawMode(), emitter->getIndexNum(), GL_UNSIGNED_INT, 0, emitter->getCurrentParticleNum());
         } else {
@@ -236,6 +253,7 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
 
 /***** Private *****/
 
+// TODO: Look into pre-multiplied alpha
 void Renderer::updateBlendMode() {
     if (prevBlendType == blendType) return;
 
@@ -304,9 +322,7 @@ void Renderer::updateParticleStatus(const std::vector<std::shared_ptr<Emitter>>&
     }
 }
 
-void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets) {
-    glBindVertexArray(VAO);
-
+void Renderer::updateParticleBuffer(const std::vector<float>& offsets) {
     glBindBuffer(GL_ARRAY_BUFFER, instancedOffsetVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, offsets.size() * sizeof(float), offsets.data());
     glEnableVertexAttribArray(OFFSET_POSN);
@@ -314,8 +330,8 @@ void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>
     glVertexAttribDivisor(OFFSET_POSN, 1);
 }
 
-void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>& offsets, const std::vector<float>& colors) {
-    updateParticleBuffer(VAO, offsets);
+void Renderer::updateParticleBuffer(const std::vector<float>& offsets, const std::vector<float>& colors) {
+    updateParticleBuffer(offsets);
 
     glBindBuffer(GL_ARRAY_BUFFER, instancedColorVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, colors.size() * sizeof(float), colors.data());
@@ -324,9 +340,7 @@ void Renderer::updateParticleBuffer(const uint32_t VAO, const std::vector<float>
     glVertexAttribDivisor(COLOR_POSN, 1);
 }
 
-void Renderer::updateParticleBufferWithMatrices(const uint32_t VAO, const std::vector<float>& modelMatrices) {
-    glBindVertexArray(VAO);
-
+void Renderer::updateParticleBufferWithMatrices(const std::vector<float>& modelMatrices) {
     glBindBuffer(GL_ARRAY_BUFFER, instancedModelMatVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, modelMatrices.size() * sizeof(float), modelMatrices.data());
     glEnableVertexAttribArray(MODEL_MAT_POSN);
@@ -343,8 +357,8 @@ void Renderer::updateParticleBufferWithMatrices(const uint32_t VAO, const std::v
     glVertexAttribDivisor(MODEL_MAT_POSN + 3, 1);
 }
 
-void Renderer::updateParticleBufferWithMatrices(const uint32_t VAO, const std::vector<float>& modelMatrices, const std::vector<float>& colors) {
-    updateParticleBufferWithMatrices(VAO, modelMatrices);
+void Renderer::updateParticleBufferWithMatrices(const std::vector<float>& modelMatrices, const std::vector<float>& colors) {
+    updateParticleBufferWithMatrices(modelMatrices);
 
     glBindBuffer(GL_ARRAY_BUFFER, instancedColorVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, colors.size() * sizeof(float), colors.data());

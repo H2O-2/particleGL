@@ -15,8 +15,8 @@ ShaderParser::~ShaderParser() {
 }
 
 void ShaderParser::init() {
-    string vertexShaderCode = FileReader::read(vertexShaderPath);
-    string fragShaderCode = FileReader::read(fragShaderPath);
+    string vertexShaderCode = FileReader::readStr(vertexShaderPath);
+    string fragShaderCode = FileReader::readStr(fragShaderPath);
     const char* vertexShaderSrc = vertexShaderCode.c_str();
     const char* fragShaderSrc = fragShaderCode.c_str();
 
@@ -32,7 +32,7 @@ void ShaderParser::init() {
     checkCompileError(fragShader, GL_FRAGMENT_SHADER);
 
     if (!geometryShaderPath.empty()) {
-        const char* geometryShaderSrc = (FileReader::read(geometryShaderPath)).c_str();
+        const char* geometryShaderSrc = (FileReader::readStr(geometryShaderPath)).c_str();
         geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
         glShaderSource(geometryShader, 1, &geometryShaderSrc, NULL);
         glCompileShader(geometryShader);

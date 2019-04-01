@@ -1,10 +1,9 @@
 #include "geometry.hpp"
 #include "consoleMsg/consoleMsg.hpp"
 
-#include <string>
 #include <memory>
 
-Geometry::Geometry(const uint32_t& indexNum, const float& baseScale, GLenum drawMode, const TexCoord& texCoords) :
+Geometry::Geometry(const uint32_t& indexNum, const float& baseScale, GLenum drawMode) :
     VAO(0), VBO(0), EBO(0), indexNum(indexNum), drawMode(drawMode), baseScale(baseScale), texCoords(texCoords) {}
 
 Geometry::~Geometry() {
@@ -64,15 +63,15 @@ void Geometry::bufferGeometry() {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(),GL_STATIC_DRAW);
     }
 
-    int stride = 3 * sizeof(float) + (texCoords.size() > 0 ? texCoords.size() * sizeof(float) : 0);
+    int stride = 3 * sizeof(float) + (texCoords.size() > 0 ? 2 * sizeof(float) : 0);
 
     int offset = 0;
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
     glEnableVertexAttribArray(0);
 
     if (texCoords.size() > 0) {
-        offset += posns.size() * sizeof(float);
-        glVertexAttribPointer(1, texCoords.size(), GL_FLOAT, GL_FALSE, stride, (void*)offset);
+        offset += 3 * sizeof(float);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)offset);
         glEnableVertexAttribArray(1);
     }
 

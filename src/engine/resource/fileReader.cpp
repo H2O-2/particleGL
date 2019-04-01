@@ -1,11 +1,16 @@
 #include "fileReader.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <fstream>
 #include <sstream>
 
+#include <vector>
+
 #include "consoleMsg/consoleMsg.hpp"
 
-string FileReader::read(const string &path) {
+string FileReader::readStr(const string &path) {
     std::ifstream fileStream;
     std::stringstream ss;
     fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -21,4 +26,20 @@ string FileReader::read(const string &path) {
     }
 
     return ss.str();
+}
+
+unsigned char* FileReader::readImage(const string &path, int* width, int* height, int* componentNum) {
+    // Flip the texture vertically
+    stbi_set_flip_vertically_on_load(true);
+
+    unsigned char* textureData = stbi_load(PathParser::parse(path).c_str(), width, height, componentNum, 0);
+    std::vector<unsigned char> test(textureData, textureData + sizeof(textureData) / sizeof(textureData[0]));
+
+    if (!textureData) {
+        stbi_image_free(textureData);
+        ConsoleMsg::msg("FAILED TO LOAD TEXTURE AT " + path);
+        exit(1);
+    }
+
+    return textureData;
 }

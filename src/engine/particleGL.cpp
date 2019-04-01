@@ -74,10 +74,10 @@ void ParticleGL::render() {
         }
 
         if (ControlGUI::renderMenu("Particle (Master)")) {
-            ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle"}, &(newParticleType));
+            ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle", "Sprite"}, &(newParticleType));
             ControlGUI::renderFloatDragger("Life [sec]", emitter->getParticleLifePtr(), 1, 0.05f);
             ControlGUI::renderFloatSlider("Life Random [%%]", emitter->getParticleLifeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
-            if (newParticleType == ParticleType::SQUARE)
+            if (newParticleType == ParticleType::SQUARE || newParticleType == ParticleType::SPRITE)
                 ControlGUI::renderFloatSlider("Aspect Ratio", emitter->getParticleAspectRatioPtr(), 0.0f, 10.0f, 1.0f, "%.2f");
             ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
             ControlGUI::renderFloatSlider("Size Random [%%]", emitter->getParticleSizeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
@@ -85,7 +85,11 @@ void ParticleGL::render() {
             ControlGUI::renderFloatSlider("Opacity Random [%%]", emitter->getParicleOpacityRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
             ControlGUI::renderColorEdit3("Color", emitter->getParticleColorPtr());
             ControlGUI::renderIntSlider("Color Random", emitter->getParticleColorRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
-            ControlGUI::renderPullDownMenu("Blend Mode", {"Normal", "Add", "Screen", "Lighten"}, renderer.getBlendTypePtr());
+            if (newParticleType == ParticleType::SPRITE) {
+                ControlGUI::renderFloatSlider("Color Blend", renderer.getColorBlendPtr(), 0.0f, 1.0f);
+            } else {
+                ControlGUI::renderPullDownMenu("Blend Mode", {"Normal", "Add", "Screen", "Lighten"}, renderer.getBlendTypePtr());
+            }
         }
 
         if (ControlGUI::renderMenu("Physics (Master)")) {

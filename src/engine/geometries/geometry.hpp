@@ -13,7 +13,7 @@ public:
     typedef std::vector<glm::vec3> PosnCoord;
     typedef std::vector<uint32_t> IndexCoord;
 
-    Geometry(const uint32_t& indexNum, const float& baseScale, GLenum drawMode = GL_TRIANGLES, const TexCoord& texCoords = TexCoord());
+    Geometry(const uint32_t& indexNum, const float& baseScale, GLenum drawMode = GL_TRIANGLES);
     virtual ~Geometry();
 
     virtual void init() = 0;

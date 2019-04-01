@@ -1,6 +1,9 @@
+#pragma once
+
 #include <string>
 
-typedef std::string string;
+// typedef std::string string;
+using std::string;
 
 // Convert relative path to absolute path
 

@@ -6,8 +6,8 @@ enum class ParticleType {
     // GLOW_SPHERE
     SPHERE,
     SQUARE,
-    // TEXTURE
     TRIANGLE,
+    SPRITE
 };
 
 struct Particle {
