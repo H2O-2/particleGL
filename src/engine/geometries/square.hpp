@@ -11,6 +11,9 @@ public:
     Square(float aspectRatio = DEFAULT_ASPECT);
     void init();
     int getIndexNum() const;
+    void setAspectRatio(const float r);
 private:
     float aspectRatio;
+
+    void initSquareVertices();
 };

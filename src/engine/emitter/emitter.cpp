@@ -36,6 +36,7 @@ const float INIT_PARTICLE_OPACITY = 1.0f;
 const float INIT_OPACITY_RANDOMNESS = 0.0f;
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
 const float INIT_ROTATION_RANDOMNESS = 0.0f;
+const float INIT_PARTICLE_ASPECT = 1.0f;
 const float INIT_PARTICLE_SIZE = 1.0f;
 const float INIT_SIZE_RANDOMNESS = 0.0f;
 const float INIT_VELOCITY = 100.0f;
@@ -52,7 +53,7 @@ Emitter::Emitter(const float& secondPerFrame) :
     particlesPerSec(INIT_PARTICLE_PER_SEC), position(INIT_EMITTER_POSN), rotation(INIT_EMITTER_ROTATION),
     size(INIT_EMITTER_SIZE), emitterSizeType(INIT_EMITTER_SIZE_TYPE), randGen(),
     /***** Particle Attributes *****/
-    feather(INIT_PARTICLE_FEATHER),
+    feather(INIT_PARTICLE_FEATHER), particleAspectRatio(INIT_PARTICLE_SIZE),
     particleColor(INIT_PARTICLE_COLOR), particleColorRandom(INIT_COLOR_RANDOMNESS),
     particleLife(INIT_PARTICLE_LIFE), particleLifeRandom(INIT_LIFE_RANDOMNESS),
     particleOpacity(INIT_PARTICLE_OPACITY), particleOpacityRandom(INIT_OPACITY_RANDOMNESS),
@@ -144,6 +145,10 @@ void Emitter::setParticleType(ParticleType particleType) {
         setGeometry(particleType);
         curGeomtry->init();
     }
+}
+
+float* Emitter::getParticleAspectRatioPtr() {
+    return &particleAspectRatio;
 }
 
 const glm::vec4 Emitter::getParticleColorAndOpacity() const {
@@ -242,8 +247,20 @@ bool Emitter::useEBO() const {
     return curGeomtry->useEBO();
 }
 
+void Emitter::updateCurGeometry() {
+    switch (particleType) {
+        case ParticleType::SQUARE:
+            static_cast<Square*>(curGeomtry.get())->setAspectRatio(particleAspectRatio);
+            break;
+        default:
+            break;
+    }
+}
+
 void Emitter::update(const float& interpolation) {
     updateRenderMode();
+
+    updateCurGeometry();
 
     // Update emitter's model matrix
     emitterRotation = glm::rotate(glm::mat4(), glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));

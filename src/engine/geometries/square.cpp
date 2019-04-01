@@ -10,10 +10,7 @@ Square::Square(float aspectRatio) : Geometry(SQUARE_INDEX, SQUARE_BASE_SCALE, GL
 }
 
 void Square::init() {
-    posns.emplace_back(0.5f, 0.5f, 0.0f);
-    posns.emplace_back(0.5f, -0.5f, 0.0f);
-    posns.emplace_back(-0.5f, -0.5f, 0.0f);
-    posns.emplace_back(-0.5f, 0.5f, 0.0f);
+    initSquareVertices();
 
     indices = {
         0, 2, 1,
@@ -26,4 +23,26 @@ void Square::init() {
 
 int Square::getIndexNum() const {
     return indexNum;
+}
+
+void Square::setAspectRatio(const float r) {
+    if (r != aspectRatio) {
+        aspectRatio = r;
+        initSquareVertices();
+        bufferGeometry();
+    }
+}
+
+void Square::initSquareVertices() {
+    if (!posns.empty())
+        posns.clear();
+
+    float halfWidth = 0.5f;
+    float halfHeight = 0.5f;
+    halfWidth = halfHeight * aspectRatio;
+
+    posns.emplace_back(halfWidth, halfHeight, 0.0f);
+    posns.emplace_back(halfWidth, -halfHeight, 0.0f);
+    posns.emplace_back(-halfWidth, -halfHeight, 0.0f);
+    posns.emplace_back(-halfWidth, halfHeight, 0.0f);
 }

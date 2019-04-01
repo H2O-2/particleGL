@@ -102,10 +102,10 @@ void ControlGUI::renderFloatDragger(std::string name, float* v, const int len, c
     }
 }
 
-void ControlGUI::renderFloatSlider(std::string name, float* v, const float min, const float max, const float scaleFactor) {
+void ControlGUI::renderFloatSlider(std::string name, float* v, const float min, const float max, const float scaleFactor, const char* format) {
     float temp = *v / scaleFactor;
     ImGui::Text(name.c_str());
-    ImGui::SliderFloat(("##" + name).c_str(), &temp, min, max, "%.1f");
+    ImGui::SliderFloat(("##" + name).c_str(), &temp, min, max, format);
     *v = temp * scaleFactor;
 }
 

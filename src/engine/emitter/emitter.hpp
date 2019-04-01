@@ -50,6 +50,7 @@ extern const EmitterType INIT_EMITTER_TYPE;
 extern const int MAX_PARTICLE_NUM;
 extern const float PERCENTAGE_SCALE;
 
+extern const float INIT_PARTICLE_ASPECT;
 extern const glm::vec3 INIT_PARTICLE_COLOR;
 extern const float INIT_COLOR_RANDOMNESS;
 extern const float INIT_PARTICLE_FEATHER;
@@ -104,6 +105,8 @@ public:
     ParticleType getParticleType() const;
     void setParticleType(ParticleType particleType);
 
+    float* getParticleAspectRatioPtr();
+
     const glm::vec4 getParticleColorAndOpacity() const;
     float* getParticleColorPtr();
     float* getParticleColorRandomnessPtr();
@@ -140,6 +143,7 @@ public:
     uint32_t getVAO() const;
 
     bool useEBO() const;
+    void updateCurGeometry();
     void update(const float& deltaTime);
 private:
     /**
@@ -170,6 +174,8 @@ private:
 
     /****** Particle Attributes ******/
     float feather; // Level of feathering, only available for sphere type (currently)
+
+    float particleAspectRatio;
 
     glm::vec3 particleColor; // Color of particles
     float particleColorRandom; // Randomness of color in percentage(%), 0% means no change of color to all particles and 100% means any color is possible
