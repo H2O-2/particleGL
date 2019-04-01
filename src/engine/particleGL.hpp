@@ -10,7 +10,7 @@ public:
     ~ParticleGL();
 
     void addEmitter();
-    void initBuffer(); // Allocate buffer for particles in all emitters
+    void initBuffer(); // Allocate buffer for emitters created initially
     void render();
     bool shouldEnd() const;
 private:
@@ -21,4 +21,6 @@ private:
     SDL_Window* window;
     Renderer renderer;
     std::vector<std::shared_ptr<Emitter>> emitters;
+
+    void initEmitterBuffer(const uint32_t VAO); // Allocate buffer for particles in given emitter
 };

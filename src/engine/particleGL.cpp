@@ -25,9 +25,8 @@ void ParticleGL::addEmitter() {
 }
 
 void ParticleGL::initBuffer() {
-    for (size_t i = 0; i < emitters.size(); ++i) {
-        // Buffer instanced array
-        renderer.initParticleBuffer();
+    for (auto const& emitter : emitters) {
+        initEmitterBuffer(emitter->getVAO());
     }
 }
 
@@ -117,3 +116,10 @@ void ParticleGL::render() {
 bool ParticleGL::shouldEnd() const {
     return EventManager::shouldQuit;
 }
+
+
+/***** Private *****/
+void ParticleGL::initEmitterBuffer(const uint32_t VAO) {
+    renderer.initParticleBuffer(VAO);
+}
+

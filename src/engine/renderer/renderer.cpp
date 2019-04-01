@@ -94,7 +94,9 @@ void Renderer::initShader(const Camera& camera) {
     }
 }
 
-void Renderer::initParticleBuffer() {
+void Renderer::initParticleBuffer(const uint32_t VAO) {
+    glBindVertexArray(VAO);
+
     // Create buffer for instanced offset
     glGenBuffers(1, &instancedOffsetVBO);
     glBindBuffer(GL_ARRAY_BUFFER, instancedOffsetVBO);
@@ -201,7 +203,7 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
 
         if (isSprite) {
             shader.setFloat("colorBlend", colorBlend);
-            shader.setInt("particleTexture", GL_TEXTURE0 + i);
+            shader.setInt("particleTexture", i);
             emitter->bindTexture(GL_TEXTURE0 + i);
         }
 

@@ -5,11 +5,11 @@
 ShaderParser::ShaderParser() : vertexShaderPath("") {}
 
 ShaderParser::ShaderParser(const string &vertexShaderPath, const string &fragShaderPath, const string &geometryShaderPath)
-    : vertexShaderPath(vertexShaderPath), fragShaderPath(fragShaderPath), geometryShaderPath(geometryShaderPath) {
+    : id(0), vertexShaderPath(vertexShaderPath), fragShaderPath(fragShaderPath), geometryShaderPath(geometryShaderPath) {
 }
 
 ShaderParser::~ShaderParser() {
-    if (!vertexShaderPath.empty()) {
+    if (id) {
         glDeleteProgram(id);
     }
 }

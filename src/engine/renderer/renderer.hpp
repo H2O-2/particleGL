@@ -40,7 +40,7 @@ public:
     void initShader(const Camera& camera); // Initialize shaders
 
     // Buffer particles attributes using instanced array
-    void initParticleBuffer(); // Allocate buffer for particles
+    void initParticleBuffer(const uint32_t VAO); // Allocate buffer for particles
 
     SDL_GLContext getGLContext() const;
 

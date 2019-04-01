@@ -4,7 +4,7 @@
 #include <memory>
 
 Geometry::Geometry(const uint32_t& indexNum, const float& baseScale, GLenum drawMode) :
-    VAO(0), VBO(0), EBO(0), indexNum(indexNum), drawMode(drawMode), baseScale(baseScale), texCoords(texCoords) {}
+    VAO(0), VBO(0), EBO(0), indexNum(indexNum), drawMode(drawMode), baseScale(baseScale) {}
 
 Geometry::~Geometry() {
     glDeleteBuffers(1, &VBO);
