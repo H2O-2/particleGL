@@ -32,14 +32,8 @@ unsigned char* FileReader::readImage(const string &path, int* width, int* height
     // Flip the texture vertically
     stbi_set_flip_vertically_on_load(true);
 
+    string test = PathParser::parse(path);
     unsigned char* textureData = stbi_load(PathParser::parse(path).c_str(), width, height, componentNum, 0);
-    std::vector<unsigned char> test(textureData, textureData + sizeof(textureData) / sizeof(textureData[0]));
-
-    if (!textureData) {
-        stbi_image_free(textureData);
-        ConsoleMsg::msg("FAILED TO LOAD TEXTURE AT " + path);
-        exit(1);
-    }
 
     return textureData;
 }

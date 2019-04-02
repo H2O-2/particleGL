@@ -74,6 +74,8 @@ void ParticleGL::render() {
 
         if (ControlGUI::renderMenu("Particle (Master)")) {
             ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle", "Sprite"}, &(newParticleType));
+            if (newParticleType == ParticleType::SPRITE)
+                ControlGUI::renderTextInput("Sprite Path", emitter->getParticleTexturePathPtr());
             ControlGUI::renderFloatDragger("Life [sec]", emitter->getParticleLifePtr(), 1, 0.05f);
             ControlGUI::renderFloatSlider("Life Random [%%]", emitter->getParticleLifeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
             if (newParticleType == ParticleType::SQUARE || newParticleType == ParticleType::SPRITE)

@@ -127,6 +127,8 @@ public:
     float* getParticleSizePtr();
     float* getParticleSizeRandomnessPtr();
 
+    char* getParticleTexturePathPtr();
+
     float* getInitialVelocityPtr();
     float* getInitialVelocityRandomnessPtr();
     float* getInitialVelocityRandomnessDistributionPtr();
@@ -146,7 +148,6 @@ public:
 
     void bindTexture(const GLenum textureUnit);
     bool useEBO() const;
-    void updateCurGeometry();
     void update(const float& deltaTime);
 private:
     /**
@@ -197,6 +198,7 @@ private:
     float particleSizeRandom; // Randomness of particle size in percentage(%), 100% means a possible range of [0.2*s0, 5*s0] where s0 is the specified size
 
     string particleTexturePath;
+    char particleTexturePathBuf[256];
 
     ParticleType particleType; // Shape of particles
 
@@ -228,5 +230,7 @@ private:
     glm::vec3 generateInitialParticleVelocity(); // Return a velocity for some particle according to current emitter direction
     int getFirstUnusedParticle(); // Get the index of first unused particle in particles vector
     void setGeometry(ParticleType particleType); // Buffer the geometry and GPU data for geometry of given type
+    void updateCurGeometry();
+    void updateTexture();
     void updateRenderMode();
 };

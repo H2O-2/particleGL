@@ -39,7 +39,7 @@ const float INIT_ROTATION_RANDOMNESS = 0.0f;
 const float INIT_PARTICLE_ASPECT = 1.0f;
 const float INIT_PARTICLE_SIZE = 1.0f;
 const float INIT_SIZE_RANDOMNESS = 0.0f;
-const string INIT_PARTICLE_TEXTURE = "bilibili.png";
+const string INIT_PARTICLE_TEXTURE = "sprites/bilibili.png";
 const float INIT_VELOCITY = 100.0f;
 const float INIT_VELOCITY_RANDOMNESS = 0.2f;
 const float INIT_VELOCITY_RANDOMNESS_DIST = 0.5f;
@@ -64,6 +64,9 @@ Emitter::Emitter(const float& secondPerFrame) :
     /***** User Unmodifiables *****/
     particleTexture(Texture(particleTexturePath)), secondPerFrame(secondPerFrame),
     particlesPerFrame(INIT_PARTICLE_PER_SEC * secondPerFrame), emitterRenderMode(DEFAULT_RENDER), lastUsedParticle(0) {
+
+    // Initialize texture path
+    strcpy(particleTexturePathBuf, particleTexturePath.c_str());
 
     // Initialize geometry data
     setGeometry(particleType);
@@ -197,6 +200,10 @@ float* Emitter::getParticleSizeRandomnessPtr() {
     return &particleSizeRandom;
 }
 
+char* Emitter::getParticleTexturePathPtr() {
+    return particleTexturePathBuf;
+}
+
 float* Emitter::getInitialVelocityPtr() {
     return &initVelocity;
 }
@@ -253,21 +260,10 @@ bool Emitter::useEBO() const {
     return curGeomtry->useEBO();
 }
 
-void Emitter::updateCurGeometry() {
-    switch (particleType) {
-        case ParticleType::SQUARE:
-        case ParticleType::SPRITE:
-            static_cast<Square*>(curGeomtry.get())->setAspectRatio(particleAspectRatio);
-            break;
-        default:
-            break;
-    }
-}
-
 void Emitter::update(const float& interpolation) {
     updateRenderMode();
-
     updateCurGeometry();
+    updateTexture();
 
     // Update emitter's model matrix
     emitterRotation = glm::rotate(glm::mat4(), glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -459,6 +455,24 @@ void Emitter::setGeometry(ParticleType particleType) {
         default:
             break;
     };
+}
+
+void Emitter::updateCurGeometry() {
+    switch (particleType) {
+        case ParticleType::SQUARE:
+        case ParticleType::SPRITE:
+            static_cast<Square*>(curGeomtry.get())->setAspectRatio(particleAspectRatio);
+            break;
+        default:
+            break;
+    }
+}
+
+void Emitter::updateTexture() {
+    if (strcmp(particleTexturePath.c_str(), particleTexturePathBuf) != 0) {
+        particleTexturePath = string(particleTexturePathBuf);
+        particleTexture.setTexture(particleTexturePath);
+    }
 }
 
 void Emitter::updateRenderMode() {

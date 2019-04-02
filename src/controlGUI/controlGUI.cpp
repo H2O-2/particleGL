@@ -41,16 +41,16 @@ void ControlGUI::finalizeRender() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-bool ControlGUI::renderMenu(std::string name) {
+bool ControlGUI::renderMenu(const std::string& name) {
     return ImGui::CollapsingHeader(name.c_str());
 }
 
-void ControlGUI::render3dFloatSlider(std::string name, float* v) {
+void ControlGUI::render3dFloatSlider(const std::string& name, float* v) {
     ImGui::Text(name.c_str());
     ImGui::DragFloat3(("##" + name).c_str(), v, 1.0f, 0.0f, 0.0f, "%.1f");
 }
 
-void ControlGUI::render3dUnsignedIntSlider(std::string name, float* v, const float scaleFactor) {
+void ControlGUI::render3dUnsignedIntSlider(const std::string& name, float* v, const float scaleFactor) {
     int temp[3] = {static_cast<int>(v[0] / scaleFactor), static_cast<int>(v[1] / scaleFactor), static_cast<int>(v[2] / scaleFactor)};
     ImGui::Text(name.c_str());
     ImGui::DragInt3(("##" + name).c_str(), temp);
@@ -63,24 +63,29 @@ void ControlGUI::renderCheckbox(const char* name, bool* v) {
     ImGui::Checkbox(name, v);
 }
 
-void ControlGUI::renderColorEdit3(std::string name, float* v) {
+void ControlGUI::renderColorEdit3(const std::string& name, float* v) {
     ImGui::Text(name.c_str());
     ImGui::ColorEdit3(("##" + name).c_str(), v);
 }
 
-void ControlGUI::renderIntSlider(std::string name, int* v, const int min, const int max) {
+void ControlGUI::renderIntSlider(const std::string& name, int* v, const int min, const int max) {
     ImGui::Text(name.c_str());
     ImGui::SliderInt(("##" + name).c_str(), v, min, max);
 }
 
-void ControlGUI::renderIntSlider(std::string name, float* v, const int min, const int max, const float scaleFactor) {
+void ControlGUI::renderIntSlider(const std::string& name, float* v, const int min, const int max, const float scaleFactor) {
     int temp = static_cast<int>(*v / scaleFactor);
     ImGui::Text(name.c_str());
     ImGui::SliderInt(("##" + name).c_str(), &temp, min, max);
     *v = temp * scaleFactor;
 }
 
-void ControlGUI::renderUnsignedIntDragger(std::string name, float* v, const int len, const float scaleFactor) {
+void ControlGUI::renderTextInput(const const std::string& name, char* buffer) {
+    ImGui::Text(name.c_str());
+    ImGui::InputText(("##" + name).c_str(), buffer, 256);
+}
+
+void ControlGUI::renderUnsignedIntDragger(const std::string& name, float* v, const int len, const float scaleFactor) {
     int temp = static_cast<int>(v[0] / scaleFactor);
     ImGui::Text(name.c_str());
     ImGui::DragInt(("##" + name).c_str(), &temp);
@@ -91,7 +96,7 @@ void ControlGUI::renderUnsignedIntDragger(std::string name, float* v, const int 
     }
 }
 
-void ControlGUI::renderFloatDragger(std::string name, float* v, const int len, const float dragSpeed, const float scaleFactor) {
+void ControlGUI::renderFloatDragger(const std::string& name, float* v, const int len, const float dragSpeed, const float scaleFactor) {
     float temp = v[0] / scaleFactor;
     ImGui::Text(name.c_str());
     ImGui::DragFloat(("##" + name).c_str(), &temp, dragSpeed, 0.0f, 0.0f, "%.1f");
@@ -102,7 +107,7 @@ void ControlGUI::renderFloatDragger(std::string name, float* v, const int len, c
     }
 }
 
-void ControlGUI::renderFloatSlider(std::string name, float* v, const float min, const float max, const float scaleFactor, const char* format) {
+void ControlGUI::renderFloatSlider(const std::string& name, float* v, const float min, const float max, const float scaleFactor, const char* format) {
     float temp = *v / scaleFactor;
     ImGui::Text(name.c_str());
     ImGui::SliderFloat(("##" + name).c_str(), &temp, min, max, format);

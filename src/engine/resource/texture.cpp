@@ -23,6 +23,11 @@ float Texture::getAspectRatio() const {
 
 void Texture::setTexture(const string& path, const GLenum internalFormat) {
     unsigned char* textureData = FileReader::readImage(path, &width, &height, &componentNum);
+    // If texture data is invalid, skip texture generation and render squares instead
+    if (!textureData) {
+        stbi_image_free(textureData);
+        return;
+    }
 
     GLenum format = GL_RGBA;
     switch (componentNum) {
