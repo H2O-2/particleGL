@@ -39,13 +39,14 @@ float Camera::getZoom() const {
     return zoom;
 }
 
+// FOV over 45 degree will cause distortion (fish eye effect?)
 void Camera::setZoom(int offset) {
-    if (zoom >= 1.0f && zoom < 90.0f)
+    if (zoom >= 1.0f && zoom < 180.0f)
         zoom -= offset;
     if (zoom < 1.0f)
         zoom = 1.0f;
-    if (zoom >= 90.0f)
-        zoom = std::nextafter(90.0f, std::numeric_limits<float>::min());
+    if (zoom >= 180.0f)
+        zoom = std::nextafter(180.0f, std::numeric_limits<float>::min());
 }
 
 

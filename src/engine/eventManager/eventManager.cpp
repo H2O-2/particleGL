@@ -42,12 +42,6 @@ void EventManager::pollEvent(SDL_Window* window, Camera& camera) {
                     case SDLK_m:
                         enableMouseView = !enableMouseView;
                         break;
-                    case SDLK_w:
-                        camera.setZoom(ZOOM_SPEED);
-                        break;
-                    case SDLK_s:
-                        camera.setZoom(-ZOOM_SPEED);
-                        break;
                     default:
                         break;
                 }
@@ -57,7 +51,7 @@ void EventManager::pollEvent(SDL_Window* window, Camera& camera) {
                     camera.setCameraDirection(event.motion.xrel, event.motion.yrel);
                 break;
             case SDL_MOUSEWHEEL:
-                // camera.setZoom(event.wheel.y);
+                camera.setZoom(event.wheel.y);
                 break;
             default:
                 break;
