@@ -86,11 +86,9 @@ void ParticleGL::render() {
             ControlGUI::renderFloatSlider("Opacity Random [%%]", emitter->getParicleOpacityRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
             ControlGUI::renderColorEdit3("Color", emitter->getParticleColorPtr());
             ControlGUI::renderIntSlider("Color Random", emitter->getParticleColorRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
-            if (newParticleType == ParticleType::SPRITE) {
+            if (newParticleType == ParticleType::SPRITE)
                 ControlGUI::renderFloatSlider("Color Blend", renderer.getColorBlendPtr(), 0.0f, 1.0f);
-            } else {
-                ControlGUI::renderPullDownMenu("Blend Mode", {"Normal", "Add", "Screen", "Lighten"}, renderer.getBlendTypePtr());
-            }
+            ControlGUI::renderPullDownMenu("Blend Mode", {"Normal", "Add", "Screen", "Lighten"}, renderer.getBlendTypePtr());
         }
 
         if (ControlGUI::renderMenu("Physics (Master)")) {

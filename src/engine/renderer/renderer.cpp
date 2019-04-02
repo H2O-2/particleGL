@@ -68,7 +68,7 @@ SDL_Window* Renderer::initWindow() {
     glViewport(0, 0, framebufferWidth, framebufferHeight);
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -252,7 +252,6 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
 
 /***** Private *****/
 
-// TODO: Look into pre-multiplied alpha
 void Renderer::updateBlendMode() {
     if (prevBlendType == blendType) return;
 
@@ -261,17 +260,17 @@ void Renderer::updateBlendMode() {
 
     switch (blendType) {
         case ParticleBlend::NORMAL:
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
             break;
         case ParticleBlend::ADD:
-            glBlendFunc(GL_ONE, GL_ONE);
+            glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
             break;
         case ParticleBlend::SCREEN:
-            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+            glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);
             break;
         case ParticleBlend::LIGHTEN:
-            glBlendEquation(GL_MAX);
-            glBlendFunc(GL_ONE, GL_ONE);
+            glBlendEquationSeparate(GL_MAX, GL_FUNC_ADD);
+            glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
             break;
         default:
             break;
