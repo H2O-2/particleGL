@@ -1,6 +1,10 @@
 #include <glad/glad.h>
 #include "eventManager.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_sdl.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 bool EventManager::shouldQuit = false;
 bool EventManager::enableMouseView = false;
 
@@ -9,6 +13,7 @@ const int EventManager::ZOOM_SPEED = 1;
 void EventManager::pollEvent(SDL_Window* window, Camera& camera) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        ImGui_ImplSDL2_ProcessEvent(&event);
         switch (event.type) {
             case SDL_QUIT:
                 shouldQuit = true;
