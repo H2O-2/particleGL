@@ -136,7 +136,6 @@ public:
 
 
     /***** User Unmodifiables *****/
-    float getBaseScale() const;
     GLenum getDrawMode() const;
     int getIndexNum() const;
     int getCurrentParticleNum() const;

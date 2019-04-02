@@ -216,10 +216,6 @@ float* Emitter::getInitialVelocityRandomnessDistributionPtr() {
     return &initVelocityRandomDistribution;
 }
 
-float Emitter::getBaseScale() const {
-    return curGeomtry->getBaseScale();
-}
-
 GLenum Emitter::getDrawMode() const {
     return curGeomtry->getDrawMode();
 }

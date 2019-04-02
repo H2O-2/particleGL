@@ -18,7 +18,6 @@ public:
 
     virtual void init() = 0;
     virtual int getIndexNum() const = 0;
-    float getBaseScale() const;
     GLenum getDrawMode() const;
     uint32_t getVAO() const;
     bool useEBO() const;

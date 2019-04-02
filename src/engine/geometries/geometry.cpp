@@ -14,10 +14,6 @@ Geometry::~Geometry() {
     glDeleteVertexArrays(1, &VAO);
 }
 
-float Geometry::getBaseScale() const {
-    return baseScale;
-}
-
 uint32_t Geometry::getVAO() const {
     return VAO;
 }

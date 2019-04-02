@@ -216,26 +216,23 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
             case RenderMode::U_MODEL_U_COLOR:
                 updateParticleBuffer(emitter->getOffsets());
 
-                particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
+                particleModel = glm::scale(particleModel, glm::vec3(emitter->getParticleSize()));
                 shader.setMat4("particleModel", particleModel);
                 shader.setVec4("color", emitter->getParticleColorAndOpacity());
                 break;
             case RenderMode::U_MODEL_V_COLOR:
                 updateParticleBuffer(emitter->getOffsets(), emitter->getInstancedColors());
 
-                particleModel = glm::scale(particleModel, glm::vec3(emitter->getBaseScale() * emitter->getParticleSize()));
+                particleModel = glm::scale(particleModel, glm::vec3(emitter->getParticleSize()));
                 shader.setMat4("particleModel", particleModel);
                 break;
             case RenderMode::V_MODEL_U_COLOR:
                 updateParticleBufferWithMatrices(emitter->getModelMatrices());
 
-                shader.setFloat("baseScale", emitter->getBaseScale());
                 shader.setVec4("color", emitter->getParticleColorAndOpacity());
                 break;
             case RenderMode::V_MODEL_V_COLOR:
                 updateParticleBufferWithMatrices(emitter->getModelMatrices(), emitter->getInstancedColors());
-
-                shader.setFloat("baseScale", emitter->getBaseScale());
                 break;
             default:
                 break;

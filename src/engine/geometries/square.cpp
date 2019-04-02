@@ -39,13 +39,12 @@ void Square::setAspectRatio(const float r) {
     }
 }
 
-// TODO: Apply base scale to width and height instead of passing a uniform to shader
 void Square::initSquareVertices() {
     if (!posns.empty())
         posns.clear();
 
-    float halfWidth = 0.5f;
-    float halfHeight = 0.5f;
+    float halfWidth = 0.5f * baseScale;
+    float halfHeight = 0.5f * baseScale;
     halfWidth = halfHeight * aspectRatio;
 
     posns.emplace_back(halfWidth, halfHeight, 0.0f);

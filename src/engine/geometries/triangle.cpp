@@ -10,9 +10,11 @@ Triangle::Triangle(float angleOne, float angleTwo) : Geometry(TRIANGLE_INDEX, TR
 }
 
 void Triangle::init() {
-    posns.emplace_back(-0.5f, -0.5f, 0.0f);
-    posns.emplace_back(0.5f, -0.5f, 0.0f);
-    posns.emplace_back(0.0f,  0.5f, 0.0f);
+    float halfLen = 0.5f * baseScale;
+
+    posns.emplace_back(-halfLen, -halfLen, 0.0f);
+    posns.emplace_back(halfLen, -halfLen, 0.0f);
+    posns.emplace_back(0.0f, halfLen, 0.0f);
 
     // Write to GPU
     bufferGeometry();
