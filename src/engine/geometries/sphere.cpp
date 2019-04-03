@@ -31,7 +31,3 @@ void Sphere::init() {
     // Write to GPU
     bufferGeometry();
 }
-
-int Sphere::getIndexNum() const {
-    return indexNum;
-}

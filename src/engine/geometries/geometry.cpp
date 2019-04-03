@@ -22,6 +22,10 @@ GLenum Geometry::getDrawMode() const {
     return drawMode;
 }
 
+int Geometry::getIndexNum() const {
+    return indexNum;
+}
+
 bool Geometry::useEBO() const {
     return indices.size() > 0;
 }

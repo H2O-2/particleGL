@@ -15,5 +15,6 @@ public:
 private:
     float aspectRatio;
 
-    void initSquareVertices();
+    void initQuadVertices(); // Initialize quad for screen framebuffer
+    void initSquareVertices(); // Initialize square particle
 };

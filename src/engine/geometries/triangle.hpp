@@ -11,7 +11,6 @@ class Triangle : public Geometry {
 public:
     Triangle(float angleOne = ANGLE_ONE, float angleTwo = ANGLE_TWO);
     void init();
-    int getIndexNum() const;
 private:
     float angleOne;
     float angleTwo;

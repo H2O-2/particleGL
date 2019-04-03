@@ -27,10 +27,6 @@ void Square::init() {
     bufferGeometry();
 }
 
-int Square::getIndexNum() const {
-    return indexNum;
-}
-
 void Square::setAspectRatio(const float r) {
     if (r != aspectRatio) {
         aspectRatio = r;

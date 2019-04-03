@@ -19,7 +19,3 @@ void Triangle::init() {
     // Write to GPU
     bufferGeometry();
 }
-
-int Triangle::getIndexNum() const {
-    return indexNum;
-}
