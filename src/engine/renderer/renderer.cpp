@@ -344,7 +344,8 @@ void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters) 
         }
 
         if (ControlGUI::renderMenu("Visibility")) {
-
+            ControlGUI::renderFloatSlider("Far Vanish", &farVanish, 1000.0f, 100000.0f, PLANE_SCALE);
+            ControlGUI::renderFloatSlider("Near Vanish", &nearVanish, 0.01f, 100.0f, PLANE_SCALE);
         }
 
         if (ControlGUI::renderMenu("Rendering")) {
