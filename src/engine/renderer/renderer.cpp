@@ -51,6 +51,13 @@ SDL_Window* Renderer::initWindow() {
         ConsoleMsg::warningMsg("Could not get display info");
     }
 
+#if __linux__ // Hack for HiDPI linux
+    if (isHidpi()) {
+        windowWidth = 2560;
+        windowHeight = 1440;
+    }
+#endif
+
     this->window = SDL_CreateWindow("ParticleGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight,
                                             SDL_WINDOW_OPENGL|SDL_WINDOW_ALLOW_HIGHDPI|SDL_WINDOW_RESIZABLE);
     if (window == NULL) {
