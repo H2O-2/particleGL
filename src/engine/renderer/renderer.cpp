@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include "renderer.hpp"
 #include "../../util/makeUnique.hpp"
+#include "controlGUI/controlGUI.hpp"
 
 const int DEFAULT_MSAA = 8;
 const float PLANE_SCALE = 0.1f;
@@ -19,8 +20,13 @@ Renderer::Renderer(const uint32_t windowWidth, const uint32_t windowHeight, cons
                    const glm::vec3& bgColor, const int msaaSample) :
     bgColor(bgColor), blendType(INIT_BLEND_TYPE), prevBlendType(INIT_BLEND_TYPE), colorBlend(INIT_COLOR_BLEND),
     currentRenderMode(DEFAULT_RENDER), msaaSample(msaaSample), secondPerFrame(secondPerFrame),
-    windowWidth(windowWidth), windowHeight(windowHeight), nearVanish(DEFAULT_NEAR_PLANE * PLANE_SCALE),
-    farVanish(DEFAULT_FAR_PLANE * PLANE_SCALE) {}
+    windowWidth(windowWidth), windowHeight(windowHeight),
+    nearVanish(DEFAULT_NEAR_PLANE * PLANE_SCALE), farVanish(DEFAULT_FAR_PLANE * PLANE_SCALE), paused(false),
+    screenShader(ShaderParser("shaders/screen.vert", "shaders/screen.frag")) {}
+
+Renderer::~Renderer() {
+    ControlGUI::destroy();
+}
 
 SDL_Window* Renderer::initWindow() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -73,6 +79,13 @@ SDL_Window* Renderer::initWindow() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
+    screenQuad = Square(static_cast<float>(framebufferWidth) / static_cast<float>(framebufferHeight), true);
+    screenQuad.init();
+    particleFBO.init(framebufferWidth, framebufferHeight);
+
+    // Initialize GUI
+    ControlGUI::init(window, glContext, isHidpi());
+
     return window;
 }
 
@@ -86,12 +99,16 @@ void Renderer::initShader(const Camera& camera) {
     shaders.emplace(RenderMode::V_MODEL_U_COLOR, ShaderPair({{true, ShaderParser("shaders/geometry/geoVaringModelUniformColor.vert", "shaders/texture/textureUniformColor.frag")}, {false, ShaderParser("shaders/geometry/geoVaringModelUniformColor.vert", "shaders/geometry/geoUniformColor.frag")}}));
     shaders.emplace(RenderMode::V_MODEL_V_COLOR, ShaderPair({{true, ShaderParser("shaders/geometry/geoVaringModelVaringColor.vert", "shaders/texture/textureVaringColor.frag")}, {false, ShaderParser("shaders/geometry/geoVaringModelVaringColor.vert", "shaders/geometry/geoVaringColor.frag")}}));
 
-    // Initialize all shaders and use the default one
+    // Initialize particle shaders and use the default one
     for (auto& shaderPair : shaders) {
         for (auto& shader : shaderPair.second) {
             shader.second.init();
         }
     }
+
+    // Initialize screen shader
+    screenShader.init();
+    screenShader.setInt("frameBuffer", 0);
 }
 
 void Renderer::initParticleBuffer(const uint32_t VAO) {
@@ -132,22 +149,6 @@ void Renderer::initParticleBuffer(const uint32_t VAO) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-SDL_GLContext Renderer::getGLContext() const {
-    return glContext;
-}
-
-bool Renderer::isHidpi() const {
-    return display.w > 2048;
-}
-
-ParticleBlend* Renderer::getBlendTypePtr() {
-    return &blendType;
-}
-
-float* Renderer::getColorBlendPtr() {
-    return &colorBlend;
-}
-
 void Renderer::setMSAASample(const int& sample) {
     if (msaaSample != sample) {
         msaaSample = sample;
@@ -161,12 +162,7 @@ void Renderer::clean() {
     SDL_Quit();
 }
 
-void Renderer::clearScreen() {
-    glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera, const bool paused) {
+void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera) {
     // Referenced from https://gafferongames.com/post/fix_your_timestep/
     float accumulator = 0.0f;
     float newTime = SDL_GetTicks() * 0.001f;
@@ -189,6 +185,12 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
     // Calculate the portion of the partial frame left in the accumulator and update
     const float interpolation = accumulator / secondPerFrame;
     updateParticleStatus(emitters, interpolation, paused);
+
+    particleFBO.bind();
+    clearScreen();
+
+    // Render GUI
+    renderGUI(emitters);
 
     // Render particles
     for (uint32_t i = 0; i < emitters.size(); ++i) {
@@ -247,10 +249,105 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
         glBindVertexArray(0);
     }
 
+    // Bind default framebuffer and clear buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    clearScreen();
+    screenShader.use();
+
+    // Draw framebuffer to screen
+    glBindVertexArray(screenQuad.getVAO());
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, screenQuad.getEBO());
+    particleFBO.bindColorBuffer(GL_TEXTURE0);
+    glDrawElements(screenQuad.getDrawMode(), screenQuad.getIndexNum(), GL_UNSIGNED_INT, 0);
+
     SDL_GL_SwapWindow(window);
 }
 
 /***** Private *****/
+
+bool Renderer::isHidpi() const {
+    return display.w > 2048;
+}
+
+
+void Renderer::clearScreen() {
+    glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+
+void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters) {
+    ControlGUI::preRender(window);
+    ParticleType newParticleType;
+    EmitterDirection emitterDirectionType;
+    EmitterSize emitterSizeType;
+    EmitterType emitterType;
+    for (auto& emitter : emitters) {
+        newParticleType = emitter->getParticleType();
+        emitterDirectionType = emitter->getEmitterDirectionType();
+        emitterSizeType = emitter->getEmitterSizeType();
+        emitterType = emitter->getEmitterType();
+
+        if (ControlGUI::renderMenu("Emitter (Master)")) {
+            ControlGUI::renderIntSlider("Particles/sec", (int *)emitter->getParticlesPerSecPtr(), 0, 1000);
+            ControlGUI::renderPullDownMenu("Emitter Type", {"Point", "Box", "Sphere"}, emitter->getEmitterTypePtr());
+            ControlGUI::render3dFloatSlider("Position", emitter->getEmitterPosnPtr());
+            ControlGUI::renderPullDownMenu("Direction", {"Uniform", "Directional"}, emitter->getEmitterDirectionTypePtr());
+            if (emitterDirectionType != EmitterDirection::UNIFORM)
+                ControlGUI::renderFloatSlider("Direction Spread [%%]", emitter->getEmitterDirectionSpreadPtr(), 0, 100, PERCENTAGE_SCALE);
+            ControlGUI::render3dFloatSlider("Rotation (°)", emitter->getEmitterRotationPtr());
+            ControlGUI::renderFloatSlider("Velocity", emitter->getInitialVelocityPtr(), 0.0f, 1000.0f, PARTICLE_VELOCITY_SCALE);
+            ControlGUI::renderFloatSlider("Velocity Random [%%]", emitter->getInitialVelocityRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
+            ControlGUI::renderFloatSlider("Velocity Distribution", emitter->getInitialVelocityRandomnessDistributionPtr(), 0.0f, 1.0);
+
+            if (emitterType != EmitterType::POINT) {
+                ControlGUI::renderPullDownMenu("Emitter Size", {"XYZ Linked", "XYZ Individual"}, emitter->getEmitterSizeTypePtr());
+
+                if (emitterSizeType == EmitterSize::LINKED) {
+                    ControlGUI::renderUnsignedIntDragger("Emitter Size XYZ", emitter->getEmitterSizePtr(), 3, EMITTER_SIZE_SCALE);
+                } else {
+                    ControlGUI::render3dUnsignedIntSlider("Emitter Size XYZ", emitter->getEmitterSizePtr(), EMITTER_SIZE_SCALE);
+                }
+            }
+        }
+
+        if (ControlGUI::renderMenu("Particle (Master)")) {
+            ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle", "Sprite"}, &(newParticleType));
+            if (newParticleType == ParticleType::SPRITE)
+                ControlGUI::renderTextInput("Sprite Path", emitter->getParticleTexturePathPtr());
+            ControlGUI::renderFloatDragger("Life [sec]", emitter->getParticleLifePtr(), 1, 0.05f);
+            ControlGUI::renderFloatSlider("Life Random [%%]", emitter->getParticleLifeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
+            if (newParticleType == ParticleType::SQUARE || newParticleType == ParticleType::SPRITE)
+                ControlGUI::renderFloatSlider("Aspect Ratio", emitter->getParticleAspectRatioPtr(), 0.0f, 10.0f, 1.0f, "%.2f");
+            ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
+            ControlGUI::renderFloatSlider("Size Random [%%]", emitter->getParticleSizeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
+            ControlGUI::renderFloatSlider("Opacity", emitter->getParicleOpacityPtr(), 0.0f, 100.0f, PERCENTAGE_SCALE);
+            ControlGUI::renderFloatSlider("Opacity Random [%%]", emitter->getParicleOpacityRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
+            ControlGUI::renderColorEdit3("Color", emitter->getParticleColorPtr());
+            ControlGUI::renderIntSlider("Color Random", emitter->getParticleColorRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
+            if (newParticleType == ParticleType::SPRITE)
+                ControlGUI::renderFloatSlider("Color Blend", &colorBlend, 0.0f, 1.0f);
+            ControlGUI::renderPullDownMenu("Blend Mode", {"Normal", "Add", "Screen", "Lighten"}, &blendType);
+        }
+
+        if (ControlGUI::renderMenu("Physics (Master)")) {
+
+        }
+
+        if (ControlGUI::renderMenu("Visibility")) {
+
+        }
+
+        if (ControlGUI::renderMenu("Rendering")) {
+
+        }
+
+        ControlGUI::renderCheckbox("Pause", &paused);
+
+        emitter->setParticleType(newParticleType);
+    }
+    ControlGUI::finalizeRender();
+}
 
 void Renderer::updateBlendMode() {
     if (prevBlendType == blendType) return;

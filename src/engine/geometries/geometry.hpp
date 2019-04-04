@@ -20,6 +20,7 @@ public:
     int getIndexNum() const;
     GLenum getDrawMode() const;
     uint32_t getVAO() const;
+    uint32_t getEBO() const;
     bool useEBO() const;
 protected:
     uint32_t VAO, VBO, EBO;

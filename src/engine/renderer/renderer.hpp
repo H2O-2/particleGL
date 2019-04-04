@@ -10,6 +10,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "renderBuffer.hpp"
 #include "engine/camera/camera.hpp"
 #include "consoleMsg/consoleMsg.hpp"
 #include "../emitter/emitter.hpp"
@@ -34,6 +35,7 @@ class Renderer {
 public:
     Renderer();
     Renderer(const uint32_t windowWidth, const uint32_t windowHeight, const float framerate, const glm::vec3& bgColor, const int msaaSample = DEFAULT_MSAA);
+    ~Renderer();
 
     SDL_Window* initWindow(); // Initialize window and return the pointer of it
     void initTimer(); // Initialize curTime
@@ -42,25 +44,15 @@ public:
     // Buffer particles attributes using instanced array
     void initParticleBuffer(const uint32_t VAO); // Allocate buffer for particles
 
-    SDL_GLContext getGLContext() const;
-
-    bool isHidpi() const; // Returns true if the current display is HiDPI
-
-    ParticleBlend getBlendType() const;
-    ParticleBlend* getBlendTypePtr();
-
     float* getColorBlendPtr();
 
     void setMSAASample(const int& sample); // Set sample level for MSAA
 
     void clean();
 
-    void clearScreen();
-
-    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera, const bool paused); // Update and render particles
+    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera); // Update and render particles
 private:
-    typedef bool WithTexture;
-    typedef std::unordered_map<WithTexture, ShaderParser> ShaderPair;
+    typedef std::unordered_map<bool, ShaderParser> ShaderPair;
 
     static const int OFFSET_POSN;
     static const int MODEL_MAT_POSN;
@@ -82,6 +74,8 @@ private:
     ParticleBlend prevBlendType;
     float colorBlend; // Indicates the blending level of custom color and texture, takes value from [0.0, 1.0]. This field is only applicable when particle type is SPRITE
 
+    RenderBuffer particleFBO;
+
     RenderMode currentRenderMode;
     float curTime;
     int msaaSample; // Level of MSAA
@@ -92,8 +86,18 @@ private:
     // Settings
     float nearVanish; // Far distance from the camera when particle vanishes. The actual value is a tenth of this value
     float farVanish; // Near distance from the camera when particle vanishes. The actual value is a tenth of this value
+    bool paused;
 
     std::unordered_map<RenderMode, ShaderPair> shaders; // Shaders corresponding to different render modes
+
+    ShaderParser screenShader; // Shader to display framebuffer & possible post-render effects
+    Square screenQuad; // Quad to hold framebuffer
+
+    void clearScreen();
+
+    bool isHidpi() const; // Returns true if the current display is HiDPI
+
+    void renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters);
 
     void updateBlendMode(); // Update blend mode of particles
 

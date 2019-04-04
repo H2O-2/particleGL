@@ -4,15 +4,21 @@ float DEFAULT_ASPECT = 1.0f;
 float SQUARE_INDEX = 6;
 float SQUARE_BASE_SCALE = 2.0f;
 
-Square::Square(float aspectRatio) : Geometry(SQUARE_INDEX, SQUARE_BASE_SCALE, GL_TRIANGLES), aspectRatio(aspectRatio) {
-    posns.reserve(indexNum - 2);
-    indices.reserve(indexNum);
-    texCoords.reserve(indexNum - 2);
+Square::Square(float aspectRatio, bool isQuad) : Geometry(SQUARE_INDEX, SQUARE_BASE_SCALE, GL_TRIANGLES),
+    aspectRatio(aspectRatio), isQuad(isQuad) {
+        posns.reserve(indexNum - 2);
+        indices.reserve(indexNum);
+        texCoords.reserve(indexNum - 2);
 }
 
 void Square::init() {
-    initSquareVertices();
+    if (isQuad) {
+        initQuadVertices();
+    } else {
+        initSquareVertices();
+    }
 
+    // TODO: Insert elements instead of creating a new vector
     indices = {
         0, 2, 1,
         0, 3, 2
@@ -33,6 +39,13 @@ void Square::setAspectRatio(const float r) {
         initSquareVertices();
         bufferGeometry();
     }
+}
+
+void Square::initQuadVertices() {
+    posns.emplace_back(1.0f, 1.0f, 0.0f);
+    posns.emplace_back(1.0f, -1.0f, 0.0f);
+    posns.emplace_back(-1.0f, -1.0f, 0.0f);
+    posns.emplace_back(-1.0f, 1.0f, 0.0f);
 }
 
 void Square::initSquareVertices() {

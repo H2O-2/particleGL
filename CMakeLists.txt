@@ -39,6 +39,7 @@ set(SOURCES src/glad.c
 	src/engine/geometries/sphere.cpp
 	src/engine/geometries/square.cpp
 	src/engine/geometries/triangle.cpp
+	src/engine/renderer/renderBuffer.cpp
 	src/engine/renderer/renderer.cpp
 	src/engine/resource/fileReader.cpp
 	src/engine/resource/pathParser.cpp

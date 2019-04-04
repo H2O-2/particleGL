@@ -15,7 +15,6 @@ public:
     bool shouldEnd() const;
 private:
     float secondPerFrame; // Time of one frame in second
-    bool paused;
 
     Camera camera;
     SDL_Window* window;

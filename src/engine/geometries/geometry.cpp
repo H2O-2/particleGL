@@ -18,6 +18,10 @@ uint32_t Geometry::getVAO() const {
     return VAO;
 }
 
+uint32_t Geometry::getEBO() const {
+    return EBO;
+}
+
 GLenum Geometry::getDrawMode() const {
     return drawMode;
 }

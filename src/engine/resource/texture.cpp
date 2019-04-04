@@ -1,8 +1,8 @@
 #include "texture.hpp"
 
-#include "consoleMsg/consoleMsg.hpp"
-
 #include "stb_image.h"
+
+Texture::Texture() : width(0), height(0) {}
 
 Texture::Texture(const string& path, const GLenum internalFormat) {
     setTexture(path, internalFormat);
@@ -13,8 +13,13 @@ Texture::~Texture() {
 }
 
 void Texture::bind(const GLenum textureUnit) {
-    glActiveTexture(textureUnit);
+    if (textureUnit > 0)
+        glActiveTexture(textureUnit);
     glBindTexture(GL_TEXTURE_2D, id);
+}
+
+uint32_t Texture::getID() const {
+    return id;
 }
 
 float Texture::getAspectRatio() const {
@@ -29,6 +34,24 @@ void Texture::setTexture(const string& path, const GLenum internalFormat) {
         return;
     }
 
+    genTexture(textureData);
+
+    stbi_image_free(textureData);
+}
+
+void Texture::setNullTexture() {
+    componentNum = 3;
+    genTexture(NULL);
+}
+
+void Texture::setSize(const int width, const int height) {
+    this->width = width;
+    this->height = height;
+}
+
+
+/***** Private *****/
+void Texture::genTexture(unsigned char* textureData) {
     GLenum format = GL_RGBA;
     switch (componentNum) {
         case 1:
@@ -53,5 +76,4 @@ void Texture::setTexture(const string& path, const GLenum internalFormat) {
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    stbi_image_free(textureData);
 }
