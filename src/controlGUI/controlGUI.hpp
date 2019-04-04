@@ -30,6 +30,7 @@ public:
     static void renderColorEdit3(const std::string& name, float* v);
     static void renderIntSlider(const std::string& name, int* v, const int min, const int max);
     static void renderIntSlider(const std::string& name, float* v, const int min, const int max, const float scaleFactor);
+    static void renderText(const char* name);
     static void renderTextInput(const std::string& name, char* buffer);
     static void renderUnsignedIntDragger(const std::string& name, float* v, const int len, const float scaleFactor = 1.0f);
     static void renderFloatDragger(const std::string& name, float* v, const int len, const float dragSpeed = 1.0f, const float scaleFactor = 1.0f);

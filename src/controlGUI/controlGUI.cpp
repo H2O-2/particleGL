@@ -80,6 +80,10 @@ void ControlGUI::renderIntSlider(const std::string& name, float* v, const int mi
     *v = temp * scaleFactor;
 }
 
+void ControlGUI::renderText(const char* name) {
+    ImGui::Text(name);
+}
+
 void ControlGUI::renderTextInput(const std::string& name, char* buffer) {
     ImGui::Text(name.c_str());
     ImGui::InputText(("##" + name).c_str(), buffer, 256);

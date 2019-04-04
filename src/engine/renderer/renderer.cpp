@@ -288,6 +288,8 @@ void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters) 
         emitterSizeType = emitter->getEmitterSizeType();
         emitterType = emitter->getEmitterType();
 
+        ControlGUI::renderText("Scroll to zoom and press M to look around");
+
         if (ControlGUI::renderMenu("Emitter (Master)")) {
             ControlGUI::renderIntSlider("Particles/sec", (int *)emitter->getParticlesPerSecPtr(), 0, 1000);
             ControlGUI::renderPullDownMenu("Emitter Type", {"Point", "Box", "Sphere"}, emitter->getEmitterTypePtr());
