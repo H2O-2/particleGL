@@ -28,6 +28,7 @@ extern const int DEFAULT_MSAA;
 extern const float PLANE_SCALE;
 extern const float DEFAULT_NEAR_PLANE;
 extern const float DEFAULT_FAR_PLANE;
+extern const int DEFAULT_FEATHER;
 extern const ParticleBlend INIT_BLEND_TYPE;
 extern const float INIT_COLOR_BLEND;
 
@@ -75,6 +76,7 @@ private:
     float colorBlend; // Indicates the blending level of custom color and texture, takes value from [0.0, 1.0]. This field is only applicable when particle type is SPRITE
 
     RenderBuffer particleFBO;
+    RenderBuffer pingpongFBO[2];
 
     RenderMode currentRenderMode;
     float curTime;
@@ -86,6 +88,7 @@ private:
     // Settings
     float nearVanish; // Far distance from the camera when particle vanishes. The actual value is a tenth of this value
     float farVanish; // Near distance from the camera when particle vanishes. The actual value is a tenth of this value
+    int feather; // Level of feathering, this should be a per-emitter attribute but currrently only a global switch is support
     bool paused;
 
     std::unordered_map<RenderMode, ShaderPair> shaders; // Shaders corresponding to different render modes
@@ -93,11 +96,15 @@ private:
     ShaderParser screenShader; // Shader to display framebuffer & possible post-render effects
     Square screenQuad; // Quad to hold framebuffer
 
+    ShaderParser featherShader; // Shader to apply feather to particles
+
     void clearScreen();
 
     bool isHidpi() const; // Returns true if the current display is HiDPI
 
     void renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters);
+
+    void renderToScreenQuad();
 
     void updateBlendMode(); // Update blend mode of particles
 

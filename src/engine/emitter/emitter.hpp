@@ -176,7 +176,7 @@ private:
 
 
     /****** Particle Attributes ******/
-    float feather; // Level of feathering, only available for sphere type (currently)
+    float feather; // Level of feathering
 
     float particleAspectRatio;
 

@@ -37,13 +37,13 @@ const float INIT_OPACITY_RANDOMNESS = 0.0f;
 const glm::vec3 INIT_PARTICLE_ROTATION = glm::vec3(0.0f);
 const float INIT_ROTATION_RANDOMNESS = 0.0f;
 const float INIT_PARTICLE_ASPECT = 1.0f;
-const float INIT_PARTICLE_SIZE = 1.0f;
+const float INIT_PARTICLE_SIZE = 0.8f;
 const float INIT_SIZE_RANDOMNESS = 0.0f;
 const string INIT_PARTICLE_TEXTURE = "sprites/bilibili.png";
 const float INIT_VELOCITY = 100.0f;
 const float INIT_VELOCITY_RANDOMNESS = 0.2f;
 const float INIT_VELOCITY_RANDOMNESS_DIST = 0.5f;
-const float PARTICLE_SIZE_SCALE = 0.2f;
+const float PARTICLE_SIZE_SCALE = 0.16f;
 const float PARTICLE_VELOCITY_SCALE = 0.007f;
 
 Emitter::Emitter(const float& secondPerFrame) :
@@ -54,7 +54,7 @@ Emitter::Emitter(const float& secondPerFrame) :
     particlesPerSec(INIT_PARTICLE_PER_SEC), position(INIT_EMITTER_POSN), rotation(INIT_EMITTER_ROTATION),
     size(INIT_EMITTER_SIZE), emitterSizeType(INIT_EMITTER_SIZE_TYPE), randGen(),
     /***** Particle Attributes *****/
-    feather(INIT_PARTICLE_FEATHER), particleAspectRatio(INIT_PARTICLE_SIZE),
+    feather(INIT_PARTICLE_FEATHER), particleAspectRatio(INIT_PARTICLE_ASPECT),
     particleColor(INIT_PARTICLE_COLOR), particleColorRandom(INIT_COLOR_RANDOMNESS),
     particleLife(INIT_PARTICLE_LIFE), particleLifeRandom(INIT_LIFE_RANDOMNESS),
     particleOpacity(INIT_PARTICLE_OPACITY), particleOpacityRandom(INIT_OPACITY_RANDOMNESS),

@@ -7,6 +7,7 @@ const int DEFAULT_MSAA = 8;
 const float PLANE_SCALE = 0.1f;
 const float DEFAULT_NEAR_PLANE = 1.0f;
 const float DEFAULT_FAR_PLANE = 20000.0f;
+const int DEFAULT_FEATHER = 10;
 const ParticleBlend INIT_BLEND_TYPE = ParticleBlend::NORMAL;
 const float INIT_COLOR_BLEND = 1.0f;
 
@@ -21,8 +22,9 @@ Renderer::Renderer(const uint32_t windowWidth, const uint32_t windowHeight, cons
     bgColor(bgColor), blendType(INIT_BLEND_TYPE), prevBlendType(INIT_BLEND_TYPE), colorBlend(INIT_COLOR_BLEND),
     currentRenderMode(DEFAULT_RENDER), msaaSample(msaaSample), secondPerFrame(secondPerFrame),
     windowWidth(windowWidth), windowHeight(windowHeight),
-    nearVanish(DEFAULT_NEAR_PLANE * PLANE_SCALE), farVanish(DEFAULT_FAR_PLANE * PLANE_SCALE), paused(false),
-    screenShader(ShaderParser("shaders/screen.vert", "shaders/screen.frag")) {}
+    nearVanish(DEFAULT_NEAR_PLANE * PLANE_SCALE), farVanish(DEFAULT_FAR_PLANE * PLANE_SCALE), feather(DEFAULT_FEATHER),
+    paused(false), screenShader(ShaderParser("shaders/screen.vert", "shaders/screen.frag")),
+    featherShader(ShaderParser("shaders/screen.vert", "shaders/fx/feather.frag")) {}
 
 Renderer::~Renderer() {
     ControlGUI::destroy();
@@ -88,7 +90,11 @@ SDL_Window* Renderer::initWindow() {
 
     screenQuad = Square(static_cast<float>(framebufferWidth) / static_cast<float>(framebufferHeight), true);
     screenQuad.init();
+
+    // Initialize framebuffers
     particleFBO.init(framebufferWidth, framebufferHeight);
+    pingpongFBO[0].init(framebufferWidth, framebufferHeight);
+    pingpongFBO[1].init(framebufferWidth, framebufferHeight);
 
     // Initialize GUI
     ControlGUI::init(window, glContext, isHidpi());
@@ -115,7 +121,13 @@ void Renderer::initShader(const Camera& camera) {
 
     // Initialize screen shader
     screenShader.init();
+    screenShader.use();
     screenShader.setInt("frameBuffer", 0);
+
+    // Initialize feathering shader
+    featherShader.init();
+    featherShader.use();
+    featherShader.setInt("frameBuffer", 0);
 }
 
 void Renderer::initParticleBuffer(const uint32_t VAO) {
@@ -196,9 +208,6 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
     particleFBO.bind();
     clearScreen();
 
-    // Render GUI
-    renderGUI(emitters);
-
     // Render particles
     for (uint32_t i = 0; i < emitters.size(); ++i) {
         auto const& emitter = emitters[i];
@@ -256,16 +265,34 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
         glBindVertexArray(0);
     }
 
+    // Bind pingpong buffer and apply feathering
+    bool horizontal = true;
+    if (feather) {
+        featherShader.use();
+        for (int i = 0; i < feather; ++i) {
+            pingpongFBO[horizontal].bind();
+            featherShader.setBool("horizontal", horizontal);
+            if (i == 0) {
+                particleFBO.bindColorBuffer(GL_TEXTURE0);
+            } else {
+                pingpongFBO[!horizontal].bindColorBuffer(GL_TEXTURE0);
+            }
+            renderToScreenQuad();
+            horizontal = !horizontal;
+        }
+    }
+
     // Bind default framebuffer and clear buffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     clearScreen();
     screenShader.use();
 
     // Draw framebuffer to screen
-    glBindVertexArray(screenQuad.getVAO());
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, screenQuad.getEBO());
-    particleFBO.bindColorBuffer(GL_TEXTURE0);
-    glDrawElements(screenQuad.getDrawMode(), screenQuad.getIndexNum(), GL_UNSIGNED_INT, 0);
+    feather ? pingpongFBO[!horizontal].bindColorBuffer(GL_TEXTURE0) : particleFBO.bindColorBuffer(GL_TEXTURE0);
+    renderToScreenQuad();
+
+    // Render GUI
+    renderGUI(emitters);
 
     SDL_GL_SwapWindow(window);
 }
@@ -322,6 +349,7 @@ void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters) 
 
         if (ControlGUI::renderMenu("Particle (Master)")) {
             ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle", "Sprite"}, &(newParticleType));
+            ControlGUI::renderIntSlider("Feather", &feather, 0, 50, 2);
             if (newParticleType == ParticleType::SPRITE)
                 ControlGUI::renderTextInput("Sprite Path", emitter->getParticleTexturePathPtr());
             ControlGUI::renderFloatDragger("Life [sec]", emitter->getParticleLifePtr(), 1, 0.05f);
@@ -357,6 +385,11 @@ void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters) 
         emitter->setParticleType(newParticleType);
     }
     ControlGUI::finalizeRender();
+}
+
+void Renderer::renderToScreenQuad() {
+    glBindVertexArray(screenQuad.getVAO());
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 void Renderer::updateBlendMode() {

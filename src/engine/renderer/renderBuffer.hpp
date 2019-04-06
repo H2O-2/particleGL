@@ -15,7 +15,5 @@ public:
     void bindColorBuffer(const GLenum textureUnit);
 private:
     uint32_t id;
-    int width;
-    int height;
     Texture colorTexture;
 };

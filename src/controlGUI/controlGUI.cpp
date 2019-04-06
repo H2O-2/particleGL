@@ -73,6 +73,13 @@ void ControlGUI::renderIntSlider(const std::string& name, int* v, const int min,
     ImGui::SliderInt(("##" + name).c_str(), v, min, max);
 }
 
+void ControlGUI::renderIntSlider(const std::string& name, int* v, const int min, const int max, const int scaleFactor) {
+    int temp = *v / scaleFactor;
+    ImGui::Text(name.c_str());
+    ImGui::SliderInt(("##" + name).c_str(), &temp, min, max);
+    *v = temp * scaleFactor;
+}
+
 void ControlGUI::renderIntSlider(const std::string& name, float* v, const int min, const int max, const float scaleFactor) {
     int temp = static_cast<int>(*v / scaleFactor);
     ImGui::Text(name.c_str());
