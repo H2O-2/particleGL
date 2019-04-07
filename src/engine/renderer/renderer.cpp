@@ -332,7 +332,7 @@ void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters) 
             if (emitterDirectionType != EmitterDirection::UNIFORM)
                 ControlGUI::renderFloatSlider("Direction Spread [%%]", emitter->getEmitterDirectionSpreadPtr(), 0, 100, PERCENTAGE_SCALE);
             ControlGUI::render3dFloatSlider("Rotation (°)", emitter->getEmitterRotationPtr());
-            ControlGUI::renderFloatSlider("Velocity", emitter->getInitialVelocityPtr(), 0.0f, 1000.0f, PARTICLE_VELOCITY_SCALE);
+            ControlGUI::renderFloatDragger("Velocity", emitter->getInitialVelocityPtr(), 1, 1.0f, PARTICLE_VELOCITY_SCALE);
             ControlGUI::renderFloatSlider("Velocity Random [%%]", emitter->getInitialVelocityRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
             ControlGUI::renderFloatSlider("Velocity Distribution", emitter->getInitialVelocityRandomnessDistributionPtr(), 0.0f, 1.0);
 
@@ -356,7 +356,7 @@ void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters) 
             ControlGUI::renderFloatSlider("Life Random [%%]", emitter->getParticleLifeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
             if (newParticleType == ParticleType::SQUARE || newParticleType == ParticleType::SPRITE)
                 ControlGUI::renderFloatSlider("Aspect Ratio", emitter->getParticleAspectRatioPtr(), 0.0f, 10.0f, 1.0f, "%.2f");
-            ControlGUI::renderFloatSlider("Size", emitter->getParticleSizePtr(), 0.0f, 100.0f, PARTICLE_SIZE_SCALE);
+            ControlGUI::renderFloatDragger("Size", emitter->getParticleSizePtr(), 1, 0.1f, PARTICLE_SIZE_SCALE);
             ControlGUI::renderFloatSlider("Size Random [%%]", emitter->getParticleSizeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
             ControlGUI::renderFloatSlider("Opacity", emitter->getParicleOpacityPtr(), 0.0f, 100.0f, PERCENTAGE_SCALE);
             ControlGUI::renderFloatSlider("Opacity Random [%%]", emitter->getParicleOpacityRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
