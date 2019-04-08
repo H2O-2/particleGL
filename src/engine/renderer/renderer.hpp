@@ -39,7 +39,6 @@ public:
     ~Renderer();
 
     SDL_Window* initWindow(); // Initialize window and return the pointer of it
-    void initTimer(); // Initialize curTime
     void initShader(const Camera& camera); // Initialize shaders
 
     // Buffer particles attributes using instanced array
@@ -51,7 +50,7 @@ public:
 
     void clean();
 
-    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera); // Update and render particles
+    void renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera, bool* paused); // Render particles
 private:
     typedef std::unordered_map<bool, ShaderParser> ShaderPair;
 
@@ -79,7 +78,6 @@ private:
     RenderBuffer pingpongFBO[2];
 
     RenderMode currentRenderMode;
-    float curTime;
     int msaaSample; // Level of MSAA
     float secondPerFrame; // Time of one frame in second
     unsigned int windowWidth;
@@ -102,7 +100,7 @@ private:
 
     bool isHidpi() const; // Returns true if the current display is HiDPI
 
-    void renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters);
+    void renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters, bool* pasued);
 
     void renderToScreenQuad();
 

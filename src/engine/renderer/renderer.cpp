@@ -23,7 +23,7 @@ Renderer::Renderer(const uint32_t windowWidth, const uint32_t windowHeight, cons
     currentRenderMode(DEFAULT_RENDER), msaaSample(msaaSample), secondPerFrame(secondPerFrame),
     windowWidth(windowWidth), windowHeight(windowHeight),
     nearVanish(DEFAULT_NEAR_PLANE * PLANE_SCALE), farVanish(DEFAULT_FAR_PLANE * PLANE_SCALE), feather(DEFAULT_FEATHER),
-    paused(false), screenShader(ShaderParser("shaders/screen.vert", "shaders/screen.frag")),
+    screenShader(ShaderParser("shaders/screen.vert", "shaders/screen.frag")),
     featherShader(ShaderParser("shaders/screen.vert", "shaders/fx/feather.frag")) {}
 
 Renderer::~Renderer() {
@@ -102,10 +102,6 @@ SDL_Window* Renderer::initWindow() {
     return window;
 }
 
-void Renderer::initTimer() {
-    curTime = SDL_GetTicks() * 0.001f;
-}
-
 void Renderer::initShader(const Camera& camera) {
     shaders.emplace(RenderMode::U_MODEL_U_COLOR, ShaderPair({{true, ShaderParser("shaders/geometry/geoUniformModelUniformColor.vert", "shaders/texture/textureUniformColor.frag")}, {false, ShaderParser("shaders/geometry/geoUniformModelUniformColor.vert", "shaders/geometry/geoUniformColor.frag")}}));
     shaders.emplace(RenderMode::U_MODEL_V_COLOR, ShaderPair({{true, ShaderParser("shaders/geometry/geoUniformModelVaringColor.vert", "shaders/texture/textureVaringColor.frag")}, {false, ShaderParser("shaders/geometry/geoUniformModelVaringColor.vert", "shaders/geometry/geoVaringColor.frag")}}));
@@ -181,29 +177,13 @@ void Renderer::clean() {
     SDL_Quit();
 }
 
-void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera) {
-    // Referenced from https://gafferongames.com/post/fix_your_timestep/
-    float accumulator = 0.0f;
-    float newTime = SDL_GetTicks() * 0.001f;
-    float deltaTime = newTime - curTime;
-    curTime = newTime;
-
-    accumulator += deltaTime;
-
-    while (accumulator >= secondPerFrame) {
-        updateParticleStatus(emitters, 1.0f, paused); // update with one full frame
-        accumulator -= secondPerFrame;
-    }
-
+void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitters, const Camera& camera, bool* paused) {
     // Update render mode
     updateCurrentRenderMode(emitters);
 
     // Update blend mode
     updateBlendMode();
 
-    // Calculate the portion of the partial frame left in the accumulator and update
-    const float interpolation = accumulator / secondPerFrame;
-    updateParticleStatus(emitters, interpolation, paused);
 
     particleFBO.bind();
     clearScreen();
@@ -292,7 +272,7 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
     renderToScreenQuad();
 
     // Render GUI
-    renderGUI(emitters);
+    renderGUI(emitters, paused);
 
     SDL_GL_SwapWindow(window);
 }
@@ -310,7 +290,7 @@ void Renderer::clearScreen() {
 }
 
 
-void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters) {
+void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters, bool* paused) {
     ControlGUI::preRender(window);
     ParticleType newParticleType;
     EmitterDirection emitterDirectionType;
@@ -382,7 +362,7 @@ void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters) 
 
         }
 
-        ControlGUI::renderCheckbox("Pause", &paused);
+        ControlGUI::renderCheckbox("Pause", paused);
 
         emitter->setParticleType(newParticleType);
     }
@@ -451,14 +431,6 @@ void Renderer::updateCurrentRenderMode(const std::vector<std::shared_ptr<Emitter
         currentRenderMode = RenderMode::V_MODEL_U_COLOR;
     } else {
         currentRenderMode = RenderMode::U_MODEL_U_COLOR;
-    }
-}
-
-void Renderer::updateParticleStatus(const std::vector<std::shared_ptr<Emitter>>& emitters, const float interpolation, const bool paused) const {
-    if (paused) return;
-
-    for (auto const& emitter : emitters) {
-        emitter->update(interpolation);
     }
 }
 

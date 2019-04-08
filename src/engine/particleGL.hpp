@@ -17,9 +17,14 @@ private:
     float secondPerFrame; // Time of one frame in second
 
     Camera camera;
+    float curTime;
+    bool paused;
     SDL_Window* window;
     Renderer renderer;
     std::vector<std::shared_ptr<Emitter>> emitters;
 
     void initEmitterBuffer(const uint32_t VAO); // Allocate buffer for particles in given emitter
+    void initTimer();
+    void updateParticles();
+    void updateParticleStatus(const float interpolation) const;
 };
