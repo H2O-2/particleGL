@@ -350,7 +350,7 @@ void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters, 
         }
 
         if (ControlGUI::renderMenu("Physics (Master)")) {
-
+            ControlGUI::renderFloatDragger("Gravity", &(Physics::getInstance().gravity), 1, 0.1f, PARTICLE_GRAVITY_SCALE);
         }
 
         if (ControlGUI::renderMenu("Visibility")) {

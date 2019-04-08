@@ -45,6 +45,7 @@ const float INIT_VELOCITY_RANDOMNESS = 0.2f;
 const float INIT_VELOCITY_RANDOMNESS_DIST = 0.5f;
 const float PARTICLE_SIZE_SCALE = 0.16f;
 const float PARTICLE_VELOCITY_SCALE = 0.007f;
+const float PARTICLE_GRAVITY_SCALE = PARTICLE_VELOCITY_SCALE * 0.1f;
 
 Emitter::Emitter(const float& secondPerFrame) :
     /***** Emitter Attributes *****/
@@ -260,7 +261,7 @@ bool Emitter::useEBO() const {
     return curGeomtry->useEBO();
 }
 
-void Emitter::update(const float& interpolation) {
+void Emitter::update(const float& interpolation, const Physics& physics) {
     updateRandomSeed();
     updateRenderMode();
     updateCurGeometry();
@@ -340,6 +341,7 @@ void Emitter::update(const float& interpolation) {
 
         // Update particle info
         particle.life -= secondPerFrame * interpolation;
+        particle.velocity.y -= physics.gravity * interpolation * 0.5f;
         particle.offset += particle.velocity * interpolation;
 
         // Update particle offset if render mode is Uniform Model

@@ -76,7 +76,7 @@ void ParticleGL::updateParticleStatus(const float interpolation) const {
     if (paused) return;
 
     for (auto const& emitter : emitters) {
-        emitter->update(interpolation);
+        emitter->update(interpolation, Physics::getInstance());
     }
 }
 

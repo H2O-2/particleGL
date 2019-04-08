@@ -1,6 +1,7 @@
 #pragma once
 
 #include "particle.hpp"
+#include "engine/physics.hpp"
 #include "../geometries/sphere.hpp"
 #include "../geometries/square.hpp"
 #include "../geometries/triangle.hpp"
@@ -70,6 +71,7 @@ extern const float INIT_VELOCITY_RANDOMNESS;
 extern const float INIT_VELOCITY_RANDOMNESS_DIST;
 extern const float PARTICLE_SIZE_SCALE;
 extern const float PARTICLE_VELOCITY_SCALE;
+extern const float PARTICLE_GRAVITY_SCALE;
 
 class Emitter {
 public:
@@ -149,7 +151,7 @@ public:
 
     void bindTexture(const GLenum textureUnit);
     bool useEBO() const;
-    void update(const float& deltaTime);
+    void update(const float& interpolation, const Physics& physics);
 private:
     /**
      * Note: All randomness and percentage values is a hundredth of their displayed value
