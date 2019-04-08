@@ -345,6 +345,8 @@ void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters) 
                     ControlGUI::render3dUnsignedIntSlider("Emitter Size XYZ", emitter->getEmitterSizePtr(), EMITTER_SIZE_SCALE);
                 }
             }
+
+            ControlGUI::renderUnsignedIntDragger("Random Seed", emitter->getEmitterRandomSeedPtr());
         }
 
         if (ControlGUI::renderMenu("Particle (Master)")) {

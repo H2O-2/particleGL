@@ -86,6 +86,8 @@ public:
     const glm::vec3& getEmitterPosn() const;
     float* getEmitterPosnPtr();
 
+    uint32_t* getEmitterRandomSeedPtr();
+
     const glm::vec3& getEmitterRotation() const;
     float* getEmitterRotationPtr();
 
@@ -172,6 +174,7 @@ private:
     EmitterSize emitterSizeType; // Specifies how emitter size can be modified, this is disabled for point emitters
 
     RandGen randGen; // Random number generator
+    uint32_t randSeed; // Random seed for random number generator
 
 
 
@@ -230,6 +233,7 @@ private:
     int getFirstUnusedParticle(); // Get the index of first unused particle in particles vector
     void setGeometry(ParticleType particleType); // Buffer the geometry and GPU data for geometry of given type
     void updateCurGeometry();
-    void updateTexture();
+    void updateRandomSeed();
     void updateRenderMode();
+    void updateTexture();
 };

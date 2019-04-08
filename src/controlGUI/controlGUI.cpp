@@ -96,6 +96,13 @@ void ControlGUI::renderTextInput(const std::string& name, char* buffer) {
     ImGui::InputText(("##" + name).c_str(), buffer, 256);
 }
 
+void ControlGUI::renderUnsignedIntDragger(const std::string& name, uint32_t* v) {
+    int temp = static_cast<int>(*v);
+    ImGui::Text(name.c_str());
+    ImGui::DragInt(("##" + name).c_str(), &temp);
+    *v = temp;
+}
+
 void ControlGUI::renderUnsignedIntDragger(const std::string& name, float* v, const int len, const float scaleFactor) {
     int temp = static_cast<int>(v[0] / scaleFactor);
     ImGui::Text(name.c_str());

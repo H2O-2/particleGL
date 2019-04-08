@@ -52,7 +52,7 @@ Emitter::Emitter(const float& secondPerFrame) :
     emitterType(INIT_EMITTER_TYPE), initVelocity(INIT_VELOCITY * PARTICLE_VELOCITY_SCALE),
     initVelocityRandom(INIT_VELOCITY_RANDOMNESS), initVelocityRandomDistribution(INIT_VELOCITY_RANDOMNESS_DIST),
     particlesPerSec(INIT_PARTICLE_PER_SEC), position(INIT_EMITTER_POSN), rotation(INIT_EMITTER_ROTATION),
-    size(INIT_EMITTER_SIZE), emitterSizeType(INIT_EMITTER_SIZE_TYPE), randGen(),
+    size(INIT_EMITTER_SIZE), emitterSizeType(INIT_EMITTER_SIZE_TYPE), randGen(), randSeed(randGen.getSeed()),
     /***** Particle Attributes *****/
     feather(INIT_PARTICLE_FEATHER), particleAspectRatio(INIT_PARTICLE_ASPECT),
     particleColor(INIT_PARTICLE_COLOR), particleColorRandom(INIT_COLOR_RANDOMNESS),
@@ -102,6 +102,10 @@ const glm::vec3& Emitter::getEmitterPosn() const {
 
 float* Emitter::getEmitterPosnPtr() {
     return glm::value_ptr(position);
+}
+
+uint32_t* Emitter::getEmitterRandomSeedPtr() {
+    return &randSeed;
 }
 
 float* Emitter::getEmitterRotationPtr() {
@@ -257,6 +261,7 @@ bool Emitter::useEBO() const {
 }
 
 void Emitter::update(const float& interpolation) {
+    updateRandomSeed();
     updateRenderMode();
     updateCurGeometry();
     updateTexture();
@@ -464,10 +469,9 @@ void Emitter::updateCurGeometry() {
     }
 }
 
-void Emitter::updateTexture() {
-    if (strcmp(particleTexturePath.c_str(), particleTexturePathBuf) != 0) {
-        particleTexturePath = string(particleTexturePathBuf);
-        particleTexture.setTexture(particleTexturePath);
+void Emitter::updateRandomSeed() {
+    if(randSeed != randGen.getSeed()) {
+        randGen.setSeed(randSeed);
     }
 }
 
@@ -491,5 +495,12 @@ void Emitter::updateRenderMode() {
         emitterRenderMode = RenderMode::V_MODEL_U_COLOR;
     } else {
         emitterRenderMode = RenderMode::U_MODEL_U_COLOR;
+    }
+}
+
+void Emitter::updateTexture() {
+    if (strcmp(particleTexturePath.c_str(), particleTexturePathBuf) != 0) {
+        particleTexturePath = string(particleTexturePathBuf);
+        particleTexture.setTexture(particleTexturePath);
     }
 }
