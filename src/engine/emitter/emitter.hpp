@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/gtc/quaternion.hpp>
+
 #include "particle.hpp"
 #include "engine/physics.hpp"
 #include "../geometries/sphere.hpp"
@@ -93,7 +95,6 @@ public:
     const glm::vec3& getEmitterRotation() const;
     float* getEmitterRotationPtr();
 
-    const glm::vec3& getEmitterSize() const;
     float* getEmitterSizePtr();
     EmitterSize getEmitterSizeType() const;
     EmitterSize* getEmitterSizeTypePtr();
@@ -123,9 +124,9 @@ public:
     float* getParicleOpacityPtr();
     float* getParicleOpacityRandomnessPtr();
 
-    const glm::vec3& getParticleRotation() const;
-    float getParticleRotationRandomness() const;
-    void setParticleRotationRandomness(const float particleRotationRandom);
+    const glm::quat getParticleRotation() const;
+    float* getParticleRotationPtr();
+    float* getParticleRotationRandomnessPtr();
 
     float getParticleSize() const;
     float* getParticleSizePtr();
@@ -146,6 +147,7 @@ public:
     const std::vector<float>& getInstancedColors() const;
     const std::vector<float>& getOffsets() const;
     const std::vector<float>& getModelMatrices() const;
+    const glm::mat4& getParticleModel() const;
     RenderMode getRenderMode() const;
     uint32_t getVAO() const;
 
@@ -225,9 +227,10 @@ private:
     glm::mat4 emitterTranslation; // Translation matrix for emitter
 
     uint16_t lastUsedParticle; // Last used particle
-    std::vector<float> colors; // Offsets of particles
-    std::vector<float> modelMatrices; // Offsets of particles
+    std::vector<float> colors; // Color of particles
     std::vector<float> offsets; // Offsets of particles
+    std::vector<float> modelMatrices; // Model matrices of particles when transform varies
+    glm::mat4 particleModel; // Model matrix of particles when transform is uniform
     float newParticleNumBuffer; // Buffers the current `number` of particles to be emitted. This value is always smaller than one after each update
 
     glm::vec3 generateInitialParticlePosn(); // Return a birth position for some particle according to current emitter type

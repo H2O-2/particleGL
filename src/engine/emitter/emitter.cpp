@@ -113,6 +113,10 @@ float* Emitter::getEmitterRotationPtr() {
     return glm::value_ptr(rotation);
 }
 
+float* Emitter::getParticleRotationRandomnessPtr() {
+    return &particleRotationRandom;
+}
+
 float* Emitter::getEmitterSizePtr() {
     return glm::value_ptr(size);
 }
@@ -189,8 +193,12 @@ float* Emitter::getParicleOpacityRandomnessPtr() {
     return &particleOpacityRandom;
 }
 
-float Emitter::getParticleRotationRandomness() const {
-    return particleRotationRandom;
+const glm::quat Emitter::getParticleRotation() const {
+    return glm::quat(glm::radians(particleRotation));
+}
+
+float* Emitter::getParticleRotationPtr() {
+    return glm::value_ptr(particleRotation);
 }
 
 float Emitter::getParticleSize() const {
@@ -243,6 +251,10 @@ const std::vector<float>& Emitter::getOffsets() const {
 
 const std::vector<float>& Emitter::getModelMatrices() const{
     return modelMatrices;
+}
+
+const glm::mat4& Emitter::getParticleModel() const {
+    return particleModel;
 }
 
 RenderMode Emitter::getRenderMode() const {
@@ -314,12 +326,18 @@ void Emitter::update(const float& interpolation, const Physics& physics) {
             newParticleSize = fmax(randGen.randRealClosed(particleSize - offset, particleSize + offset), 0.0f);
         }
 
+        glm::vec3 newParticleRotation = particleRotation;
+        if (particleRotationRandom > 0.0f) {
+            glm::vec3 offset = particleRotationRandom * glm::vec3(360.0f);
+            newParticleRotation = randGen.randVec3Closed(particleRotation - offset, particleRotation + offset);
+        }
+
         if (newParticleIndex < 0) {
             // Push new particles to the particles vector if all particles are in use
-            particles.emplace_back(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleOpacity, newParticleSize, generateInitialParticleVelocity());
+            particles.emplace_back(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleOpacity, newParticleRotation, newParticleSize, generateInitialParticleVelocity());
         } else {
             // Otherwise replace the unused particle
-            particles[newParticleIndex] = Particle(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleOpacity, newParticleSize, generateInitialParticleVelocity());
+            particles[newParticleIndex] = Particle(newParticleLife, newParticleColor, generateInitialParticlePosn(), newParticleOpacity, newParticleRotation, newParticleSize, generateInitialParticleVelocity());
         }
     }
 
@@ -343,6 +361,9 @@ void Emitter::update(const float& interpolation, const Physics& physics) {
         particle.life -= secondPerFrame * interpolation;
         particle.velocity.y -= physics.gravity * interpolation * 0.5f;
         particle.offset += particle.velocity * interpolation;
+        if (particle.rotationSpeed != glm::vec3(0.0f)) {
+            // Slerp if there is rotation change
+        }
 
         // Update particle offset if render mode is Uniform Model
         if (emitterRenderMode == RenderMode::U_MODEL_U_COLOR || emitterRenderMode == RenderMode::U_MODEL_V_COLOR) {
@@ -350,14 +371,11 @@ void Emitter::update(const float& interpolation, const Physics& physics) {
             offsets.emplace_back(particle.offset.y);
             offsets.emplace_back(particle.offset.z);
         // Else update particle model matrices
+        // TODO: Store offests of particles to modify attributes of already born particles
         } else {
             glm::mat4 model;
             model = glm::translate(model, particle.offset);
-            if (particle.rotation != glm::vec3(0.0f)) {
-                model = glm::rotate(model, particle.rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-                model = glm::rotate(model, particle.rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-                model = glm::rotate(model, particle.rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-            }
+            model *= glm::mat4_cast(glm::quat(glm::radians(particle.rotation)));
             model = glm::scale(model, glm::vec3(particle.size));
             float* modelArr = glm::value_ptr(model);
             modelMatrices.insert(modelMatrices.end(), modelArr, modelArr + 16);
@@ -369,6 +387,13 @@ void Emitter::update(const float& interpolation, const Physics& physics) {
             colors.emplace_back(particle.color.b);
             colors.emplace_back(particle.opacity);
         }
+    }
+
+    // Update particleModel if render mode is Uniform Model
+    if (emitterRenderMode == RenderMode::U_MODEL_U_COLOR || emitterRenderMode == RenderMode::U_MODEL_V_COLOR) {
+        particleModel = glm::mat4();
+        particleModel = glm::scale(particleModel, glm::vec3(particleSize));
+        particleModel *= glm::mat4_cast(glm::quat(glm::radians(particleRotation)));
     }
 }
 

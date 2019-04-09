@@ -184,7 +184,6 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
     // Update blend mode
     updateBlendMode();
 
-
     particleFBO.bind();
     clearScreen();
 
@@ -214,14 +213,14 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
             case RenderMode::U_MODEL_U_COLOR:
                 updateParticleBuffer(emitter->getOffsets());
 
-                particleModel = glm::scale(particleModel, glm::vec3(emitter->getParticleSize()));
+                particleModel = emitter->getParticleModel();
                 shader.setMat4("particleModel", particleModel);
                 shader.setVec4("color", emitter->getParticleColorAndOpacity());
                 break;
             case RenderMode::U_MODEL_V_COLOR:
                 updateParticleBuffer(emitter->getOffsets(), emitter->getInstancedColors());
 
-                particleModel = glm::scale(particleModel, glm::vec3(emitter->getParticleSize()));
+                particleModel = emitter->getParticleModel();
                 shader.setMat4("particleModel", particleModel);
                 break;
             case RenderMode::V_MODEL_U_COLOR:
@@ -330,12 +329,21 @@ void Renderer::renderGUI(const std::vector<std::shared_ptr<Emitter>>& emitters, 
         }
 
         if (ControlGUI::renderMenu("Particle (Master)")) {
-            ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle", "Sprite"}, &(newParticleType));
-            ControlGUI::renderIntSlider("Feather", &feather, 0, 50, 2);
-            if (newParticleType == ParticleType::SPRITE)
-                ControlGUI::renderTextInput("Sprite Path", emitter->getParticleTexturePathPtr());
             ControlGUI::renderFloatDragger("Life [sec]", emitter->getParticleLifePtr(), 1, 0.05f);
             ControlGUI::renderFloatSlider("Life Random [%%]", emitter->getParticleLifeRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
+            ControlGUI::renderPullDownMenu("Particle Type", {"Sphere", "Square", "Triangle", "Sprite"}, &(newParticleType));
+            if (newParticleType == ParticleType::SPRITE)
+                ControlGUI::renderTextInput("Sprite Path", emitter->getParticleTexturePathPtr());
+            ControlGUI::renderIntSlider("Feather", &feather, 0, 50, 2);
+            if (newParticleType != ParticleType::SPHERE) {
+                ImGui::NewLine();
+                if (ImGui::TreeNode("Rotation")) {
+                    ControlGUI::render3dFloatSlider("Rotate", emitter->getParticleRotationPtr());
+                    ControlGUI::renderFloatSlider("Random Roataion", emitter->getParticleRotationRandomnessPtr(), 0, 100, PERCENTAGE_SCALE);
+                    ImGui::TreePop();
+                }
+                ImGui::NewLine();
+            }
             if (newParticleType == ParticleType::SQUARE || newParticleType == ParticleType::SPRITE)
                 ControlGUI::renderFloatSlider("Aspect Ratio", emitter->getParticleAspectRatioPtr(), 0.0f, 10.0f, 1.0f, "%.2f");
             ControlGUI::renderFloatDragger("Size", emitter->getParticleSizePtr(), 1, 0.1f, PARTICLE_SIZE_SCALE);
