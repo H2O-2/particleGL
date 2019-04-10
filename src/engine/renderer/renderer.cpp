@@ -185,6 +185,9 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
     updateBlendMode();
 
     particleFBO.bind();
+
+    glEnable(GL_BLEND);
+
     clearScreen();
 
     // Render particles
@@ -244,6 +247,10 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
         glBindVertexArray(0);
     }
 
+    // Feathering with blending enabled yields incorrect result since we are not clearing the screen when
+    // drawing to pingpong buffer. However switching between states can be costly as well so profiling is
+    // necessary to determine whether to disable blending or to clear screen on every render pass of feathering
+    glDisable(GL_BLEND);
     // Bind pingpong buffer and apply feathering
     bool horizontal = true;
     if (feather) {
@@ -251,11 +258,13 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
         for (int i = 0; i < feather; ++i) {
             pingpongFBO[horizontal].bind();
             featherShader.setBool("horizontal", horizontal);
+            // If it is the first render pass we need to render the particles to the pingpong buffer first
             if (i == 0) {
                 particleFBO.bindColorBuffer(GL_TEXTURE0);
             } else {
                 pingpongFBO[!horizontal].bindColorBuffer(GL_TEXTURE0);
             }
+            // clearScreen();
             renderToScreenQuad();
             horizontal = !horizontal;
         }
