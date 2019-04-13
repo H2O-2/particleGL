@@ -264,7 +264,7 @@ void Renderer::renderEngine(const std::vector<std::shared_ptr<Emitter>>& emitter
             } else {
                 pingpongFBO[!horizontal].bindColorBuffer(GL_TEXTURE0);
             }
-            // clearScreen();
+            clearScreen();
             renderToScreenQuad();
             horizontal = !horizontal;
         }
