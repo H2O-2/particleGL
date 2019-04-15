@@ -5,7 +5,6 @@
 
 // Utility class for generating random numbers
 
-typedef std::bernoulli_distribution BoolDist;
 typedef std::uniform_int_distribution<int> IntDist;
 typedef std::uniform_real_distribution<float> RealDist;
 
@@ -16,7 +15,6 @@ public:
     RandGen(uint32_t seed = 100000);
     uint32_t getSeed();
     void setSeed(uint32_t seed);
-    bool randBool(const float p = 0.5f);
     IntDist::result_type randIntClosed(const int rangeMin, const int rangeMax);
     RealDist::result_type randRealClosed(const float rangeMin, const float rangeMax);
     RealDist::result_type randRealOpenLeft(const float rangeMin, const float rangeMax);
@@ -26,7 +24,6 @@ public:
 private:
     uint32_t seed;
     RandEngine engine;
-    BoolDist boolDist;
     IntDist intDist;
     RealDist realDist;
 

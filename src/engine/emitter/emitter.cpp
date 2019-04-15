@@ -420,8 +420,8 @@ glm::vec3 Emitter::generateInitialParticleVelocity() {
     float newParticleInitVelocity = initVelocity;
     // Calculate random velocity if randomness is set
     if (initVelocityRandom > 0.0f) {
-        float offset = (randGen.randBool(initVelocityRandomDistribution) ? 1 : -1) * randGen.randRealOpenRight(0.0f, initVelocityRandom);
-        newParticleInitVelocity = fmax(initVelocity + offset, 0.0f);
+        float offset = initVelocity * initVelocityRandom;
+        newParticleInitVelocity = randGen.randRealOpenLeft(initVelocity - offset, initVelocity + offset);
     }
 
     // Calculate actual velocity on different axis using spherical coordinate

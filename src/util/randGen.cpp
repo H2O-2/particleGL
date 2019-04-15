@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-RandGen::RandGen(uint32_t seed) : seed(seed), engine(RandEngine(seed)), boolDist(), intDist(IntDist(0, 101)), realDist(RealDist(0.0f, closedBound(0.5f))) {}
+RandGen::RandGen(uint32_t seed) : seed(seed), engine(RandEngine(seed)), intDist(IntDist(0, 101)), realDist(RealDist(0.0f, closedBound(0.5f))) {}
 
 uint32_t RandGen::getSeed() {
     return seed;
@@ -11,17 +11,6 @@ uint32_t RandGen::getSeed() {
 void RandGen::setSeed(uint32_t seed) {
     this->seed = seed;
     engine.seed(seed);
-}
-
-bool RandGen::randBool(const float p) {
-    // If requested probability of true is available, generate directly
-    if (p == boolDist.p()) {
-        return boolDist(engine);
-    }
-
-    // else re-initialize a new possibility and generate
-    boolDist = BoolDist(p);
-    return boolDist(engine);
 }
 
 IntDist::result_type RandGen::randIntClosed(const int rangeMin, const int rangeMax) {
